@@ -279,18 +279,23 @@
         }
 
         /* Tables */
+        .table-container {
+            overflow-x: auto;
+            max-width: 100%;
+        }
+
         .data-table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 11px;
+            font-size: 10px;
             margin-top: 10px;
+            white-space: nowrap;
         }
 
         .data-table th, .data-table td {
-            padding: 8px 4px;
+            padding: 8px 5px;
             border: 1px solid var(--border-purple);
             text-align: center;
-            word-break: break-word;
         }
 
         .data-table th {
@@ -350,6 +355,13 @@
     </style>
 </head>
 <body>
+
+<!-- Banned View Screen -->
+<div id="bannedScreen" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:#000; z-index:9999; color:red; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; padding:20px;">
+    <i class="fa-solid fa-ban" style="font-size:60px; margin-bottom:20px;"></i>
+    <h1>ACCESS DENIED!</h1>
+    <p style="color:#fff; margin-top:10px;">تم حظر عنوان الـ IP الخاص بك من دخول المتجر.</p>
+</div>
 
 <!-- Sidebar Menu Overlay -->
 <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
@@ -495,18 +507,20 @@
             <div class="card-header-title">
                 <i class="fa-solid fa-history"></i> Key History
             </div>
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>KEY</th>
-                        <th>PRICE</th>
-                    </tr>
-                </thead>
-                <tbody id="keyHistoryTable">
-                    <tr><td colspan="3" style="color: var(--text-muted);">لا توجد عمليات سابقة</td></tr>
-                </tbody>
-            </table>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>KEY</th>
+                            <th>PRICE</th>
+                        </tr>
+                    </thead>
+                    <tbody id="keyHistoryTable">
+                        <tr><td colspan="3" style="color: var(--text-muted);">لا توجد عمليات سابقة</td></tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
@@ -516,18 +530,20 @@
             <div class="card-header-title">
                 <i class="fa-solid fa-receipt"></i> Balance Transactions History
             </div>
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>التاريخ</th>
-                        <th>النوع</th>
-                        <th>المبلغ</th>
-                    </tr>
-                </thead>
-                <tbody id="transactionsTable">
-                    <tr><td colspan="3" style="color: var(--text-muted);">لا توجد عمليات شحن</td></tr>
-                </tbody>
-            </table>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>التاريخ</th>
+                            <th>النوع</th>
+                            <th>المبلغ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transactionsTable">
+                        <tr><td colspan="3" style="color: var(--text-muted);">لا توجد عمليات شحن</td></tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
@@ -589,25 +605,38 @@
             <button class="submit-btn" style="background: #3b82f6;" onclick="checkBalanceAdmin()">🔍 كشف البيانات فوراً</button>
         </div>
 
-        <!-- 5. قسم كشف الزوار والمتواجدين بالموقع -->
+        <!-- 5. قسم كشف الزوار والمستخدمين المفصل -->
         <div class="form-group" style="margin-top: 15px; background: rgba(255,255,255,0.03); padding: 10px; border-radius: 10px;">
-            <label style="color: #a855f7;">👥 قائمة أجهزة الزوار والمستخدمين:</label>
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>IP</th>
-                        <th>النظام</th>
-                        <th>الرصيد</th>
-                    </tr>
-                </thead>
-                <tbody id="adminUsersLogTable">
-                    <tr><td colspan="4" style="color: var(--text-muted);">جاري جلب الزوار...</td></tr>
-                </tbody>
-            </table>
+            <label style="color: #a855f7;">👥 سجل الأجهزة والزوار (سجل النشاط):</label>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>IP</th>
+                            <th>الجهاز والنظام</th>
+                            <th>آخر نشاط</th>
+                            <th>الرصيد</th>
+                        </tr>
+                    </thead>
+                    <tbody id="adminUsersLogTable">
+                        <tr><td colspan="5" style="color: var(--text-muted);">جاري جلب الزوار...</td></tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
 
-        <!-- 6. شحن الأكواد للسيرفر -->
+        <!-- 6. قسم حظر وفك حظر الـ IP -->
+        <div class="form-group" style="margin-top: 15px;">
+            <label style="color: #ef4444;">🚫 قسم حظر وتفريغ عنوان IP:</label>
+            <input type="text" id="adminBanIpInput" placeholder="أدخل عنوان IP المراد حظره">
+            <div style="display: flex; gap: 8px; margin-top: 8px;">
+                <button class="submit-btn" style="background: #dc2626;" onclick="banIpAdmin(true)">🚫 حظر الـ IP</button>
+                <button class="submit-btn" style="background: #059669;" onclick="banIpAdmin(false)">✅ فك الحظر</button>
+            </div>
+        </div>
+
+        <!-- 7. شحن الأكواد للسيرفر -->
         <div class="form-group" style="margin-top: 15px;">
             <label style="color: var(--primary-purple);">🔑 شحن الأكواد للسيرفر:</label>
             <select id="adminProductSelect" style="margin-bottom: 5px;"></select>
@@ -685,6 +714,7 @@
     let globalOnlineData = {};
     let currentUserIp = "";
     let currentUserOs = "";
+    let isAdminUnlocked = false;
 
     document.addEventListener("DOMContentLoaded", async () => {
         let userId = localStorage.getItem("USER_ID");
@@ -709,19 +739,22 @@
 
     function detectDeviceInfo() {
         const ua = navigator.userAgent;
-        currentUserOs = "Unknown OS";
-        if (ua.indexOf("Android") !== -1) currentUserOs = "Android";
-        else if (ua.indexOf("iPhone") !== -1 || ua.indexOf("iPad") !== -1) currentUserOs = "iOS";
-        else if (ua.indexOf("Windows") !== -1) currentUserOs = "Windows PC";
-        else if (ua.indexOf("Mac") !== -1) currentUserOs = "Mac";
+        let os = "Device";
+        if (ua.indexOf("Android") !== -1) os = "Android Mobile";
+        else if (ua.indexOf("iPhone") !== -1) os = "iPhone (iOS)";
+        else if (ua.indexOf("iPad") !== -1) os = "iPad (iOS)";
+        else if (ua.indexOf("Windows") !== -1) os = "Windows PC";
+        else if (ua.indexOf("Mac") !== -1) os = "Mac PC";
 
-        let browser = "Unknown Browser";
-        if (ua.indexOf("Chrome") !== -1) browser = "Google Chrome";
+        let browser = "";
+        if (ua.indexOf("Chrome") !== -1) browser = "Chrome";
         else if (ua.indexOf("Safari") !== -1) browser = "Safari";
         else if (ua.indexOf("Firefox") !== -1) browser = "Firefox";
 
-        document.getElementById("devOs").textContent = currentUserOs;
-        document.getElementById("devBrowser").textContent = browser;
+        currentUserOs = `${os} (${browser})`;
+
+        document.getElementById("devOs").textContent = os;
+        document.getElementById("devBrowser").textContent = browser || "Standard";
 
         fetch("https://api.ipify.org?format=json")
             .then(res => res.json())
@@ -729,6 +762,7 @@
                 currentUserIp = data.ip;
                 document.getElementById("devIp").textContent = currentUserIp;
                 syncUserLogs();
+                checkIpBanStatus();
             }).catch(() => {
                 document.getElementById("devIp").textContent = "غير معروف";
             });
@@ -751,6 +785,7 @@
             updateDurationOptions(userData.role || "client");
             renderTables(userData);
             renderUsersLogAdmin();
+            checkIpBanStatus();
         } catch (err) {
             console.error("Online Error:", err);
         }
@@ -764,10 +799,24 @@
             globalOnlineData[userId] = { balance: 0.00, role: "client", history: [], tx: [] };
         }
 
+        const now = new Date();
+        const formattedDate = `${now.getMonth()+1}/${now.getDate()} ${now.getHours()}:${(now.getMinutes()<10?'0':'')+now.getMinutes()}`;
+
         globalOnlineData[userId].ip = currentUserIp || "غير معروف";
         globalOnlineData[userId].os = currentUserOs || "غير معروف";
+        globalOnlineData[userId].lastSeen = formattedDate;
 
         await saveOnlineData();
+    }
+
+    function checkIpBanStatus() {
+        if (!currentUserIp || !globalOnlineData.bannedIps) return;
+        // إذا كان الأدمن فاتح لوحة التحكم لا يتم حظره لتجنب قفل الموقع عليه
+        if (isAdminUnlocked) return;
+
+        if (globalOnlineData.bannedIps.includes(currentUserIp)) {
+            document.getElementById("bannedScreen").style.display = "flex";
+        }
     }
 
     async function saveOnlineData() {
@@ -895,7 +944,7 @@
         const keys = Object.keys(globalOnlineData).filter(k => k.startsWith("USER_"));
         
         if (!keys.length) {
-            table.innerHTML = `<tr><td colspan="4" style="color: var(--text-muted);">لا يوجد زوار حتى الآن</td></tr>`;
+            table.innerHTML = `<tr><td colspan="5" style="color: var(--text-muted);">لا يوجد زوار حتى الآن</td></tr>`;
             return;
         }
 
@@ -905,7 +954,8 @@
                 <tr>
                     <td style="font-size:10px;">${k}</td>
                     <td style="color: var(--green-glow); font-size:10px;">${u.ip || '---'}</td>
-                    <td style="font-size:10px;">${u.os || '---'}</td>
+                    <td style="font-size:10px; color: var(--primary-purple);">${u.os || '---'}</td>
+                    <td style="font-size:10px; color: #f59e0b;">${u.lastSeen || 'قديم'}</td>
                     <td style="color: #3b82f6;">$${parseFloat(u.balance || 0).toFixed(2)}</td>
                 </tr>
             `;
@@ -949,6 +999,8 @@
     function openAdmin() {
         toggleSidebar();
         if (prompt("كلمة سر الأدمن:") === ADMIN_PASSWORD) {
+            isAdminUnlocked = true;
+            document.getElementById("bannedScreen").style.display = "none";
             document.getElementById("adminPanel").style.display = "block";
             window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
         }
@@ -1001,6 +1053,30 @@
         alert(`🔍 بيانات الحساب أونلاين:\n👤 ID: ${id}\n💰 الرصيد: $${parseFloat(data.balance).toFixed(2)}\n⭐ الرتبة: ${data.role}`);
     }
 
+    async function banIpAdmin(shouldBan) {
+        const targetIp = document.getElementById("adminBanIpInput").value.trim();
+        if (!targetIp) return alert("أدخل الـ IP أولاً!");
+
+        if (shouldBan && targetIp === currentUserIp) {
+            if (!confirm("⚠️ تنبيه: هذا هو الـ IP الخاص بك! هل أنت تأكد من حظره؟")) return;
+        }
+
+        if (!globalOnlineData.bannedIps) globalOnlineData.bannedIps = [];
+
+        if (shouldBan) {
+            if (!globalOnlineData.bannedIps.includes(targetIp)) {
+                globalOnlineData.bannedIps.push(targetIp);
+            }
+        } else {
+            globalOnlineData.bannedIps = globalOnlineData.bannedIps.filter(ip => ip !== targetIp);
+        }
+
+        if (await saveOnlineData()) {
+            alert(shouldBan ? `🚫 تم حظر الـ IP (${targetIp}) بنجاح!` : `✅ تم فك حظر الـ IP (${targetIp}) بنجاح!`);
+            document.getElementById("adminBanIpInput").value = "";
+        }
+    }
+
     function saveKeys() {
         const prod = document.getElementById("adminProductSelect").value;
         const dur = document.getElementById("adminDurationSelect").value;
@@ -1023,3 +1099,4 @@
 
 </body>
 </html>
+
