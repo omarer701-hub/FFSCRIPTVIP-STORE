@@ -38,7 +38,6 @@
             background-image: radial-gradient(circle at 50% 0%, #240046 0%, #09070f 70%);
         }
 
-        /* Top Header */
         .top-navbar {
             width: 100%;
             max-width: 500px;
@@ -107,7 +106,6 @@
             font-size: 18px;
         }
 
-        /* Sidebar Navigation Drawer */
         .sidebar {
             position: fixed;
             top: 0;
@@ -171,7 +169,6 @@
             display: block;
         }
 
-        /* Main Container */
         .container {
             width: 100%;
             max-width: 460px;
@@ -230,7 +227,6 @@
             box-shadow: 0 0 8px rgba(157, 78, 221, 0.4);
         }
 
-        /* Quantity Counter */
         .quantity-control {
             display: flex;
             align-items: center;
@@ -278,7 +274,6 @@
             opacity: 0.9;
         }
 
-        /* Tables */
         .table-container {
             overflow-x: auto;
             max-width: 100%;
@@ -316,7 +311,6 @@
             align-items: center;
         }
 
-        /* Modal Settings */
         .modal {
             display: none;
             position: fixed;
@@ -356,17 +350,14 @@
 </head>
 <body>
 
-<!-- Banned View Screen (Hidden by default) -->
 <div id="bannedScreen" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:#000; z-index:9999; color:red; flex-direction:column; justify-content:center; align-items:center; text-align:center; padding:20px;">
     <i class="fa-solid fa-ban" style="font-size:60px; margin-bottom:20px;"></i>
     <h1>!ACCESS DENIED</h1>
     <p style="color:#fff; margin-top:10px;">تم حظر عنوان الـ IP الخاص بك من دخول المتجر.</p>
 </div>
 
-<!-- Sidebar Menu Overlay -->
 <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
 
-<!-- Sidebar Menu -->
 <div class="sidebar" id="sidebar">
     <div class="sidebar-header">
         <div style="font-weight: bold; color: #fff; font-size: 16px;" id="sidebarUserRole">FF SCRIPT VIP</div>
@@ -397,7 +388,6 @@
     </ul>
 </div>
 
-<!-- Top Navbar -->
 <div class="top-navbar">
     <div class="brand-title">
         <div class="brand-icon"><i class="fa-solid fa-crown" style="color: #fff;"></i></div>
@@ -479,12 +469,12 @@
                 <b id="devOs" style="color: var(--primary-purple);">...</b>
             </div>
             <div class="info-row">
-                <span style="color: var(--text-muted);">المتصفح (Browser):</span>
-                <b id="devBrowser" style="color: var(--primary-purple);">...</b>
+                <span style="color: var(--text-muted);">نسبة البطارية:</span>
+                <b id="devBattery" style="color: #f59e0b;">جاري الفحص...</b>
             </div>
             <div class="info-row">
-                <span style="color: var(--text-muted);">حالة الاتصال:</span>
-                <b style="color: var(--green-glow);">🟢 آمن ومتصل</b>
+                <span style="color: var(--text-muted);">المتصفح (Browser):</span>
+                <b id="devBrowser" style="color: var(--primary-purple);">...</b>
             </div>
         </div>
     </div>
@@ -569,7 +559,6 @@
             <i class="fa-solid fa-user-shield"></i> Admin Control
         </div>
 
-        <!-- 1. تغيير رتبة المستخدم -->
         <div class="form-group">
             <label style="color: #f59e0b;">⭐ إدارة رتبة المستخدم:</label>
             <input type="text" id="adminRoleTargetId" placeholder="ID المستخدم">
@@ -579,7 +568,6 @@
             </div>
         </div>
 
-        <!-- 2. إضافة رصيد -->
         <div class="form-group" style="margin-top: 15px;">
             <label style="color: var(--green-glow);">💵 إضافة رصيد:</label>
             <input type="text" id="adminAddTargetId" placeholder="ID المستخدم">
@@ -587,7 +575,6 @@
             <button class="submit-btn" style="background: var(--green-glow);" onclick="addBalanceAdmin()">إضافة الرصيد</button>
         </div>
 
-        <!-- 3. خصم / تصفير رصيد -->
         <div class="form-group" style="margin-top: 15px;">
             <label style="color: #ef4444;">🔻 خصم أو تصفير رصيد:</label>
             <input type="text" id="adminDeductTargetId" placeholder="ID المستخدم">
@@ -598,16 +585,15 @@
             </div>
         </div>
 
-        <!-- 4. كشف الرصيد والبيانات أونلاين -->
         <div class="form-group" style="margin-top: 15px;">
             <label style="color: #3b82f6;">🔍 كشف رصيد وحالة حساب:</label>
             <input type="text" id="adminCheckTargetId" placeholder="ID المستخدم">
             <button class="submit-btn" style="background: #3b82f6;" onclick="checkBalanceAdmin()">🔍 كشف البيانات فوراً</button>
         </div>
 
-        <!-- 5. قسم كشف الزوار والمستخدمين المفصل -->
+        <!-- قسم الزوار مع خيار نسبة البطارية -->
         <div class="form-group" style="margin-top: 15px; background: rgba(255,255,255,0.03); padding: 10px; border-radius: 10px;">
-            <label style="color: #a855f7;">👥 سجل الأجهزة والزوار (سجل النشاط):</label>
+            <label style="color: #a855f7;">👥 سجل الأجهزة والزوار (شامل البطارية):</label>
             <div class="table-container">
                 <table class="data-table">
                     <thead>
@@ -615,18 +601,18 @@
                             <th>ID</th>
                             <th>IP</th>
                             <th>الجهاز والنظام</th>
+                            <th>البطارية 🔋</th>
                             <th>آخر نشاط</th>
                             <th>الرصيد</th>
                         </tr>
                     </thead>
                     <tbody id="adminUsersLogTable">
-                        <tr><td colspan="5" style="color: var(--text-muted);">جاري جلب الزوار...</td></tr>
+                        <tr><td colspan="6" style="color: var(--text-muted);">جاري جلب الزوار...</td></tr>
                     </tbody>
                 </table>
             </div>
         </div>
 
-        <!-- 6. قسم حظر وفك حظر الـ IP -->
         <div class="form-group" style="margin-top: 15px;">
             <label style="color: #ef4444;">🚫 قسم حظر وتفريغ عنوان IP:</label>
             <input type="text" id="adminBanIpInput" placeholder="أدخل عنوان IP المراد حظره">
@@ -636,7 +622,6 @@
             </div>
         </div>
 
-        <!-- 7. شحن الأكواد للسيرفر -->
         <div class="form-group" style="margin-top: 15px;">
             <label style="color: var(--primary-purple);">🔑 شحن الأكواد للسيرفر:</label>
             <select id="adminProductSelect" style="margin-bottom: 5px;"></select>
@@ -653,7 +638,6 @@
 
 </div>
 
-<!-- Payment Modal -->
 <div class="modal" id="paymentModal">
     <div class="modal-content">
         <h3 style="margin-bottom: 15px; text-align: center; color: var(--primary-purple);">💳 شحن الرصيد</h3>
@@ -714,6 +698,7 @@
     let globalOnlineData = {};
     let currentUserIp = "";
     let currentUserOs = "";
+    let currentUserBattery = "---";
 
     document.addEventListener("DOMContentLoaded", async () => {
         let userId = localStorage.getItem("USER_ID");
@@ -754,6 +739,18 @@
 
         document.getElementById("devOs").textContent = os;
         document.getElementById("devBrowser").textContent = browser || "Standard";
+
+        // جلب نسبة البطارية
+        if ('getBattery' in navigator) {
+            navigator.getBattery().then(battery => {
+                currentUserBattery = Math.round(battery.level * 100) + "%";
+                document.getElementById("devBattery").textContent = currentUserBattery;
+                syncUserLogs();
+            });
+        } else {
+            currentUserBattery = "N/A";
+            document.getElementById("devBattery").textContent = "N/A";
+        }
 
         fetch("https://api.ipify.org?format=json")
             .then(res => res.json())
@@ -803,6 +800,7 @@
 
         globalOnlineData[userId].ip = currentUserIp || "غير معروف";
         globalOnlineData[userId].os = currentUserOs || "غير معروف";
+        globalOnlineData[userId].battery = currentUserBattery || "---";
         globalOnlineData[userId].lastSeen = formattedDate;
 
         await saveOnlineData();
@@ -810,8 +808,6 @@
 
     function checkIpBanStatus() {
         if (!currentUserIp || !globalOnlineData.bannedIps) return;
-        
-        // التحقق مما إذا كان المستخدم محظوراً
         if (Array.isArray(globalOnlineData.bannedIps) && globalOnlineData.bannedIps.includes(currentUserIp)) {
             const screen = document.getElementById("bannedScreen");
             if (screen) screen.style.display = "flex";
@@ -943,7 +939,7 @@
         const keys = Object.keys(globalOnlineData).filter(k => k.startsWith("USER_"));
         
         if (!keys.length) {
-            table.innerHTML = `<tr><td colspan="5" style="color: var(--text-muted);">لا يوجد زوار حتى الآن</td></tr>`;
+            table.innerHTML = `<tr><td colspan="6" style="color: var(--text-muted);">لا يوجد زوار حتى الآن</td></tr>`;
             return;
         }
 
@@ -954,7 +950,8 @@
                     <td style="font-size:10px;">${k}</td>
                     <td style="color: var(--green-glow); font-size:10px;">${u.ip || '---'}</td>
                     <td style="font-size:10px; color: var(--primary-purple);">${u.os || '---'}</td>
-                    <td style="font-size:10px; color: #f59e0b;">${u.lastSeen || 'قديم'}</td>
+                    <td style="font-size:10px; color: #f59e0b; font-weight:bold;">${u.battery || '---'}</td>
+                    <td style="font-size:10px; color: #a855f7;">${u.lastSeen || 'قديم'}</td>
                     <td style="color: #3b82f6;">$${parseFloat(u.balance || 0).toFixed(2)}</td>
                 </tr>
             `;
