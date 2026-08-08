@@ -295,6 +295,15 @@
             margin: 10px 0;
             word-break: break-all;
         }
+
+        .reseller-code-box {
+            background: #161b22;
+            border: 1px solid var(--accent-gold);
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -312,6 +321,15 @@
 
     <div class="balance-box">
         💰 الرصيد الحالي: $<span id="userBalance">0.00</span>
+    </div>
+
+    <!-- قسم إدخال كود البائع للمستخدم -->
+    <div class="reseller-code-box" id="resellerCodeContainer">
+        <label style="color: #d29922; font-size: 13px;">⭐ تفعيل حساب بائع VIP:</label>
+        <div style="display: flex; gap: 6px; margin-top: 5px;">
+            <input type="text" id="resellerCodeInput" placeholder="أدخل كود البائع هنا" style="padding: 8px; font-size: 12px;">
+            <button class="btn-gold" style="white-space: nowrap; font-size: 12px;" onclick="activateResellerCode()">تفعيل</button>
+        </div>
     </div>
 
     <div class="action-btns">
@@ -394,20 +412,10 @@
     <div class="admin-panel" id="adminPanel">
         <h3 style="margin-bottom: 15px; color: #8a2be2; text-align: center;">⚙️ لوحة إدارة الأدمن</h3>
 
-        <!-- قسم تعيين نوع الحساب (بائع / زبون) -->
-        <div class="admin-section">
-            <label style="color: #d29922;">⭐ إدارة رتبة الحساب (بائع / زبون):</label>
-            <input type="text" id="adminRoleTargetId" placeholder="ID المستخدم" style="margin-bottom: 6px;">
-            <div style="display: flex; gap: 8px;">
-                <button class="btn-gold" style="flex: 1;" onclick="setRoleAdmin('reseller')">🏅 تعيين كـ "بائع VIP"</button>
-                <button class="btn-support" style="flex: 1;" onclick="setRoleAdmin('client')">👤 تحويل لـ "زبون عادي"</button>
-            </div>
-        </div>
-        
         <!-- إضافة رصيد -->
         <div class="admin-section">
             <label style="color: #3fb950;">💵 إضافة رصيد لمستخدم:</label>
-            <input type="text" id="adminAddTargetId" placeholder="ID المستخدم (مثال: USER_123456)" style="margin-bottom: 6px;">
+            <input type="text" id="adminAddTargetId" placeholder="ID المستخدم" style="margin-bottom: 6px;">
             <input type="number" id="adminAddAmount" placeholder="المبلغ المراد إضافته ($)">
             <button class="btn-main" style="width: 100%; margin-top: 8px;" onclick="addBalanceAdmin()">➕ إضافة الرصيد</button>
         </div>
@@ -423,11 +431,11 @@
             </div>
         </div>
 
-        <!-- الاستعلام عن رصيد ورتبة حساب -->
+        <!-- معاينة رصيد حساب -->
         <div class="admin-section">
-            <label style="color: #58a6ff;">🔍 معاينة بيانات حساب من الـ ID:</label>
-            <input type="text" id="adminCheckTargetId" placeholder="أدخل ID المستخدم للمعايينة">
-            <button class="btn-support" style="width: 100%; margin-top: 8px; background: #1f6feb; color: white;" onclick="checkBalanceAdmin()">🔎 كشف البيانات والحالة</button>
+            <label style="color: #58a6ff;">🔍 معاينة رصيد حساب من الـ ID:</label>
+            <input type="text" id="adminCheckTargetId" placeholder="أدخل ID المستخدم">
+            <button class="btn-support" style="width: 100%; margin-top: 8px; background: #1f6feb; color: white;" onclick="checkBalanceAdmin()">🔎 كشف الرصيد</button>
         </div>
 
         <!-- إدخال وتخزين الأكواد -->
@@ -481,8 +489,10 @@
 
 <script>
     const ADMIN_PASSWORD = "mra359rt";
+    
+    // كود سر تفعيل رتبة البائع (تقدر تغيره لأي كلمة تحبها)
+    const RESELLER_SECRET_CODE = "VIP2026";
 
-    // أسعار الزبون العادي واسعار البائع (الخصم)
     const PRICING = {
         client: [
             { label: "1 Days", price: 0.60 },
@@ -491,10 +501,10 @@
             { label: "30 Days", price: 6.00 }
         ],
         reseller: [
-            { label: "1 Days", price: 0.40 },  // سعر البائع
-            { label: "3 Days", price: 0.75 },  // سعر البائع
-            { label: "7 Days", price: 1.80 },  // سعر البائع
-            { label: "30 Days", price: 4.50 }   // سعر البائع
+            { label: "1 Days", price: 0.40 }, // سعر البائع
+            { label: "3 Days", price: 0.75 }, // سعر البائع
+            { label: "7 Days", price: 1.80 }, // سعر البائع
+            { label: "30 Days", price: 4.50 }  // سعر البائع
         ]
     };
 
@@ -514,29 +524,41 @@
         loadBalance();
     });
 
-    function getUserRole(userId) {
-        return localStorage.getItem("ROLE_" + userId) || "client";
+    function getUserRole() {
+        return localStorage.getItem("MY_ROLE") || "client";
+    }
+
+    function activateResellerCode() {
+        const inputCode = document.getElementById("resellerCodeInput").value.trim();
+        if (inputCode === RESELLER_SECRET_CODE) {
+            localStorage.setItem("MY_ROLE", "reseller");
+            alert("🎉 مبروك! تم تفعيل حسابك كـ بائع VIP وتخفيض كافة الأسعار!");
+            updateUserRoleDisplay();
+        } else {
+            alert("❌ كود البائع غير صحيح!");
+        }
     }
 
     function updateUserRoleDisplay() {
-        const userId = localStorage.getItem("USER_ID");
-        const role = getUserRole(userId);
+        const role = getUserRole();
         const badge = document.getElementById("userRoleBadge");
+        const codeBox = document.getElementById("resellerCodeContainer");
 
         if (role === "reseller") {
             badge.className = "role-badge role-reseller";
-            badge.textContent = "⭐ حساب بائع VIP (سعر خاص)";
+            badge.textContent = "⭐ حساب بائع VIP (أسعار خاصة)";
+            codeBox.style.display = "none"; // إخفاء مربع الكود إذا كان أصل بائع
         } else {
             badge.className = "role-badge role-client";
             badge.textContent = "👤 حساب زبون عادي";
+            codeBox.style.display = "block";
         }
 
         updateDurationOptions();
     }
 
     function updateDurationOptions() {
-        const userId = localStorage.getItem("USER_ID");
-        const role = getUserRole(userId);
+        const role = getUserRole();
         const durationSelect = document.getElementById("durationSelect");
         const prices = PRICING[role];
 
@@ -634,23 +656,6 @@
         }
     }
 
-    // --- وظائف لوحة الأدمن --- //
-
-    // تعيين رتبة بائع / زبون
-    function setRoleAdmin(roleType) {
-        const targetId = document.getElementById("adminRoleTargetId").value.trim();
-        if (!targetId) {
-            alert("يرجى إدخال الـ ID أولاً!");
-            return;
-        }
-
-        localStorage.setItem("ROLE_" + targetId, roleType);
-        const roleName = roleType === "reseller" ? "بائع VIP ⭐" : "زبون عادي 👤";
-        alert(`✅ تم تغيير رتبة الحساب (${targetId}) إلى: ${roleName}`);
-
-        updateUserRoleDisplay();
-    }
-
     function addBalanceAdmin() {
         const targetId = document.getElementById("adminAddTargetId").value.trim();
         const amount = parseFloat(document.getElementById("adminAddAmount").value);
@@ -711,10 +716,7 @@
         }
 
         let balance = parseFloat(localStorage.getItem("BALANCE_" + targetId) || "0.00");
-        let role = getUserRole(targetId);
-        let roleText = role === "reseller" ? "⭐ بائع VIP" : "👤 زبون عادي";
-
-        alert(`🔍 بيانات الحساب (${targetId}):\n📌 الرتبة: ${roleText}\n💰 الرصيد الحالي: $${balance.toFixed(2)} USD`);
+        alert(`🔍 رصيد الحساب (${targetId}) الحالي هو:\n💰 $${balance.toFixed(2)} USD`);
     }
 
     function saveKeys() {
@@ -786,4 +788,3 @@
 
 </body>
 </html>
-
