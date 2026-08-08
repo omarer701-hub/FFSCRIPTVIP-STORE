@@ -14,6 +14,7 @@
             --accent-blue: #2f81f7;
             --accent-green: #238636;
             --accent-red: #da3633;
+            --accent-gold: #d29922;
             --border-color: #30363d;
         }
 
@@ -64,6 +65,27 @@
             cursor: pointer;
         }
 
+        .role-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-top: 6px;
+        }
+
+        .role-client {
+            background: rgba(47, 129, 247, 0.2);
+            color: #58a6ff;
+            border: 1px solid var(--accent-blue);
+        }
+
+        .role-reseller {
+            background: rgba(210, 153, 34, 0.2);
+            color: #d29922;
+            border: 1px solid var(--accent-gold);
+        }
+
         .balance-box {
             background: rgba(35, 134, 54, 0.15);
             border: 1px solid var(--accent-green);
@@ -94,6 +116,16 @@
             text-align: center;
             cursor: pointer;
             text-decoration: none;
+        }
+
+        .btn-gold {
+            background: linear-gradient(135deg, #d29922, #9e6a03);
+            color: #fff;
+            border: none;
+            padding: 10px;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
         }
 
         .btn-danger {
@@ -274,6 +306,8 @@
         <div class="user-id-badge" onclick="copyUserId()" title="اضغط لنسخ الـ ID">
             ID: <span id="myUserId">...</span> 📋
         </div>
+        <br>
+        <div id="userRoleBadge" class="role-badge role-client">👤 حساب زبون عادي</div>
     </div>
 
     <div class="balance-box">
@@ -293,7 +327,7 @@
 
     <div class="form-group">
         <label for="productSelect">📦 اختر المنتج (Product Type):</label>
-        <select id="productSelect" onchange="updatePrice()">
+        <select id="productSelect" onchange="updateDurationOptions()">
             <option value="Drip Proxy Android">Drip Proxy Android</option>
             <option value="Drip Client - Apk Mod">Drip Client - Apk Mod</option>
             <option value="Drip Client - Root Device">Drip Client - Root Device</option>
@@ -344,12 +378,7 @@
 
     <div class="form-group">
         <label for="durationSelect">⏳ اختر المدة (Duration):</label>
-        <select id="durationSelect" onchange="updatePrice()">
-            <option value="1 Days" data-price="0.60">1 Days - $0.60</option>
-            <option value="3 Days" data-price="1.00">3 Days - $1.00</option>
-            <option value="7 Days" data-price="2.50">7 Days - $2.50</option>
-            <option value="30 Days" data-price="6.00">30 Days - $6.00</option>
-        </select>
+        <select id="durationSelect" onchange="updatePrice()"></select>
     </div>
 
     <div class="price-box">
@@ -364,8 +393,18 @@
     <!-- Admin Panel -->
     <div class="admin-panel" id="adminPanel">
         <h3 style="margin-bottom: 15px; color: #8a2be2; text-align: center;">⚙️ لوحة إدارة الأدمن</h3>
+
+        <!-- قسم تعيين نوع الحساب (بائع / زبون) -->
+        <div class="admin-section">
+            <label style="color: #d29922;">⭐ إدارة رتبة الحساب (بائع / زبون):</label>
+            <input type="text" id="adminRoleTargetId" placeholder="ID المستخدم" style="margin-bottom: 6px;">
+            <div style="display: flex; gap: 8px;">
+                <button class="btn-gold" style="flex: 1;" onclick="setRoleAdmin('reseller')">🏅 تعيين كـ "بائع VIP"</button>
+                <button class="btn-support" style="flex: 1;" onclick="setRoleAdmin('client')">👤 تحويل لـ "زبون عادي"</button>
+            </div>
+        </div>
         
-        <!-- 1. إضافة رصيد -->
+        <!-- إضافة رصيد -->
         <div class="admin-section">
             <label style="color: #3fb950;">💵 إضافة رصيد لمستخدم:</label>
             <input type="text" id="adminAddTargetId" placeholder="ID المستخدم (مثال: USER_123456)" style="margin-bottom: 6px;">
@@ -373,25 +412,25 @@
             <button class="btn-main" style="width: 100%; margin-top: 8px;" onclick="addBalanceAdmin()">➕ إضافة الرصيد</button>
         </div>
 
-        <!-- 2. خصم / تصفير رصيد -->
+        <!-- خصم / تصفير رصيد -->
         <div class="admin-section">
             <label style="color: #f85149;">🔻 خصم أو تصفير رصيد مستخدم:</label>
             <input type="text" id="adminDeductTargetId" placeholder="ID المستخدم" style="margin-bottom: 6px;">
-            <input type="number" id="adminDeductAmount" placeholder="المبلغ المراد خصمه (أو اتركه فارغاً للتصفير كامل)">
+            <input type="number" id="adminDeductAmount" placeholder="المبلغ المراد خصمه">
             <div style="display: flex; gap: 8px; margin-top: 8px;">
                 <button class="btn-danger" style="flex: 1;" onclick="deductBalanceAdmin()">➖ خصم مبلغ</button>
                 <button class="btn-danger" style="flex: 1; background: #8b0000;" onclick="zeroBalanceAdmin()">🧹 تصفير كامل</button>
             </div>
         </div>
 
-        <!-- 3. الاستعلام عن رصيد حساب -->
+        <!-- الاستعلام عن رصيد ورتبة حساب -->
         <div class="admin-section">
-            <label style="color: #58a6ff;">🔍 معرفة رصيد حساب من الـ ID:</label>
-            <input type="text" id="adminCheckTargetId" placeholder="أدخل ID المستخدم للمعاينة">
-            <button class="btn-support" style="width: 100%; margin-top: 8px; background: #1f6feb; color: white;" onclick="checkBalanceAdmin()">🔎 كشف الرصيد الحالي</button>
+            <label style="color: #58a6ff;">🔍 معاينة بيانات حساب من الـ ID:</label>
+            <input type="text" id="adminCheckTargetId" placeholder="أدخل ID المستخدم للمعايينة">
+            <button class="btn-support" style="width: 100%; margin-top: 8px; background: #1f6feb; color: white;" onclick="checkBalanceAdmin()">🔎 كشف البيانات والحالة</button>
         </div>
 
-        <!-- 4. إدخال وتخزين الأكواد -->
+        <!-- إدخال وتخزين الأكواد -->
         <div class="admin-section" style="border-bottom: none; padding-bottom: 0; margin-bottom: 0;">
             <label style="color: #a371f7;">🔑 شحن أكواد المنتجات:</label>
             <div class="form-group" style="margin-bottom: 8px;">
@@ -443,6 +482,22 @@
 <script>
     const ADMIN_PASSWORD = "mra359rt";
 
+    // أسعار الزبون العادي واسعار البائع (الخصم)
+    const PRICING = {
+        client: [
+            { label: "1 Days", price: 0.60 },
+            { label: "3 Days", price: 1.00 },
+            { label: "7 Days", price: 2.50 },
+            { label: "30 Days", price: 6.00 }
+        ],
+        reseller: [
+            { label: "1 Days", price: 0.40 },  // سعر البائع
+            { label: "3 Days", price: 0.75 },  // سعر البائع
+            { label: "7 Days", price: 1.80 },  // سعر البائع
+            { label: "30 Days", price: 4.50 }   // سعر البائع
+        ]
+    };
+
     document.addEventListener("DOMContentLoaded", () => {
         let userId = localStorage.getItem("USER_ID");
         if (!userId) {
@@ -455,15 +510,54 @@
         const adminProdSelect = document.getElementById("adminProductSelect");
         adminProdSelect.innerHTML = prodSelect.innerHTML;
 
+        updateUserRoleDisplay();
         loadBalance();
     });
+
+    function getUserRole(userId) {
+        return localStorage.getItem("ROLE_" + userId) || "client";
+    }
+
+    function updateUserRoleDisplay() {
+        const userId = localStorage.getItem("USER_ID");
+        const role = getUserRole(userId);
+        const badge = document.getElementById("userRoleBadge");
+
+        if (role === "reseller") {
+            badge.className = "role-badge role-reseller";
+            badge.textContent = "⭐ حساب بائع VIP (سعر خاص)";
+        } else {
+            badge.className = "role-badge role-client";
+            badge.textContent = "👤 حساب زبون عادي";
+        }
+
+        updateDurationOptions();
+    }
+
+    function updateDurationOptions() {
+        const userId = localStorage.getItem("USER_ID");
+        const role = getUserRole(userId);
+        const durationSelect = document.getElementById("durationSelect");
+        const prices = PRICING[role];
+
+        durationSelect.innerHTML = "";
+        prices.forEach(item => {
+            const opt = document.createElement("option");
+            opt.value = item.label;
+            opt.setAttribute("data-price", item.price);
+            opt.textContent = `${item.label} - $${item.price.toFixed(2)}`;
+            durationSelect.appendChild(opt);
+        });
+
+        updatePrice();
+    }
 
     function sendPaymentViaTelegram() {
         const transId = document.getElementById("transactionIdInput").value.trim();
         const userId = localStorage.getItem("USER_ID");
 
         if (!transId) {
-            alert("يرجى إدخل رقم العملية أو رقم الهاتف المحوَّل منه!");
+            alert("يرجى إدخال رقم العملية أو رقم الهاتف المحوَّل منه!");
             return;
         }
 
@@ -494,6 +588,7 @@
 
     function updatePrice() {
         const durationSelect = document.getElementById("durationSelect");
+        if (!durationSelect.options.length) return;
         const selectedOption = durationSelect.options[durationSelect.selectedIndex];
         const price = selectedOption.getAttribute("data-price");
         document.getElementById("displayPrice").textContent = "$" + parseFloat(price).toFixed(2);
@@ -539,9 +634,23 @@
         }
     }
 
-    // --- وظائف لوحة التحكم الأدمن الجديدة --- //
+    // --- وظائف لوحة الأدمن --- //
 
-    // 1. إضافة رصيد
+    // تعيين رتبة بائع / زبون
+    function setRoleAdmin(roleType) {
+        const targetId = document.getElementById("adminRoleTargetId").value.trim();
+        if (!targetId) {
+            alert("يرجى إدخال الـ ID أولاً!");
+            return;
+        }
+
+        localStorage.setItem("ROLE_" + targetId, roleType);
+        const roleName = roleType === "reseller" ? "بائع VIP ⭐" : "زبون عادي 👤";
+        alert(`✅ تم تغيير رتبة الحساب (${targetId}) إلى: ${roleName}`);
+
+        updateUserRoleDisplay();
+    }
+
     function addBalanceAdmin() {
         const targetId = document.getElementById("adminAddTargetId").value.trim();
         const amount = parseFloat(document.getElementById("adminAddAmount").value);
@@ -561,7 +670,6 @@
         loadBalance();
     }
 
-    // 2. خصم مبلغ معين
     function deductBalanceAdmin() {
         const targetId = document.getElementById("adminDeductTargetId").value.trim();
         const amount = parseFloat(document.getElementById("adminDeductAmount").value);
@@ -581,7 +689,6 @@
         loadBalance();
     }
 
-    // 3. تصفير الحساب كاملاً (0.00$)
     function zeroBalanceAdmin() {
         const targetId = document.getElementById("adminDeductTargetId").value.trim();
         if (!targetId) {
@@ -596,7 +703,6 @@
         }
     }
 
-    // 4. معرفة رصيد حساب من الـ ID
     function checkBalanceAdmin() {
         const targetId = document.getElementById("adminCheckTargetId").value.trim();
         if (!targetId) {
@@ -605,7 +711,10 @@
         }
 
         let balance = parseFloat(localStorage.getItem("BALANCE_" + targetId) || "0.00");
-        alert(`🔍 رصيد الحساب (${targetId}) الحالي هو:\n💰 $${balance.toFixed(2)} USD`);
+        let role = getUserRole(targetId);
+        let roleText = role === "reseller" ? "⭐ بائع VIP" : "👤 زبون عادي";
+
+        alert(`🔍 بيانات الحساب (${targetId}):\n📌 الرتبة: ${roleText}\n💰 الرصيد الحالي: $${balance.toFixed(2)} USD`);
     }
 
     function saveKeys() {
@@ -677,3 +786,4 @@
 
 </body>
 </html>
+
