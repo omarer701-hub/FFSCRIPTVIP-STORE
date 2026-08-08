@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FFSCRIPT VIP - RESELLER PANEL</title>
+    <title>FFSCRIPT VIP - PRO RESELLER PANEL</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --bg-dark: #09070f;
-            --card-bg: rgba(22, 16, 38, 0.85);
+            --bg-dark: #07050d;
+            --card-bg: rgba(18, 12, 30, 0.85);
             --primary-purple: #9d4edd;
             --accent-glow: #7b2cbf;
             --button-purple: #8a2be2;
-            --border-purple: #3c1361;
+            --border-purple: #481d7a;
             --text-main: #f3f0ff;
             --text-muted: #a093c4;
             --green-glow: #10b981;
@@ -34,23 +34,66 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding-bottom: 30px;
-            background-image: radial-gradient(circle at 50% 0%, #240046 0%, #09070f 70%);
+            padding-bottom: 40px;
+            background-image: radial-gradient(circle at 50% 0%, #240046 0%, #07050d 75%);
+        }
+
+        /* نظام التنبيهات الاحترافي الحديث */
+        #toast-container {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 99999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 90%;
+            max-width: 400px;
+            pointer-events: none;
+        }
+
+        .toast {
+            background: rgba(15, 10, 25, 0.95);
+            border: 1px solid var(--border-purple);
+            padding: 12px 18px;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+            backdrop-filter: blur(10px);
+            animation: fadeInOut 3s ease forwards;
+            pointer-events: auto;
+        }
+
+        .toast.success { border-color: var(--green-glow); }
+        .toast.success i { color: var(--green-glow); font-size: 18px; }
+        .toast.error { border-color: var(--red-glow); }
+        .toast.error i { color: var(--red-glow); font-size: 18px; }
+
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translateY(-20px); }
+            15% { opacity: 1; transform: translateY(0); }
+            85% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-20px); }
         }
 
         .top-navbar {
             width: 100%;
-            max-width: 500px;
+            max-width: 480px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 15px 20px;
-            background: rgba(15, 10, 26, 0.9);
+            background: rgba(12, 8, 22, 0.85);
             border-bottom: 1px solid var(--border-purple);
             position: sticky;
             top: 0;
             z-index: 100;
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(12px);
         }
 
         .brand-title {
@@ -70,7 +113,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            box-shadow: 0 0 12px rgba(157, 78, 221, 0.5);
+            box-shadow: 0 0 15px rgba(157, 78, 221, 0.6);
         }
 
         .nav-right {
@@ -90,7 +133,10 @@
             display: flex;
             align-items: center;
             gap: 6px;
+            transition: 0.2s;
         }
+
+        .balance-badge:active { transform: scale(0.95); }
 
         .menu-btn {
             background: rgba(138, 43, 226, 0.2);
@@ -104,7 +150,10 @@
             justify-content: center;
             align-items: center;
             font-size: 18px;
+            transition: 0.2s;
         }
+
+        .menu-btn:hover { background: rgba(138, 43, 226, 0.4); }
 
         .sidebar {
             position: fixed;
@@ -112,17 +161,15 @@
             left: -100%;
             width: 280px;
             height: 100%;
-            background: #0f0b1a;
+            background: #0d0917;
             border-right: 1px solid var(--border-purple);
             z-index: 1000;
-            transition: 0.3s ease-in-out;
+            transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
             padding: 20px;
-            box-shadow: 10px 0 30px rgba(0,0,0,0.8);
+            box-shadow: 15px 0 40px rgba(0,0,0,0.9);
         }
 
-        .sidebar.active {
-            left: 0;
-        }
+        .sidebar.active { left: 0; }
 
         .sidebar-header {
             display: flex;
@@ -133,9 +180,7 @@
             margin-bottom: 20px;
         }
 
-        .sidebar-menu {
-            list-style: none;
-        }
+        .sidebar-menu { list-style: none; }
 
         .sidebar-item {
             padding: 12px 15px;
@@ -160,14 +205,13 @@
         .overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.7);
+            background: rgba(0,0,0,0.75);
             z-index: 999;
             display: none;
+            backdrop-filter: blur(4px);
         }
 
-        .overlay.active {
-            display: block;
-        }
+        .overlay.active { display: block; }
 
         .container {
             width: 100%;
@@ -179,9 +223,9 @@
             background: var(--card-bg);
             border: 1px solid var(--border-purple);
             border-radius: 18px;
-            padding: 20px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-            backdrop-filter: blur(10px);
+            padding: 22px;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.6);
+            backdrop-filter: blur(12px);
             margin-bottom: 20px;
         }
 
@@ -195,11 +239,10 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
+            text-shadow: 0 0 10px rgba(157, 78, 221, 0.3);
         }
 
-        .form-group {
-            margin-bottom: 16px;
-        }
+        .form-group { margin-bottom: 16px; }
 
         .form-group label {
             display: block;
@@ -213,18 +256,19 @@
 
         select, input, textarea {
             width: 100%;
-            padding: 12px;
-            background: #0a0714;
+            padding: 12px 14px;
+            background: #07050d;
             border: 1px solid var(--border-purple);
             border-radius: 10px;
             color: #fff;
             font-size: 14px;
             outline: none;
+            transition: 0.2s;
         }
 
-        select:focus, input:focus {
+        select:focus, input:focus, textarea:focus {
             border-color: var(--primary-purple);
-            box-shadow: 0 0 8px rgba(157, 78, 221, 0.4);
+            box-shadow: 0 0 10px rgba(157, 78, 221, 0.4);
         }
 
         .quantity-control {
@@ -237,14 +281,17 @@
             background: var(--button-purple);
             color: white;
             border: none;
-            width: 42px;
-            height: 42px;
+            width: 44px;
+            height: 44px;
             border-radius: 10px;
             font-size: 18px;
             font-weight: bold;
             cursor: pointer;
-            box-shadow: 0 0 10px rgba(138, 43, 226, 0.3);
+            box-shadow: 0 0 12px rgba(138, 43, 226, 0.4);
+            transition: 0.2s;
         }
+
+        .qty-btn:active { transform: scale(0.92); }
 
         .qty-input {
             text-align: center;
@@ -262,22 +309,19 @@
             font-size: 15px;
             font-weight: bold;
             cursor: pointer;
-            box-shadow: 0 0 18px rgba(157, 78, 221, 0.5);
+            box-shadow: 0 0 20px rgba(157, 78, 221, 0.5);
             display: flex;
             justify-content: center;
             align-items: center;
             gap: 8px;
-            margin-top: 10px;
+            margin-top: 12px;
+            transition: 0.2s;
         }
 
-        .submit-btn:hover {
-            opacity: 0.9;
-        }
+        .submit-btn:hover { opacity: 0.92; transform: translateY(-1px); }
+        .submit-btn:active { transform: translateY(1px); }
 
-        .table-container {
-            overflow-x: auto;
-            max-width: 100%;
-        }
+        .table-container { overflow-x: auto; max-width: 100%; }
 
         .data-table {
             width: 100%;
@@ -288,24 +332,24 @@
         }
 
         .data-table th, .data-table td {
-            padding: 8px 5px;
+            padding: 8px 6px;
             border: 1px solid var(--border-purple);
             text-align: center;
         }
 
         .data-table th {
-            background: #140d24;
+            background: #140e24;
             color: var(--primary-purple);
         }
 
         .user-id-box {
-            background: rgba(138, 43, 226, 0.1);
+            background: rgba(138, 43, 226, 0.08);
             border: 1px dashed var(--border-purple);
-            padding: 8px 12px;
-            border-radius: 8px;
+            padding: 10px 14px;
+            border-radius: 10px;
             font-size: 12px;
             color: var(--text-muted);
-            margin-bottom: 15px;
+            margin-bottom: 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -320,24 +364,21 @@
             align-items: center;
             z-index: 2000;
             padding: 15px;
+            backdrop-filter: blur(5px);
         }
 
         .modal-content {
-            background: #0f0b1a;
+            background: #0d0917;
             border: 1px solid var(--border-purple);
             border-radius: 16px;
-            padding: 20px;
+            padding: 22px;
             width: 100%;
             max-width: 400px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.8);
         }
 
-        .tab-section {
-            display: none;
-        }
-
-        .tab-section.active {
-            display: block;
-        }
+        .tab-section { display: none; }
+        .tab-section.active { display: block; }
 
         .info-row {
             display: flex;
@@ -350,10 +391,12 @@
 </head>
 <body>
 
+<div id="toast-container"></div>
+
 <div id="bannedScreen" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:#000; z-index:9999; color:red; flex-direction:column; justify-content:center; align-items:center; text-align:center; padding:20px;">
-    <i class="fa-solid fa-ban" style="font-size:60px; margin-bottom:20px;"></i>
+    <i class="fa-solid fa-ban" style="font-size:65px; margin-bottom:20px;"></i>
     <h1>!ACCESS DENIED</h1>
-    <p style="color:#fff; margin-top:10px;">تم حظر عنوان الـ IP الخاص بك من دخول المتجر.</p>
+    <p style="color:#fff; margin-top:10px;">تم حظر عنوان الـ IP الخاص بك نهائياً من الوصول للمتجر.</p>
 </div>
 
 <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
@@ -365,25 +408,25 @@
     </div>
     <ul class="sidebar-menu">
         <li class="sidebar-item active" onclick="switchTab('tab-generate')">
-            <i class="fa-solid fa-key"></i> Generate Keys
+            <i class="fa-solid fa-key"></i> توليد المفاتيح (Generate)
         </li>
         <li class="sidebar-item" onclick="switchTab('tab-device')">
-            <i class="fa-solid fa-mobile-screen-button"></i> Device Information
+            <i class="fa-solid fa-mobile-screen-button"></i> معلومات جهازك
         </li>
         <li class="sidebar-item" onclick="switchTab('tab-stats')">
-            <i class="fa-solid fa-chart-line"></i> Statistics
+            <i class="fa-solid fa-chart-line"></i> الإحصائيات الشاملة
         </li>
         <li class="sidebar-item" onclick="switchTab('tab-history')">
-            <i class="fa-solid fa-list-check"></i> Key History
+            <i class="fa-solid fa-list-check"></i> سجل الكروت المباعة
         </li>
         <li class="sidebar-item" onclick="switchTab('tab-transactions')">
-            <i class="fa-solid fa-money-bill-transfer"></i> Transactions
+            <i class="fa-solid fa-money-bill-transfer"></i> سجل المعاملات المالية
         </li>
         <li class="sidebar-item" onclick="switchTab('tab-reset')">
-            <i class="fa-solid fa-rotate-left"></i> Reset Keys
+            <i class="fa-solid fa-rotate-left"></i> تصفير HWID للكود
         </li>
-        <li class="sidebar-item" id="adminSidebarBtn" style="color: #ef4444; margin-top: 20px; display: none;" onclick="openAdmin()">
-            <i class="fa-solid fa-user-shield"></i> Admin Panel
+        <li class="sidebar-item" id="adminSidebarBtn" style="color: #ef4444; margin-top: 20px; display: none;" onclick="openAdminModalCheck()">
+            <i class="fa-solid fa-user-shield"></i> لوحة التحكم الإدارية
         </li>
     </ul>
 </div>
@@ -391,10 +434,10 @@
 <div class="top-navbar">
     <div class="brand-title">
         <div class="brand-icon"><i class="fa-solid fa-crown" style="color: #fff;"></i></div>
-        <span>Reseller Admin</span>
+        <span>Reseller Panel</span>
     </div>
     <div class="nav-right">
-        <div class="balance-badge" onclick="openPaymentModal()" style="cursor: pointer;">
+        <div class="balance-badge" onclick="openPaymentModal()" style="cursor: pointer;" title="اضغط لشحن الرصيد">
             <i class="fa-solid fa-wallet"></i>
             $<span id="userBalance">0.00</span>
         </div>
@@ -413,21 +456,21 @@
     <div id="tab-generate" class="tab-section active">
         <div class="card">
             <div class="card-header-title">
-                <i class="fa-solid fa-bolt"></i> Key Generator
+                <i class="fa-solid fa-bolt"></i> Key Generator Center
             </div>
 
             <div class="form-group">
-                <label><i class="fa-solid fa-box"></i> PRODUCT TYPE:</label>
+                <label><i class="fa-solid fa-box"></i> اختر المنتج:</label>
                 <select id="productSelect" onchange="updatePrice()"></select>
             </div>
 
             <div class="form-group">
-                <label><i class="fa-solid fa-hourglass-half"></i> VALIDITY:</label>
+                <label><i class="fa-solid fa-hourglass-half"></i> مدة الصلاحية:</label>
                 <select id="durationSelect" onchange="updatePrice()"></select>
             </div>
 
             <div class="form-group">
-                <label><i class="fa-solid fa-cubes"></i> QUANTITY:</label>
+                <label><i class="fa-solid fa-cubes"></i> الكمية المطلوبة:</label>
                 <div class="quantity-control">
                     <button class="qty-btn" onclick="changeQty(-1)">-</button>
                     <input type="number" id="keyQuantity" class="qty-input" value="1" readonly>
@@ -436,11 +479,11 @@
             </div>
 
             <div style="text-align: center; margin: 15px 0; color: var(--text-muted); font-size: 13px;">
-                الإجمالي: <b id="displayPrice" style="color: var(--green-glow); font-size: 16px;">$0.00</b>
+                الإجمالي المطلوب: <b id="displayPrice" style="color: var(--green-glow); font-size: 17px;">$0.00</b>
             </div>
 
             <button class="submit-btn" onclick="sendOrder()">
-                <i class="fa-solid fa-bolt"></i> GENERATE KEYS
+                <i class="fa-solid fa-bolt"></i> توليد المفاتيح الآن
             </button>
         </div>
 
@@ -448,7 +491,7 @@
             <div style="color: var(--green-glow); font-weight: bold; margin-bottom: 10px;">🎉 تم توليد المفاتيح بنجاح!</div>
             <textarea id="generatedKey" rows="3" style="text-align: center; font-weight: bold; color: var(--green-glow);" readonly></textarea>
             <button class="submit-btn" style="background: var(--green-glow); margin-top: 10px;" onclick="copyKey()">
-                <i class="fa-solid fa-copy"></i> نسخ الأكواد
+                <i class="fa-solid fa-copy"></i> نسخ الأكواد للحافظة
             </button>
         </div>
     </div>
@@ -457,7 +500,7 @@
     <div id="tab-device" class="tab-section">
         <div class="card">
             <div class="card-header-title">
-                <i class="fa-solid fa-mobile-screen-button"></i> Device & Connection Info
+                <i class="fa-solid fa-mobile-screen-button"></i> تفاصيل اتصالك
             </div>
 
             <div class="info-row">
@@ -465,15 +508,15 @@
                 <b id="devIp" style="color: var(--green-glow);">جاري الفحص...</b>
             </div>
             <div class="info-row">
-                <span style="color: var(--text-muted);">نظام التشغيل (OS):</span>
+                <span style="color: var(--text-muted);">نظام التشغيل:</span>
                 <b id="devOs" style="color: var(--primary-purple);">...</b>
             </div>
             <div class="info-row">
-                <span style="color: var(--text-muted);">نسبة البطارية:</span>
+                <span style="color: var(--text-muted);">حالة البطارية:</span>
                 <b id="devBattery" style="color: #f59e0b;">جاري الفحص...</b>
             </div>
             <div class="info-row">
-                <span style="color: var(--text-muted);">المتصفح (Browser):</span>
+                <span style="color: var(--text-muted);">المتصفح:</span>
                 <b id="devBrowser" style="color: var(--primary-purple);">...</b>
             </div>
         </div>
@@ -483,10 +526,10 @@
     <div id="tab-stats" class="tab-section">
         <div class="card">
             <div class="card-header-title">
-                <i class="fa-solid fa-chart-pie"></i> Statistics Breakdown
+                <i class="fa-solid fa-chart-pie"></i> الإحصائيات العامة
             </div>
-            <div style="text-align: center; padding: 10px; font-size: 14px;">
-                إجمالي الكروت المباعة: <b id="totalSoldStat" style="color: var(--primary-purple); font-size: 18px;">0</b>
+            <div style="text-align: center; padding: 12px; font-size: 14px;">
+                إجمالي الكروت اللي سحبتها: <b id="totalSoldStat" style="color: var(--primary-purple); font-size: 20px;">0</b>
             </div>
         </div>
     </div>
@@ -495,15 +538,15 @@
     <div id="tab-history" class="tab-section">
         <div class="card">
             <div class="card-header-title">
-                <i class="fa-solid fa-history"></i> Key History
+                <i class="fa-solid fa-history"></i> سجل المفاتيح السابقة
             </div>
             <div class="table-container">
                 <table class="data-table">
                     <thead>
                         <tr>
                             <th>#</th>
-                            <th>KEY</th>
-                            <th>PRICE</th>
+                            <th>المفتاح</th>
+                            <th>السعر</th>
                         </tr>
                     </thead>
                     <tbody id="keyHistoryTable">
@@ -518,7 +561,7 @@
     <div id="tab-transactions" class="tab-section">
         <div class="card">
             <div class="card-header-title">
-                <i class="fa-solid fa-receipt"></i> Balance Transactions History
+                <i class="fa-solid fa-receipt"></i> سجل المعاملات المالية
             </div>
             <div class="table-container">
                 <table class="data-table">
@@ -530,7 +573,7 @@
                         </tr>
                     </thead>
                     <tbody id="transactionsTable">
-                        <tr><td colspan="3" style="color: var(--text-muted);">لا توجد عمليات شحن</td></tr>
+                        <tr><td colspan="3" style="color: var(--text-muted);">لا توجد عمليات رصيد</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -541,14 +584,14 @@
     <div id="tab-reset" class="tab-section">
         <div class="card">
             <div class="card-header-title">
-                <i class="fa-solid fa-rotate"></i> Reset License Key (HWID)
+                <i class="fa-solid fa-rotate"></i> تصفير HWID للمفتاح
             </div>
             <div class="form-group">
-                <label>Enter License Key/Token:</label>
-                <input type="text" id="resetKeyInput" placeholder="Paste your license key here...">
+                <label>أدخل مفتاح الترخيص:</label>
+                <input type="text" id="resetKeyInput" placeholder="الصق مفتاحك هنا...">
             </div>
             <button class="submit-btn" onclick="requestResetKey()">
-                <i class="fa-solid fa-rotate"></i> RESET KEY
+                <i class="fa-solid fa-rotate"></i> إرسال طلب التصفير
             </button>
         </div>
     </div>
@@ -556,23 +599,23 @@
     <!-- TAB 7: ADMIN PANEL FULL -->
     <div id="adminPanel" class="card" style="display: none; border-color: #ef4444;">
         <div class="card-header-title" style="color: #ef4444;">
-            <i class="fa-solid fa-user-shield"></i> Admin Control
+            <i class="fa-solid fa-user-shield"></i> لوحة التحكم الإدارية
         </div>
 
         <div class="form-group">
-            <label style="color: #f59e0b;">⭐ إدارة رتبة المستخدم (رفع/تنزيل بائع):</label>
+            <label style="color: #f59e0b;">⭐ إدارة رتبة المستخدم (ترقية/خفظ):</label>
             <input type="text" id="adminRoleTargetId" placeholder="ID المستخدم">
             <div style="display: flex; gap: 8px; margin-top: 8px;">
-                <button class="submit-btn" style="background: #f59e0b;" onclick="changeRoleAdmin('reseller')">رفعه VIP</button>
-                <button class="submit-btn" style="background: #4b5563;" onclick="changeRoleAdmin('client')">تنزيله لزبون</button>
+                <button class="submit-btn" style="background: #f59e0b;" onclick="changeRoleAdmin('reseller')">ترقية VIP</button>
+                <button class="submit-btn" style="background: #4b5563;" onclick="changeRoleAdmin('client')">تنزيل زبون</button>
             </div>
         </div>
 
         <div class="form-group" style="margin-top: 15px;">
-            <label style="color: var(--green-glow);">💵 إضافة رصيد:</label>
+            <label style="color: var(--green-glow);">💵 إضافة رصيد لحساب:</label>
             <input type="text" id="adminAddTargetId" placeholder="ID المستخدم">
             <input type="number" id="adminAddAmount" placeholder="المبلغ ($)" style="margin-top: 5px;">
-            <button class="submit-btn" style="background: var(--green-glow);" onclick="addBalanceAdmin()">إضافة الرصيد</button>
+            <button class="submit-btn" style="background: var(--green-glow);" onclick="addBalanceAdmin()">إضافة رصيد فوري</button>
         </div>
 
         <div class="form-group" style="margin-top: 15px;">
@@ -581,48 +624,48 @@
             <input type="number" id="adminDeductAmount" placeholder="المبلغ المراد خصمه" style="margin-top: 5px;">
             <div style="display: flex; gap: 8px; margin-top: 8px;">
                 <button class="submit-btn" style="background: #ef4444;" onclick="deductBalanceAdmin()">خصم مبلغ</button>
-                <button class="submit-btn" style="background: #991b1b;" onclick="zeroBalanceAdmin()">تصفير كامل</button>
+                <button class="submit-btn" style="background: #991b1b;" onclick="zeroBalanceAdmin()">تصفير الحساب</button>
             </div>
         </div>
 
         <div class="form-group" style="margin-top: 15px;">
-            <label style="color: #3b82f6;">🔍 كشف رصيد وحالة حساب:</label>
+            <label style="color: #3b82f6;">🔍 فحص رصيد وحالة حساب:</label>
             <input type="text" id="adminCheckTargetId" placeholder="ID المستخدم">
-            <button class="submit-btn" style="background: #3b82f6;" onclick="checkBalanceAdmin()">🔍 كشف البيانات فوراً</button>
+            <button class="submit-btn" style="background: #3b82f6;" onclick="checkBalanceAdmin()">كشف البيانات</button>
         </div>
 
-        <div class="form-group" style="margin-top: 15px; background: rgba(255,255,255,0.03); padding: 10px; border-radius: 10px;">
-            <label style="color: #a855f7;">👥 سجل الأجهزة والزوار (شامل البطارية):</label>
+        <div class="form-group" style="margin-top: 15px; background: rgba(255,255,255,0.02); padding: 10px; border-radius: 10px;">
+            <label style="color: #a855f7;">👥 سجل الزوار والأجهزة المتصلة:</label>
             <div class="table-container">
                 <table class="data-table">
                     <thead>
                         <tr>
                             <th>ID</th>
                             <th>IP</th>
-                            <th>الجهاز والنظام</th>
+                            <th>النظام</th>
                             <th>البطارية 🔋</th>
-                            <th>آخر نشاط</th>
+                            <th>التواجد</th>
                             <th>الرصيد</th>
                         </tr>
                     </thead>
                     <tbody id="adminUsersLogTable">
-                        <tr><td colspan="6" style="color: var(--text-muted);">جاري جلب الزوار...</td></tr>
+                        <tr><td colspan="6" style="color: var(--text-muted);">جاري التحميل...</td></tr>
                     </tbody>
                 </table>
             </div>
         </div>
 
         <div class="form-group" style="margin-top: 15px;">
-            <label style="color: #ef4444;">🚫 قسم حظر وتفريغ عنوان IP:</label>
-            <input type="text" id="adminBanIpInput" placeholder="أدخل عنوان IP المراد حظره">
+            <label style="color: #ef4444;">🚫 حظر وفك حظر عناوين IP:</label>
+            <input type="text" id="adminBanIpInput" placeholder="أدخل الـ IP">
             <div style="display: flex; gap: 8px; margin-top: 8px;">
-                <button class="submit-btn" style="background: #dc2626;" onclick="banIpAdmin(true)">🚫 حظر الـ IP</button>
-                <button class="submit-btn" style="background: #059669;" onclick="banIpAdmin(false)">✅ فك الحظر</button>
+                <button class="submit-btn" style="background: #dc2626;" onclick="banIpAdmin(true)">حظر IP</button>
+                <button class="submit-btn" style="background: #059669;" onclick="banIpAdmin(false)">فك الحظر</button>
             </div>
         </div>
 
         <div class="form-group" style="margin-top: 15px;">
-            <label style="color: var(--primary-purple);">🔑 شحن الأكواد للسيرفر:</label>
+            <label style="color: var(--primary-purple);">🔑 شحن الأكواد للخزنة:</label>
             <select id="adminProductSelect" style="margin-bottom: 5px;"></select>
             <select id="adminDurationSelect" style="margin-bottom: 5px;">
                 <option value="1 Days">1 Days</option>
@@ -636,23 +679,36 @@
                 <option value="31 Days">31 Days</option>
             </select>
             <textarea id="adminKeysInput" rows="3" placeholder="كود واحد في كل سطر"></textarea>
-            <button class="submit-btn" style="background: var(--button-purple);" onclick="saveKeys()">💾 حفظ الأكواد</button>
+            <button class="submit-btn" style="background: var(--button-purple);" onclick="saveKeys()">حفظ الأكواد في السيرفر</button>
         </div>
     </div>
 
 </div>
 
+<!-- مودال كلمة السر للأدمن -->
+<div class="modal" id="adminPassModal">
+    <div class="modal-content">
+        <h3 style="margin-bottom: 15px; text-align: center; color: var(--red-glow);"><i class="fa-solid fa-lock"></i> تسجيل دخول الأدمن</h3>
+        <div class="form-group">
+            <label>أدخل كلمة مرور الأدمن:</label>
+            <input type="password" id="adminPasswordInput" placeholder="كلمة السر...">
+        </div>
+        <button class="submit-btn" style="background: var(--red-glow);" onclick="verifyAdminPassword()">دخول للوحة التحكم</button>
+        <button onclick="document.getElementById('adminPassModal').style.display='none'" style="width: 100%; padding: 10px; background: transparent; border: none; color: var(--text-muted); cursor: pointer; margin-top: 5px;">إلغاء</button>
+    </div>
+</div>
+
 <div class="modal" id="paymentModal">
     <div class="modal-content">
-        <h3 style="margin-bottom: 15px; text-align: center; color: var(--primary-purple);">💳 شحن الرصيد</h3>
+        <h3 style="margin-bottom: 15px; text-align: center; color: var(--primary-purple);">💳 شحن الرصيد الفوري</h3>
         
-        <div style="background: #0a0714; border: 1px solid var(--border-purple); padding: 10px; border-radius: 10px; margin-bottom: 10px;">
+        <div style="background: #07050d; border: 1px solid var(--border-purple); padding: 10px; border-radius: 10px; margin-bottom: 10px;">
             <div style="font-size: 12px; color: var(--text-muted);">📱 فودافون كاش:</div>
             <b style="color: #fff;">01004238357</b>
             <button onclick="copyText('01004238357')" style="float: left; background: var(--button-purple); border: none; color: white; padding: 3px 8px; border-radius: 5px; cursor: pointer; font-size: 11px;">نسخ</button>
         </div>
 
-        <div style="background: #0a0714; border: 1px solid var(--border-purple); padding: 10px; border-radius: 10px; margin-bottom: 10px;">
+        <div style="background: #07050d; border: 1px solid var(--border-purple); padding: 10px; border-radius: 10px; margin-bottom: 10px;">
             <div style="font-size: 12px; color: var(--text-muted);">🟡 باينانس Pay ID:</div>
             <b style="color: #fff;">1213460225</b>
             <button onclick="copyText('1213460225')" style="float: left; background: var(--button-purple); border: none; color: white; padding: 3px 8px; border-radius: 5px; cursor: pointer; font-size: 11px;">نسخ</button>
@@ -663,7 +719,7 @@
             <input type="text" id="transactionIdInput" placeholder="اكتب رقم التحويل هنا...">
         </div>
 
-        <button class="submit-btn" style="background: #2563eb;" onclick="sendPaymentViaTelegram()">📩 إرسال للتليجرام</button>
+        <button class="submit-btn" style="background: #2563eb;" onclick="sendPaymentViaTelegram()">📩 إرسال للدعم عبر تليجرام</button>
         <button onclick="closePaymentModal()" style="width: 100%; padding: 10px; background: transparent; border: none; color: var(--text-muted); cursor: pointer; margin-top: 5px;">إغلاق</button>
     </div>
 </div>
@@ -689,7 +745,6 @@
         "Rapid Core Root", "SPOTIFY FF ROOT", "STRICKS BR ROOT", "Bala Mod"
     ];
 
-    // الأسعار بالكامل مضاف إليها زيادة الـ 20 سنت المطلوبة
     const PRODUCT_PRICES = {
         "Drip Client - Apk Mod": [
             { label: "1 Days", price: 0.80 },
@@ -750,6 +805,15 @@
     let currentUserOs = "";
     let currentUserBattery = "---";
 
+    function showToast(message, type = 'success') {
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.innerHTML = `<i class="fa-solid ${type === 'success' ? 'fa-circle-check' : 'fa-circle-exclamation'}"></i><span>${message}</span>`;
+        container.appendChild(toast);
+        setTimeout(() => toast.remove(), 3200);
+    }
+
     document.addEventListener("DOMContentLoaded", async () => {
         let userId = localStorage.getItem("USER_ID");
         if (!userId) {
@@ -787,7 +851,6 @@
         else if (ua.indexOf("Firefox") !== -1) browser = "Firefox";
 
         currentUserOs = `${os} (${browser})`;
-
         document.getElementById("devOs").textContent = os;
         document.getElementById("devBrowser").textContent = browser || "Standard";
 
@@ -850,9 +913,7 @@
         const userId = localStorage.getItem("USER_ID");
         if (!userId) return;
 
-        // سحب أحدث نسخة قبل التعديل لمنع تداخل البيانات
         await fetchOnlineData();
-
         if (!globalOnlineData[userId]) {
             globalOnlineData[userId] = { balance: 0.00, role: "client", history: [], tx: [] };
         }
@@ -893,7 +954,6 @@
         const productSelect = document.getElementById("productSelect");
         const durationSelect = document.getElementById("durationSelect");
         const selectedProduct = productSelect.value;
-
         const prices = PRODUCT_PRICES[selectedProduct] || DEFAULT_PRICES;
 
         durationSelect.innerHTML = "";
@@ -940,7 +1000,7 @@
         let userBalance = parseFloat(globalOnlineData[userId].balance || 0);
 
         if (userBalance < totalPrice) {
-            alert(`رصيدك الحالي ($${userBalance.toFixed(2)}) غير كافٍ لشراء ${qty} كارت بـ ($${totalPrice.toFixed(2)}).`);
+            showToast(`رصيدك غير كافٍ ($${userBalance.toFixed(2)}) المطلوب: $${totalPrice.toFixed(2)}`, 'error');
             openPaymentModal();
             return;
         }
@@ -965,12 +1025,12 @@
             });
 
             await saveOnlineData();
-
             document.getElementById("generatedKey").value = deliveredKeys.join("\n");
             document.getElementById("keyResultBox").style.display = "block";
+            showToast("تم توليد المفاتيح بنجاح!", "success");
             await fetchOnlineData();
         } else {
-            alert(`عذراً، المتوفر حالياً من هذا المنتج هو (${availableKeys.length}) أكواد فقط. جاري تحويلك للدعم...`);
+            showToast("عذراً الكمية غير متوفرة، جاري تحويلك للدعم...", "error");
             const textMsg = `💰 *طلب شراء بدون كارت متوفر*%0A👤 *ID:* \`${userId}\`%0A📦 *المنتج:* \`${product}\`%0A⏳ *المدة:* \`${duration}\`%0A🔢 *الكمية:* \`${qty}\``;
             window.open(`https://t.me/ZAKAFFCODE?text=${textMsg}`, '_blank');
         }
@@ -1007,9 +1067,8 @@
     function renderUsersLogAdmin() {
         const table = document.getElementById("adminUsersLogTable");
         const keys = Object.keys(globalOnlineData).filter(k => k.startsWith("USER_"));
-        
         if (!keys.length) {
-            table.innerHTML = `<tr><td colspan="6" style="color: var(--text-muted);">لا يوجد زوار حتى الآن</td></tr>`;
+            table.innerHTML = `<tr><td colspan="6" style="color: var(--text-muted);">لا يوجد زوار مسجلين</td></tr>`;
             return;
         }
 
@@ -1041,48 +1100,58 @@
     }
 
     function copyUserId() {
-        navigator.clipboard.writeText(localStorage.getItem("USER_ID")).then(() => alert("تم نسخ الـ ID!"));
+        navigator.clipboard.writeText(localStorage.getItem("USER_ID")).then(() => showToast("تم نسخ الـ ID بنجاح"));
     }
 
     function copyKey() {
-        navigator.clipboard.writeText(document.getElementById("generatedKey").value).then(() => alert("تم نسخ الأكواد!"));
+        navigator.clipboard.writeText(document.getElementById("generatedKey").value).then(() => showToast("تم نسخ الأكواد بنجاح"));
     }
 
     function openPaymentModal() { document.getElementById("paymentModal").style.display = "flex"; }
     function closePaymentModal() { document.getElementById("paymentModal").style.display = "none"; }
-    function copyText(t) { navigator.clipboard.writeText(t).then(() => alert("تم النسخ!")); }
+    function copyText(t) { navigator.clipboard.writeText(t).then(() => showToast("تم النسخ للحافظة")); }
 
     function sendPaymentViaTelegram() {
         const transId = document.getElementById("transactionIdInput").value.trim();
         const userId = localStorage.getItem("USER_ID");
-        if (!transId) return alert("يرجى كتابة رقم العملية!");
+        if (!transId) return showToast("يرجى كتابة رقم العملية أولاً!", "error");
 
         const textMsg = `💳 *طلب شحن رصيد جديد*%0A👤 *ID المستخدم:*%0A\`${userId}\`%0A%0A🔢 *رقم التحويل/العملية:*%0A\`${transId}\``;
         window.open(`https://t.me/ZAKAFFCODE?text=${textMsg}`, '_blank');
         closePaymentModal();
     }
 
-    function openAdmin() {
+    function openAdminModalCheck() {
         toggleSidebar();
-        if (prompt("كلمة سر الأدمن:") === ADMIN_PASSWORD) {
+        document.getElementById("adminPassModal").style.display = "flex";
+    }
+
+    function verifyAdminPassword() {
+        const pass = document.getElementById("adminPasswordInput").value;
+        if (pass === ADMIN_PASSWORD) {
+            document.getElementById("adminPassModal").style.display = "none";
+            document.getElementById("adminPasswordInput").value = "";
             document.getElementById("bannedScreen").style.display = "none";
             document.getElementById("adminPanel").style.display = "block";
+            showToast("تم فتح لوحة التحكم بنجاح!");
             window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        } else {
+            showToast("كلمة مرور الأدمن غير صحيحة!", "error");
         }
     }
 
     async function changeRoleAdmin(role) {
         await fetchOnlineData();
         const id = document.getElementById("adminRoleTargetId").value.trim();
-        if (!id) return alert("اكتب ID العميل!");
+        if (!id) return showToast("اكتب ID العميل!", "error");
         if (!globalOnlineData[id]) globalOnlineData[id] = { balance: 0.00, role: "client", history: [], tx: [] };
         
         globalOnlineData[id].role = role;
         if (await saveOnlineData()) {
-            alert("تم تغيير رتبة المستخدم بنجاح!");
+            showToast("تم تغيير رتبة المستخدم بنجاح!");
             await fetchOnlineData();
         } else {
-            alert("حدث خطأ أثناء الحفظ، حاول مرة أخرى.");
+            showToast("حدث خطأ أثناء الحفظ", "error");
         }
     }
 
@@ -1090,7 +1159,7 @@
         await fetchOnlineData();
         const id = document.getElementById("adminAddTargetId").value.trim();
         const amt = parseFloat(document.getElementById("adminAddAmount").value);
-        if (!id || isNaN(amt)) return alert("بيانات غير صحيحة!");
+        if (!id || isNaN(amt)) return showToast("بيانات غير صحيحة!", "error");
         if (!globalOnlineData[id]) globalOnlineData[id] = { balance: 0.00, role: "client", history: [], tx: [] };
         
         globalOnlineData[id].balance = (parseFloat(globalOnlineData[id].balance) || 0) + amt;
@@ -1098,10 +1167,10 @@
         globalOnlineData[id].tx.unshift({ date: new Date().toLocaleDateString(), type: 'ADD', amount: amt });
         
         if (await saveOnlineData()) {
-            alert("تمت إضافة الرصيد بنجاح وتم الحفظ على السيرفر!");
+            showToast("تمت إضافة الرصيد بنجاح على السيرفر!");
             await fetchOnlineData();
         } else {
-            alert("حدث خطأ أثناء الحفظ، حاول مرة أخرى.");
+            showToast("حدث خطأ أثناء الحفظ", "error");
         }
     }
 
@@ -1109,8 +1178,8 @@
         await fetchOnlineData();
         const id = document.getElementById("adminDeductTargetId").value.trim();
         const amt = parseFloat(document.getElementById("adminDeductAmount").value);
-        if (!id || isNaN(amt)) return alert("أدخل البيانات بشكل صحيح!");
-        if (!globalOnlineData[id]) return alert("المستخدم غير موجود!");
+        if (!id || isNaN(amt)) return showToast("أدخل البيانات بشكل صحيح", "error");
+        if (!globalOnlineData[id]) return showToast("المستخدم غير موجود", "error");
 
         let curr = parseFloat(globalOnlineData[id].balance) || 0;
         globalOnlineData[id].balance = Math.max(0, curr - amt);
@@ -1119,26 +1188,26 @@
         globalOnlineData[id].tx.unshift({ date: new Date().toLocaleDateString(), type: 'DEDUCT', amount: amt });
 
         if (await saveOnlineData()) {
-            alert(`تم خصم $${amt} بنجاح!\nالرصيد المتبقي: $${globalOnlineData[id].balance}`);
+            showToast(`تم خصم $${amt} بنجاح`);
             await fetchOnlineData();
         } else {
-            alert("حدث خطأ أثناء الحفظ.");
+            showToast("حدث خطأ أثناء الحفظ", "error");
         }
     }
 
     async function zeroBalanceAdmin() {
         await fetchOnlineData();
         const id = document.getElementById("adminDeductTargetId").value.trim();
-        if (!id) return alert("أدخل ID المستخدم!");
+        if (!id) return alert("أدخل ID المستخدم");
         if (confirm(`تأكيد تصفير حساب (${id}) بالكامل؟`)) {
             if (!globalOnlineData[id]) globalOnlineData[id] = { balance: 0.00, role: "client", history: [], tx: [] };
             globalOnlineData[id].balance = 0.00;
             
             if (await saveOnlineData()) {
-                alert("تم تصفير الحساب بنجاح!");
+                showToast("تم تصفير الحساب بنجاح");
                 await fetchOnlineData();
             } else {
-                alert("حدث خطأ أثناء الحفظ.");
+                showToast("حدث خطأ أثناء الحفظ", "error");
             }
         }
     }
@@ -1146,7 +1215,7 @@
     async function checkBalanceAdmin() {
         await fetchOnlineData();
         const id = document.getElementById("adminCheckTargetId").value.trim();
-        if (!id) return alert("أدخل الـ ID للبحث!");
+        if (!id) return showToast("أدخل الـ ID للبحث", "error");
         const data = globalOnlineData[id] || { balance: 0.00, role: "client" };
         alert(`🔍 بيانات الحساب أونلاين:\n👤 ID: ${id}\n💰 الرصيد: $${parseFloat(data.balance).toFixed(2)}\n⭐ الرتبة: ${data.role}`);
     }
@@ -1154,20 +1223,18 @@
     async function banIpAdmin(shouldBan) {
         await fetchOnlineData();
         const targetIp = document.getElementById("adminBanIpInput").value.trim();
-        if (!targetIp) return alert("أدخل الـ IP أولاً!");
+        if (!targetIp) return showToast("أدخل الـ IP أولاً", "error");
 
         if (!globalOnlineData.bannedIps) globalOnlineData.bannedIps = [];
 
         if (shouldBan) {
-            if (!globalOnlineData.bannedIps.includes(targetIp)) {
-                globalOnlineData.bannedIps.push(targetIp);
-            }
+            if (!globalOnlineData.bannedIps.includes(targetIp)) globalOnlineData.bannedIps.push(targetIp);
         } else {
             globalOnlineData.bannedIps = globalOnlineData.bannedIps.filter(ip => ip !== targetIp);
         }
 
         if (await saveOnlineData()) {
-            alert(shouldBan ? `🚫 تم حظر الـ IP (${targetIp}) بنجاح!` : `✅ تم فك حظر الـ IP (${targetIp}) بنجاح!`);
+            showToast(shouldBan ? `تم حظر الـ IP (${targetIp}) بنجاح` : `تم فك حظر الـ IP (${targetIp})`);
             document.getElementById("adminBanIpInput").value = "";
         }
     }
@@ -1176,17 +1243,17 @@
         const prod = document.getElementById("adminProductSelect").value;
         const dur = document.getElementById("adminDurationSelect").value;
         const keys = document.getElementById("adminKeysInput").value.trim().split("\n").map(k=>k.trim()).filter(k=>k);
-        if (!keys.length) return alert("ادخل كود واحد على الأقل!");
+        if (!keys.length) return showToast("ادخل كود واحد على الأقل!", "error");
         const key = `KEYS_${prod}_${dur}`;
         let current = JSON.parse(localStorage.getItem(key) || "[]");
         localStorage.setItem(key, JSON.stringify(current.concat(keys)));
-        alert(`تم حفظ ${keys.length} كود بنجاح!`);
+        showToast(`تم حفظ ${keys.length} كود بنجاح!`);
         document.getElementById("adminKeysInput").value = "";
     }
 
     function requestResetKey() {
         const k = document.getElementById("resetKeyInput").value.trim();
-        if (!k) return alert("أدخل الكود أولاً!");
+        if (!k) return showToast("أدخل الكود أولاً!", "error");
         const textMsg = `🔄 *طلب تصفير كود HWID*%0AKey: \`${k}\``;
         window.open(`https://t.me/ZAKAFFCODE?text=${textMsg}`, '_blank');
     }
