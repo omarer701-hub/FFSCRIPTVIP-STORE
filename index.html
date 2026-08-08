@@ -373,7 +373,6 @@
     </div>
 </div>
 
-<!-- Modal Payment with Direct Telegram Notification -->
 <div class="modal" id="paymentModal">
     <div class="modal-content">
         <h3 style="margin-bottom: 15px; text-align: center; color: #58a6ff;">💳 طرق الدفع والشحن</h3>
@@ -395,7 +394,7 @@
             <input type="text" id="transactionIdInput" placeholder="أدخل رقم العملية أو الرقم المحوَّل منه">
         </div>
 
-        <button class="submit-btn" onclick="sendPaymentNotification()">📩 إرسال الطلب للأدمن تلقائياً</button>
+        <button class="submit-btn" onclick="sendPaymentViaTelegram()">📩 إرسال الطلب عبر التليجرام</button>
         
         <button onclick="closePaymentModal()" style="width: 100%; padding: 10px; background: transparent; border: 1px solid var(--border-color); color: var(--text-muted); border-radius: 10px; cursor: pointer;">إغلاق</button>
     </div>
@@ -403,8 +402,6 @@
 
 <script>
     const ADMIN_PASSWORD = "mra359rt";
-    const BOT_TOKEN = "8843029617:AAHxPX970YOBJZvbVdWaqdo61w_-HBUw8-Y";
-    const CHAT_ID = "1321722896";
 
     document.addEventListener("DOMContentLoaded", () => {
         let userId = localStorage.getItem("USER_ID");
@@ -421,26 +418,20 @@
         loadBalance();
     });
 
-    function sendPaymentNotification() {
+    function sendPaymentViaTelegram() {
         const transId = document.getElementById("transactionIdInput").value.trim();
         const userId = localStorage.getItem("USER_ID");
 
         if (!transId) {
-            alert("يرجى إدخال رقم العملية أو رقم الهاتف المعوَّل منه!");
+            alert("يرجى إدخال رقم العملية أو رقم الهاتف المحوَّل منه!");
             return;
         }
 
-        const message = `🔔 طلب شحن رصيد جديد!%0A👤 ID الزبون: ${userId}%0A🔢 بيانات التحويل: ${encodeURIComponent(transId)}`;
-
-        fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${message}`)
-        .then(response => {
-            alert("تم إرسال إشعار الدفع للأدمن بنجاح! سيتم مراجعة الطلب وإضافة الرصيد في دقائق.");
-            document.getElementById("transactionIdInput").value = "";
-            closePaymentModal();
-        })
-        .catch(error => {
-            alert("حدث خطأ في الإرسال! يرجى التواصل مع الدعم الفني مباشرة.");
-        });
+        const message = `مرحباً أود شحن رصيد%0A👤 ID الحساب: ${userId}%0A🔢 بيانات التحويل: ${encodeURIComponent(transId)}`;
+        const telegramUrl = `https://t.me/ZAKAFFCODE?text=${message}`;
+        
+        window.open(telegramUrl, '_blank');
+        closePaymentModal();
     }
 
     function copyUserId() {
@@ -592,3 +583,4 @@
 
 </body>
 </html>
+
