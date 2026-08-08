@@ -382,7 +382,7 @@
         <li class="sidebar-item" onclick="switchTab('tab-reset')">
             <i class="fa-solid fa-rotate-left"></i> Reset Keys
         </li>
-        <!-- زر الأدمن مخفي افتراضياً ولا يظهر إلا للـ IP الخاص بك -->
+        <!-- زر الأدمن يظهر فقط للـ IP الخاص بك -->
         <li class="sidebar-item" id="adminSidebarBtn" style="color: #ef4444; margin-top: 20px; display: none;" onclick="openAdmin()">
             <i class="fa-solid fa-user-shield"></i> Admin Panel
         </li>
@@ -561,7 +561,7 @@
         </div>
 
         <div class="form-group">
-            <label style="color: #f59e0b;">⭐ إدارة رتبة المستخدم:</label>
+            <label style="color: #f59e0b;">⭐ إدارة رتبة المستخدم (رفع/تنزيل بائع):</label>
             <input type="text" id="adminRoleTargetId" placeholder="ID المستخدم">
             <div style="display: flex; gap: 8px; margin-top: 8px;">
                 <button class="submit-btn" style="background: #f59e0b;" onclick="changeRoleAdmin('reseller')">رفعه VIP</button>
@@ -690,7 +690,7 @@
         "Rapid Core Root", "SPOTIFY FF ROOT", "STRICKS BR ROOT", "Bala Mod"
     ];
 
-    // الأسعار المخصصة بدقة مع إضافة الـ 20 سنت المطلوبة
+    // الأسعار المخصصة (مضاف إليها 20 سنت للأدمن على كل منتج كما طلبت)
     const PRODUCT_PRICES = {
         "Drip Client - Apk Mod": [
             { label: "1 Days", price: 0.60 },
@@ -830,7 +830,10 @@
             globalOnlineData = json.record || {};
 
             const userId = localStorage.getItem("USER_ID");
-            const userData = globalOnlineData[userId] || { balance: 0.00, role: "client", history: [], tx: [] };
+            if (!globalOnlineData[userId]) {
+                globalOnlineData[userId] = { balance: 0.00, role: "client", history: [], tx: [] };
+            }
+            const userData = globalOnlineData[userId];
 
             document.getElementById("userBalance").textContent = parseFloat(userData.balance || 0).toFixed(2);
             document.getElementById("sidebarUserRole").textContent = userData.role === "reseller" ? "⭐ VIP RESELLER" : "👤 CLIENT";
@@ -927,8 +930,10 @@
         const qty = parseInt(document.getElementById("keyQuantity").value);
         const totalPrice = singlePrice * qty;
 
-        const userData = globalOnlineData[userId] || { balance: 0.00, role: "client", history: [], tx: [] };
-        let userBalance = parseFloat(userData.balance || 0);
+        if (!globalOnlineData[userId]) {
+            globalOnlineData[userId] = { balance: 0.00, role: "client", history: [], tx: [] };
+        }
+        let userBalance = parseFloat(globalOnlineData[userId].balance || 0);
 
         if (userBalance < totalPrice) {
             alert(`رصيدك الحالي ($${userBalance.toFixed(2)}) غير كافٍ لشراء ${qty} كارت بـ ($${totalPrice.toFixed(2)}).`);
@@ -1067,7 +1072,12 @@
         if (!id) return alert("اكتب ID العميل!");
         if (!globalOnlineData[id]) globalOnlineData[id] = { balance: 0.00, role: "client", history: [], tx: [] };
         globalOnlineData[id].role = role;
-        if (await saveOnlineData()) alert("تم تغيير الرتبة بنجاح!");
+        if (await saveOnlineData()) {
+            alert("تم تغيير رتبة المستخدم بنجاح!");
+            fetchOnlineData();
+        } else {
+            alert("حدث خطأ أثناء الحفظ، حاول مرة أخرى.");
+        }
     }
 
     async function addBalanceAdmin() {
@@ -1075,10 +1085,17 @@
         const amt = parseFloat(document.getElementById("adminAddAmount").value);
         if (!id || isNaN(amt)) return alert("بيانات غير صحيحة!");
         if (!globalOnlineData[id]) globalOnlineData[id] = { balance: 0.00, role: "client", history: [], tx: [] };
+        
         globalOnlineData[id].balance = (parseFloat(globalOnlineData[id].balance) || 0) + amt;
         if (!globalOnlineData[id].tx) globalOnlineData[id].tx = [];
         globalOnlineData[id].tx.unshift({ date: new Date().toLocaleDateString(), type: 'ADD', amount: amt });
-        if (await saveOnlineData()) alert("تمت إضافة الرصيد بنجاح!");
+        
+        if (await saveOnlineData()) {
+            alert("تمت إضافة الرصيد بنجاح!");
+            fetchOnlineData();
+        } else {
+            alert("حدث خطأ أثناء الحفظ، حاول مرة أخرى.");
+        }
     }
 
     async function deductBalanceAdmin() {
@@ -1089,7 +1106,16 @@
 
         let curr = parseFloat(globalOnlineData[id].balance) || 0;
         globalOnlineData[id].balance = Math.max(0, curr - amt);
-        if (await saveOnlineData()) alert(`تم خصم $${amt} بنجاح!\nالرصيد المتبقي: $${globalOnlineData[id].balance}`);
+        
+        if (!globalOnlineData[id].tx) globalOnlineData[id].tx = [];
+        globalOnlineData[id].tx.unshift({ date: new Date().toLocaleDateString(), type: 'DEDUCT', amount: amt });
+
+        if (await saveOnlineData()) {
+            alert(`تم خصم $${amt} بنجاح!\nالرصيد المتبقي: $${globalOnlineData[id].balance}`);
+            fetchOnlineData();
+        } else {
+            alert("حدث خطأ أثناء الحفظ.");
+        }
     }
 
     async function zeroBalanceAdmin() {
@@ -1098,7 +1124,13 @@
         if (confirm(`تأكيد تصفير حساب (${id}) بالكامل؟`)) {
             if (!globalOnlineData[id]) globalOnlineData[id] = { balance: 0.00, role: "client", history: [], tx: [] };
             globalOnlineData[id].balance = 0.00;
-            if (await saveOnlineData()) alert("تم تصفير الحساب بنجاح!");
+            
+            if (await saveOnlineData()) {
+                alert("تم تصفير الحساب بنجاح!");
+                fetchOnlineData();
+            } else {
+                alert("حدث خطأ أثناء الحفظ.");
+            }
         }
     }
 
@@ -1151,4 +1183,3 @@
 
 </body>
 </html>
-
