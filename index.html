@@ -278,7 +278,7 @@
             opacity: 0.9;
         }
 
-        /* Results & Key History Tables */
+        /* Tables */
         .data-table {
             width: 100%;
             border-collapse: collapse;
@@ -430,7 +430,6 @@
             </button>
         </div>
 
-        <!-- Generated Key Output Box -->
         <div class="card" id="keyResultBox" style="display: none; text-align: center; border-color: var(--green-glow);">
             <div style="color: var(--green-glow); font-weight: bold; margin-bottom: 10px;">🎉 تم توليد المفاتيح بنجاح!</div>
             <textarea id="generatedKey" rows="3" style="text-align: center; font-weight: bold; color: var(--green-glow);" readonly></textarea>
@@ -510,12 +509,13 @@
         </div>
     </div>
 
-    <!-- TAB 6: ADMIN PANEL -->
+    <!-- TAB 6: ADMIN PANEL FULL -->
     <div id="adminPanel" class="card" style="display: none; border-color: #ef4444;">
         <div class="card-header-title" style="color: #ef4444;">
             <i class="fa-solid fa-user-shield"></i> Admin Control
         </div>
 
+        <!-- 1. تغيير رتبة المستخدم -->
         <div class="form-group">
             <label style="color: #f59e0b;">⭐ إدارة رتبة المستخدم:</label>
             <input type="text" id="adminRoleTargetId" placeholder="ID المستخدم">
@@ -525,6 +525,7 @@
             </div>
         </div>
 
+        <!-- 2. إضافة رصيد -->
         <div class="form-group" style="margin-top: 15px;">
             <label style="color: var(--green-glow);">💵 إضافة رصيد:</label>
             <input type="text" id="adminAddTargetId" placeholder="ID المستخدم">
@@ -532,8 +533,27 @@
             <button class="submit-btn" style="background: var(--green-glow);" onclick="addBalanceAdmin()">إضافة الرصيد</button>
         </div>
 
+        <!-- 3. خصم / تصفير رصيد -->
         <div class="form-group" style="margin-top: 15px;">
-            <label style="color: #ef4444;">🔑 شحن الأكواد للسيرفر:</label>
+            <label style="color: #ef4444;">🔻 خصم أو تصفير رصيد:</label>
+            <input type="text" id="adminDeductTargetId" placeholder="ID المستخدم">
+            <input type="number" id="adminDeductAmount" placeholder="المبلغ المراد خصمه" style="margin-top: 5px;">
+            <div style="display: flex; gap: 8px; margin-top: 8px;">
+                <button class="submit-btn" style="background: #ef4444;" onclick="deductBalanceAdmin()">خصم مبلغ</button>
+                <button class="submit-btn" style="background: #991b1b;" onclick="zeroBalanceAdmin()">تصفير كامل</button>
+            </div>
+        </div>
+
+        <!-- 4. كشف الرصيد والبيانات أونلاين -->
+        <div class="form-group" style="margin-top: 15px;">
+            <label style="color: #3b82f6;">🔍 كشف رصيد وحالة حساب:</label>
+            <input type="text" id="adminCheckTargetId" placeholder="ID المستخدم">
+            <button class="submit-btn" style="background: #3b82f6;" onclick="checkBalanceAdmin()">🔍 كشف البيانات فوراً</button>
+        </div>
+
+        <!-- 5. شحن الأكواد للسيرفر -->
+        <div class="form-group" style="margin-top: 15px;">
+            <label style="color: var(--primary-purple);">🔑 شحن الأكواد للسيرفر:</label>
             <select id="adminProductSelect" style="margin-bottom: 5px;"></select>
             <select id="adminDurationSelect" style="margin-bottom: 5px;">
                 <option value="1 Days">1 Days</option>
@@ -542,7 +562,7 @@
                 <option value="30 Days">30 Days</option>
             </select>
             <textarea id="adminKeysInput" rows="3" placeholder="كود واحد في كل سطر"></textarea>
-            <button class="submit-btn" style="background: #8a2be2;" onclick="saveKeys()">💾 حفظ الأكواد</button>
+            <button class="submit-btn" style="background: var(--button-purple);" onclick="saveKeys()">💾 حفظ الأكواد</button>
         </div>
     </div>
 
@@ -566,11 +586,11 @@
         </div>
 
         <div class="form-group" style="margin-top: 15px;">
-            <label>رقم العملية أو المحول منه:</label>
-            <input type="text" id="transactionIdInput" placeholder="أدخل رقم التحويل">
+            <label>أدخل رقم العملية (رقم التحويل):</label>
+            <input type="text" id="transactionIdInput" placeholder="اكتب رقم التحويل هنا...">
         </div>
 
-        <button class="submit-btn" onclick="sendPaymentViaTelegram()">📩 إرسال للتليجرام</button>
+        <button class="submit-btn" style="background: #2563eb;" onclick="sendPaymentViaTelegram()">📩 إرسال للتليجرام</button>
         <button onclick="closePaymentModal()" style="width: 100%; padding: 10px; background: transparent; border: none; color: var(--text-muted); cursor: pointer; margin-top: 5px;">إغلاق</button>
     </div>
 </div>
@@ -616,7 +636,6 @@
         }
         document.getElementById("myUserId").textContent = userId;
 
-        // Populate Products Options
         const prodSelect = document.getElementById("productSelect");
         const adminProdSelect = document.getElementById("adminProductSelect");
         PRODUCTS.forEach(prod => {
@@ -726,7 +745,6 @@
 
             localStorage.setItem(storageKey, JSON.stringify(availableKeys));
 
-            // Record History
             if (!globalOnlineData[userId].history) globalOnlineData[userId].history = [];
             deliveredKeys.forEach(k => {
                 globalOnlineData[userId].history.unshift({ key: k, price: singlePrice, date: new Date().toLocaleDateString() });
@@ -739,13 +757,12 @@
             fetchOnlineData();
         } else {
             alert(`عذراً، المتوفر حالياً من هذا المنتج هو (${availableKeys.length}) أكواد فقط. جاري تحويلك للدعم...`);
-            const msg = `طلب شراء عاجل:%0AID: ${userId}%0Aالمنتج: ${product}%0Aالمدة: ${duration}%0Aالكمية: ${qty}`;
-            window.open(`https://t.me/ZAKAFFCODE?text=${msg}`, '_blank');
+            const textMsg = `💰 *طلب شراء بدون كارت متوفر*%0A👤 *ID:* \`${userId}\`%0A📦 *المنتج:* \`${product}\`%0A⏳ *المدة:* \`${duration}\`%0A🔢 *الكمية:* \`${qty}\``;
+            window.open(`https://t.me/ZAKAFFCODE?text=${textMsg}`, '_blank');
         }
     }
 
     function renderTables(userData) {
-        // Render Key History
         const historyTable = document.getElementById("keyHistoryTable");
         const history = userData.history || [];
         document.getElementById("totalSoldStat").textContent = history.length;
@@ -760,7 +777,6 @@
             `).join('');
         }
 
-        // Render Transactions
         const txTable = document.getElementById("transactionsTable");
         const tx = userData.tx || [];
         if (tx.length > 0) {
@@ -774,7 +790,6 @@
         }
     }
 
-    /* Helper & Admin Logic */
     function toggleSidebar() {
         document.getElementById("sidebar").classList.toggle("active");
         document.getElementById("overlay").classList.toggle("active");
@@ -799,11 +814,14 @@
     function closePaymentModal() { document.getElementById("paymentModal").style.display = "none"; }
     function copyText(t) { navigator.clipboard.writeText(t).then(() => alert("تم النسخ!")); }
 
+    /* إرسال تحويل التليجرام بتنسيق كود قابل للنسخ */
     function sendPaymentViaTelegram() {
         const transId = document.getElementById("transactionIdInput").value.trim();
         const userId = localStorage.getItem("USER_ID");
         if (!transId) return alert("يرجى كتابة رقم العملية!");
-        window.open(`https://t.me/ZAKAFFCODE?text=شحن%20رصيد%0AID:%20${userId}%0Aالتحويل:%20${transId}`, '_blank');
+
+        const textMsg = `💳 *طلب شحن رصيد جديد*%0A👤 *ID المستخدم:*%0A\`${userId}\`%0A%0A🔢 *رقم التحويل/العملية:*%0A\`${transId}\``;
+        window.open(`https://t.me/ZAKAFFCODE?text=${textMsg}`, '_blank');
         closePaymentModal();
     }
 
@@ -815,6 +833,7 @@
         }
     }
 
+    /* أزرار الأدمن لاستكشاف الحسابات والخصم والتصفير */
     async function changeRoleAdmin(role) {
         const id = document.getElementById("adminRoleTargetId").value.trim();
         if (!id) return alert("اكتب ID العميل!");
@@ -834,6 +853,34 @@
         if (await saveOnlineData()) alert("تمت إضافة الرصيد بنجاح!");
     }
 
+    async function deductBalanceAdmin() {
+        const id = document.getElementById("adminDeductTargetId").value.trim();
+        const amt = parseFloat(document.getElementById("adminDeductAmount").value);
+        if (!id || isNaN(amt)) return alert("أدخل البيانات بشكل صحيح!");
+        if (!globalOnlineData[id]) return alert("المستخدم غير موجود!");
+
+        let curr = parseFloat(globalOnlineData[id].balance) || 0;
+        globalOnlineData[id].balance = Math.max(0, curr - amt);
+        if (await saveOnlineData()) alert(`تم خصم $${amt} بنجاح!\nالرصيد المتبقي: $${globalOnlineData[id].balance}`);
+    }
+
+    async function zeroBalanceAdmin() {
+        const id = document.getElementById("adminDeductTargetId").value.trim();
+        if (!id) return alert("أدخل ID المستخدم!");
+        if (confirm(`تأكيد تصفير حساب (${id}) بالكامل؟`)) {
+            if (!globalOnlineData[id]) globalOnlineData[id] = { balance: 0.00, role: "client", history: [], tx: [] };
+            globalOnlineData[id].balance = 0.00;
+            if (await saveOnlineData()) alert("تم تصفير الحساب بنجاح!");
+        }
+    }
+
+    function checkBalanceAdmin() {
+        const id = document.getElementById("adminCheckTargetId").value.trim();
+        if (!id) return alert("أدخل الـ ID للبحث!");
+        const data = globalOnlineData[id] || { balance: 0.00, role: "client" };
+        alert(`🔍 بيانات الحساب أونلاين:\n👤 ID: ${id}\n💰 الرصيد: $${parseFloat(data.balance).toFixed(2)}\n⭐ الرتبة: ${data.role}`);
+    }
+
     function saveKeys() {
         const prod = document.getElementById("adminProductSelect").value;
         const dur = document.getElementById("adminDurationSelect").value;
@@ -849,8 +896,8 @@
     function requestResetKey() {
         const k = document.getElementById("resetKeyInput").value.trim();
         if (!k) return alert("أدخل الكود أولاً!");
-        alert("جاري تحويل طلب التصفير (HWID Reset) للادمن...");
-        window.open(`https://t.me/ZAKAFFCODE?text=طلب%20تصفير%20كود%0AKey:%20${k}`, '_blank');
+        const textMsg = `🔄 *طلب تصفير كود HWID*%0AKey: \`${k}\``;
+        window.open(`https://t.me/ZAKAFFCODE?text=${textMsg}`, '_blank');
     }
 </script>
 
