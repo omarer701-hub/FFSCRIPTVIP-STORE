@@ -5,18 +5,241 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FFSCRIPTVIP STORE</title>
     <style>
-        :root { --bg-color: #0d1117; --card-bg: #161b22; --accent-purple: #8a2be2; --accent-blue: #2f81f7; --accent-green: #238636; --border-color: #30363d; }
-        * { box-sizing: border-box; font-family: sans-serif; margin: 0; padding: 0; }
-        body { background-color: var(--bg-color); color: #f0f6fc; padding: 15px; direction: rtl; display: flex; justify-content: center; }
-        .app-container { width: 100%; max-width: 480px; background: #090d12; border-radius: 20px; padding: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.6); border: 1px solid var(--border-color); }
-        .header { text-align: center; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; margin-bottom: 15px; }
-        .user-id-badge { background: #21262d; padding: 5px 10px; border-radius: 8px; font-size: 12px; color: #8b949e; margin-top: 5px; display: inline-block; }
-        .balance-box { background: rgba(35, 134, 54, 0.15); border: 1px solid var(--accent-green); border-radius: 12px; padding: 10px; text-align: center; margin-bottom: 15px; font-weight: bold; color: #3fb950; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; font-size: 13px; font-weight: bold; margin-bottom: 5px; color: #58a6ff; }
-        select, input, textarea { width: 100%; padding: 12px; background-color: var(--card-bg); color: white; border: 1px solid var(--border-color); border-radius: 12px; }
-        .submit-btn { width: 100%; background: linear-gradient(135deg, #8b5cf6, #6366f1); color: white; border: none; padding: 14px; border-radius: 12px; font-weight: bold; cursor: pointer; }
-        .admin-panel { display: none; background: #11161d; border: 1px solid var(--accent-purple); padding: 15px; border-radius: 15px; margin-top: 15px; }
+        :root {
+            --bg-color: #0d1117;
+            --card-bg: #161b22;
+            --text-color: #f0f6fc;
+            --text-muted: #8b949e;
+            --accent-purple: #8a2be2;
+            --accent-blue: #2f81f7;
+            --accent-green: #238636;
+            --border-color: #30363d;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            padding: 15px;
+            direction: rtl;
+            display: flex;
+            justify-content: center;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 480px;
+            background: #090d12;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+            border: 1px solid var(--border-color);
+        }
+
+        .header {
+            text-align: center;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 15px;
+        }
+
+        .user-id-badge {
+            background: #21262d;
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            color: #8b949e;
+            margin-top: 6px;
+            display: inline-block;
+            border: 1px solid var(--border-color);
+        }
+
+        .balance-box {
+            background: rgba(35, 134, 54, 0.15);
+            border: 1px solid var(--accent-green);
+            border-radius: 12px;
+            padding: 10px;
+            text-align: center;
+            margin-bottom: 15px;
+            font-weight: bold;
+            color: #3fb950;
+            font-size: 15px;
+        }
+
+        .action-btns {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .btn-main {
+            flex: 1;
+            background: linear-gradient(135deg, #238636, #2ea043);
+            color: #fff;
+            border: none;
+            padding: 12px;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 14px;
+            text-align: center;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .btn-support {
+            flex: 1;
+            background: #21262d;
+            color: #c9d1d9;
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 14px;
+            text-align: center;
+            text-decoration: none;
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #58a6ff;
+        }
+
+        select, textarea, input {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--card-bg);
+            color: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .price-box {
+            background: #161b22;
+            border: 1px dashed var(--accent-blue);
+            padding: 12px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .price-amount {
+            font-size: 20px;
+            font-weight: bold;
+            color: #3fb950;
+            margin-top: 4px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #8b5cf6, #6366f1);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 15px;
+        }
+
+        .admin-toggle-btn {
+            background: transparent;
+            color: var(--text-muted);
+            border: 1px dashed var(--border-color);
+            width: 100%;
+            padding: 10px;
+            border-radius: 10px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+            padding: 15px;
+        }
+
+        .modal-content {
+            background: #161b22;
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 20px;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .payment-option {
+            background: #0d1117;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+
+        .payment-title {
+            font-weight: bold;
+            color: #58a6ff;
+            margin-bottom: 5px;
+        }
+
+        .copy-code-btn {
+            background: #238636;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            margin-top: 5px;
+        }
+
+        .admin-panel {
+            display: none;
+            background: #11161d;
+            border: 1px solid var(--accent-purple);
+            padding: 15px;
+            border-radius: 15px;
+            margin-top: 15px;
+        }
+
+        .key-result-box {
+            display: none;
+            background: #102a1d;
+            border: 1px solid #238636;
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .key-text {
+            font-size: 18px;
+            font-weight: bold;
+            color: #3fb950;
+            margin: 10px 0;
+            word-break: break-all;
+        }
     </style>
 </head>
 <body>
@@ -24,63 +247,206 @@
 <div class="app-container">
     <div class="header">
         <div style="font-size: 30px;">👑</div>
-        <div style="font-size: 19px; font-weight: bold;">FFSCRIPTVIP STORE</div>
+        <div style="font-size: 19px; font-weight: bold; color: #ffffff;">FFSCRIPTVIP STORE</div>
         <div class="user-id-badge">ID: <span id="myUserId">...</span></div>
     </div>
 
-    <div class="balance-box">💰 الرصيد الحالي: $<span id="userBalance">0.00</span></div>
-    
-    <button style="width:100%; background:#238636; color:white; border:none; padding:10px; border-radius:10px; margin-bottom:15px;" onclick="openPaymentModal()">➕ شحن رصيد</button>
+    <div class="balance-box">
+        💰 الرصيد الحالي: $<span id="userBalance">0.00</span>
+    </div>
+
+    <div class="action-btns">
+        <button class="btn-main" onclick="openPaymentModal()">➕ شحن رصيد</button>
+        <a href="https://t.me/ZAKAFFCODE" target="_blank" class="btn-support">📞 الدعم الفني</a>
+    </div>
+
+    <div class="key-result-box" id="keyResultBox">
+        <div style="color: #3fb950; font-weight: bold;">🎉 تم الشراء بنجاح!</div>
+        <div class="key-text" id="generatedKey">XXXX-XXXX-XXXX</div>
+        <button class="copy-code-btn" onclick="copyKey()">📋 نسخ الكود</button>
+    </div>
 
     <div class="form-group">
-        <label>📦 المنتج:</label>
-        <select id="productSelect"></select>
+        <label for="productSelect">📦 اختر المنتج (Product Type):</label>
+        <select id="productSelect" onchange="updatePrice()">
+            <option value="Drip Proxy Android">Drip Proxy Android</option>
+            <option value="Drip Client - Apk Mod">Drip Client - Apk Mod</option>
+            <option value="Drip Client - Root Device">Drip Client - Root Device</option>
+            <option value="Pato Team Apkmod Orange">Pato Team Apkmod Orange</option>
+            <option value="Pato Team Apkmod Blue">Pato Team Apkmod Blue</option>
+            <option value="Hg Cheats Apk Mod">Hg Cheats Apk Mod</option>
+            <option value="Hg Cheats Proxy Apk">Hg Cheats Proxy Apk</option>
+            <option value="Gbox Esign Cert">Gbox Esign Cert</option>
+            <option value="Fluorite FF iOS">Fluorite FF iOS</option>
+            <option value="Fluorite 8BP IOS">Fluorite 8BP IOS</option>
+            <option value="Fluorite MLBB IOS">Fluorite MLBB IOS</option>
+            <option value="BR MODS PC SILENT">BR MODS PC SILENT</option>
+            <option value="BR MODS PC AIMKILL">BR MODS PC AIMKILL</option>
+            <option value="BR MODS ROOT">BR MODS ROOT</option>
+            <option value="SCORPION ROOT LITE">SCORPION ROOT LITE</option>
+            <option value="SCORPION ROOT BRUTAL">SCORPION ROOT BRUTAL</option>
+            <option value="Zytron Root">Zytron Root</option>
+            <option value="Angry mod root">Angry mod root</option>
+            <option value="Reaper X Pro Root">Reaper X Pro Root</option>
+            <option value="DRIP AIMKILL X86 Pc">DRIP AIMKILL X86 Pc</option>
+            <option value="Haxxcker Pro Root">Haxxcker Pro Root</option>
+            <option value="Prime Mods Apkmod">Prime Mods Apkmod</option>
+            <option value="Terminal x PC Aimkill">Terminal x PC Aimkill</option>
+            <option value="Terminal x PC Aimkill cover">Terminal x PC Aimkill cover</option>
+            <option value="Cloud CODM IOS">Cloud CODM IOS</option>
+            <option value="8ball IOS GBD">8ball IOS GBD</option>
+            <option value="EzTeam 8boll pool Apk">EzTeam 8boll pool Apk</option>
+            <option value="Pubg Zolo Android">Pubg Zolo Android</option>
+            <option value="MIGUL - MONITE IOS [PRO]">MIGUL - MONITE IOS [PRO]</option>
+            <option value="MIGUL - MONITE IOS [BASIC]">MIGUL - MONITE IOS [BASIC]</option>
+            <option value="MIGUL - MONITE IOS [VN-PRO]">MIGUL - MONITE IOS [VN-PRO]</option>
+            <option value="SILENT CHEATS MODMENU">SILENT CHEATS MODMENU</option>
+            <option value="SILENT CHEATS SAFE">SILENT CHEATS SAFE</option>
+            <option value="SILENT CHEATS BRUTAL">SILENT CHEATS BRUTAL</option>
+            <option value="Lk team Root+Pc">Lk team Root+Pc</option>
+            <option value="Alien MLBB (Android)">Alien MLBB (Android)</option>
+            <option value="King iOS">King iOS</option>
+            <option value="Wingmod Root">Wingmod Root</option>
+            <option value="WizardiOS 8bp">WizardiOS 8bp</option>
+            <option value="VOLUME STEAMER PRO">VOLUME STEAMER PRO</option>
+            <option value="iOSSTAR 8bp">iOSSTAR 8bp</option>
+            <option value="Rapid Core Root">Rapid Core Root</option>
+            <option value="SPOTIFY FF ROOT">SPOTIFY FF ROOT</option>
+            <option value="STRICKS BR ROOT">STRICKS BR ROOT</option>
+            <option value="Bala Mod">Bala Mod</option>
+        </select>
     </div>
+
     <div class="form-group">
-        <label>⏳ المدة:</label>
-        <select id="durationSelect"></select>
+        <label for="durationSelect">⏳ اختر المدة (Duration):</label>
+        <select id="durationSelect" onchange="updatePrice()">
+            <option value="1 Days" data-price="0.60">1 Days - $0.60</option>
+            <option value="3 Days" data-price="1.00">3 Days - $1.00</option>
+            <option value="7 Days" data-price="2.50">7 Days - $2.50</option>
+            <option value="30 Days" data-price="6.00">30 Days - $6.00</option>
+        </select>
     </div>
-    
-    <button class="submit-btn" onclick="sendOrder()">🛒 تأكيد الطلب</button>
-    <button style="margin-top:20px; width:100%; background:transparent; border:1px dashed #30363d; color:#8b949e; padding:10px; border-radius:10px;" onclick="openAdmin()">🔐 لوحة التحكم</button>
+
+    <div class="price-box">
+        <div style="font-size: 12px; color: var(--text-muted);">التكلفة الإجمالية:</div>
+        <div class="price-amount" id="displayPrice">$0.60</div>
+    </div>
+
+    <button class="submit-btn" onclick="sendOrder()">🛒 تأكيد الطلب والشراء</button>
+
+    <button class="admin-toggle-btn" onclick="openAdmin()">🔐 لوحة التحكم (Admin Panel)</button>
 
     <div class="admin-panel" id="adminPanel">
-        <h3 style="color:#8a2be2;">إدارة الأدمن</h3>
-        <div class="form-group">
+        <h3 style="margin-bottom: 15px; color: #8a2be2;">إدارة الأدمن</h3>
+        
+        <div class="form-group" style="border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
             <label>ID المستخدم المستهدف:</label>
-            <input type="text" id="adminTargetIdInput" placeholder="أدخل ID الزبون">
+            <input type="text" id="adminTargetIdInput" placeholder="مثال: USER_123456">
+            <label style="margin-top: 8px;">المبلغ المراد إضافته ($):</label>
+            <input type="number" id="adminAddBalanceInput" placeholder="0.00">
+            <button class="btn-main" style="width: 100%; margin-top: 8px;" onclick="addBalanceAdmin()">💵 إضافة الرصيد للزبون</button>
+        </div>
+
+        <div class="form-group">
+            <label>اختر المنتج لربط الأكواد:</label>
+            <select id="adminProductSelect"></select>
         </div>
         <div class="form-group">
-            <label>المبلغ المراد إضافته ($):</label>
-            <input type="number" id="adminAddBalanceInput" placeholder="0.00">
+            <label>اختر المدة:</label>
+            <select id="adminDurationSelect">
+                <option value="1 Days">1 Days</option>
+                <option value="3 Days">3 Days</option>
+                <option value="7 Days">7 Days</option>
+                <option value="30 Days">30 Days</option>
+            </select>
         </div>
-        <button class="submit-btn" onclick="addBalanceAdmin()">💵 إضافة رصيد للمستخدم</button>
+        <div class="form-group">
+            <label>أدخل الأكواد (كود واحد في كل سطر):</label>
+            <textarea id="adminKeysInput" rows="3" placeholder="KEY123&#10;KEY456"></textarea>
+        </div>
+        <button class="btn-main" style="width: 100%;" onclick="saveKeys()">💾 حفظ الأكواد</button>
+    </div>
+</div>
+
+<div class="modal" id="paymentModal">
+    <div class="modal-content">
+        <h3 style="margin-bottom: 15px; text-align: center; color: #58a6ff;">💳 طرق الدفع المتاحة</h3>
+        
+        <div class="payment-option">
+            <div class="payment-title">📱 فودافون كاش (Vodafone Cash)</div>
+            <div style="font-size: 13px; margin: 5px 0;">الرقم: <b>01004238357</b></div>
+            <button class="copy-code-btn" onclick="copyText('01004238357')">📋 نسخ الرقم</button>
+        </div>
+
+        <div class="payment-option">
+            <div class="payment-title">🟡 باينانس (Binance Pay)</div>
+            <div style="font-size: 13px; margin: 5px 0;">Binance ID: <b>1213460225</b></div>
+            <button class="copy-code-btn" onclick="copyText('1213460225')">📋 نسخ الـ ID</button>
+        </div>
+
+        <div style="font-size: 12px; color: #e3b341; margin-bottom: 15px; text-align: center;">
+            ⚠️ بعد التحويل، أرسل صورة الإيصال (إسكرين) والـ ID الخاص بك للأدمن لإضافة الرصيد.
+        </div>
+
+        <a id="telegramPaymentLink" href="#" target="_blank" class="btn-main" style="display: block; text-align: center; text-decoration: none; margin-bottom: 10px;">📸 إرسال إسكرين التحويل للأدمن</a>
+        
+        <button onclick="closePaymentModal()" style="width: 100%; padding: 10px; background: transparent; border: 1px solid var(--border-color); color: var(--text-muted); border-radius: 10px; cursor: pointer;">إغلاق</button>
     </div>
 </div>
 
 <script>
     const ADMIN_PASSWORD = "mra359rt";
-    
-    // Initial Setup
+
     document.addEventListener("DOMContentLoaded", () => {
-        // Generate/Load User ID
         let userId = localStorage.getItem("USER_ID");
         if (!userId) {
-            userId = "USER_" + Math.floor(Math.random() * 1000000);
+            userId = "USER_" + Math.floor(100000 + Math.random() * 900000);
             localStorage.setItem("USER_ID", userId);
         }
         document.getElementById("myUserId").textContent = userId;
-        
-        // Load Balance for this specific ID
-        let balance = localStorage.getItem("BALANCE_" + userId) || "0.00";
-        document.getElementById("userBalance").textContent = balance;
+
+        const prodSelect = document.getElementById("productSelect");
+        const adminProdSelect = document.getElementById("adminProductSelect");
+        adminProdSelect.innerHTML = prodSelect.innerHTML;
+
+        loadBalance();
+
+        const telegramMsg = `مرحباً، أرسل إسكرين تحويل لإضافة الرصيد لحسابي:%0AID: ${userId}`;
+        document.getElementById("telegramPaymentLink").href = `https://t.me/ZAKAFFCODE?text=${telegramMsg}`;
     });
 
+    function loadBalance() {
+        const userId = localStorage.getItem("USER_ID");
+        let balance = parseFloat(localStorage.getItem("BALANCE_" + userId) || "0.00");
+        document.getElementById("userBalance").textContent = balance.toFixed(2);
+    }
+
+    function updatePrice() {
+        const durationSelect = document.getElementById("durationSelect");
+        const selectedOption = durationSelect.options[durationSelect.selectedIndex];
+        const price = selectedOption.getAttribute("data-price");
+        document.getElementById("displayPrice").textContent = "$" + parseFloat(price).toFixed(2);
+    }
+
+    function openPaymentModal() {
+        document.getElementById("paymentModal").style.display = "flex";
+    }
+
+    function closePaymentModal() {
+        document.getElementById("paymentModal").style.display = "none";
+    }
+
+    function copyText(text) {
+        navigator.clipboard.writeText(text).then(() => {
+            alert("تم النسخ بنجاح: " + text);
+        });
+    }
+
     function openAdmin() {
-        // Check Lockout
         let lockUntil = localStorage.getItem("ADMIN_LOCK_UNTIL");
         if (lockUntil && Date.now() < parseInt(lockUntil)) {
-            alert("❌ لقد تجاوزت عدد المحاولات. محظور لمدة 30 دقيقة.");
+            const remainingMins = Math.ceil((parseInt(lockUntil) - Date.now()) / (60 * 1000));
+            alert(`❌ أخطأت في كلمة السر 4 مرات. الدخول محظور لمدة ${remainingMins} دقيقة أخرى.`);
             return;
         }
 
@@ -88,16 +454,16 @@
         if (pass === ADMIN_PASSWORD) {
             localStorage.setItem("ADMIN_FAIL_COUNT", 0);
             document.getElementById("adminPanel").style.display = "block";
-            alert("✅ تم الدخول!");
-        } else {
+            alert("✅ تم تسجيل الدخول كأدمن بنجاح!");
+        } else if (pass !== null) {
             let fails = parseInt(localStorage.getItem("ADMIN_FAIL_COUNT") || 0) + 1;
             localStorage.setItem("ADMIN_FAIL_COUNT", fails);
             
             if (fails >= 4) {
                 localStorage.setItem("ADMIN_LOCK_UNTIL", Date.now() + (30 * 60 * 1000));
-                alert("❌ 4 محاولات خاطئة! تم حظرك لمدة 30 دقيقة.");
+                alert("❌ تم إدخال كلمة السر خاطئة 4 مرات! تم حظرك من محاولة الدخول لمدة 30 دقيقة.");
             } else {
-                alert(`❌ كلمة سر خاطئة! محاولات متبقية: ${4 - fails}`);
+                alert(`❌ كلمة السر خاطئة! المحاولات المتبقية: ${4 - fails}`);
             }
         }
     }
@@ -106,17 +472,86 @@
         const targetId = document.getElementById("adminTargetIdInput").value.trim();
         const amount = parseFloat(document.getElementById("adminAddBalanceInput").value);
         
-        if (!targetId || isNaN(amount)) { alert("يرجى إدخال ID صحيح ومبلغ صحيح"); return; }
+        if (!targetId || isNaN(amount) || amount <= 0) {
+            alert("يرجى إدخال ID صحيح ومبلغ صحيح!");
+            return;
+        }
         
         let currentBalance = parseFloat(localStorage.getItem("BALANCE_" + targetId) || "0.00");
         let newBalance = currentBalance + amount;
         
         localStorage.setItem("BALANCE_" + targetId, newBalance.toFixed(2));
-        alert(`تم إضافة $${amount} للمستخدم ${targetId} بنجاح!`);
-        location.reload(); // Refresh to update view if admin is modifying own ID
+        alert(`تم إضافة $${amount.toFixed(2)} للمستخدم ${targetId} بنجاح!`);
+        
+        document.getElementById("adminAddBalanceInput").value = "";
+        loadBalance();
     }
 
-    // Keep your other functions (sendOrder, etc) here...
+    function saveKeys() {
+        const product = document.getElementById("adminProductSelect").value;
+        const duration = document.getElementById("adminDurationSelect").value;
+        const keysText = document.getElementById("adminKeysInput").value.trim();
+
+        if (!keysText) {
+            alert("يرجى كتابة كود واحد على الأقل!");
+            return;
+        }
+
+        const newKeys = keysText.split("\n").map(k => k.trim()).filter(k => k.length > 0);
+        const storageKey = `KEYS_${product}_${duration}`;
+        
+        let existingKeys = JSON.parse(localStorage.getItem(storageKey) || "[]");
+        existingKeys = existingKeys.concat(newKeys);
+        
+        localStorage.setItem(storageKey, JSON.stringify(existingKeys));
+        document.getElementById("adminKeysInput").value = "";
+        alert(`تم إضافة ${newKeys.length} كود بنجاح!`);
+    }
+
+    function sendOrder() {
+        const userId = localStorage.getItem("USER_ID");
+        const product = document.getElementById("productSelect").value;
+        const durationSelect = document.getElementById("durationSelect");
+        const duration = durationSelect.value;
+        const price = parseFloat(durationSelect.options[durationSelect.selectedIndex].getAttribute("data-price"));
+        
+        let userBalance = parseFloat(localStorage.getItem("BALANCE_" + userId) || "0.00");
+
+        if (userBalance < price) {
+            alert(`رصيدك الحالي ($${userBalance.toFixed(2)}) غير كافٍ لشراء هذا المنتج ($${price.toFixed(2)}).\nيرجى شحن رصيدك أولاً!`);
+            openPaymentModal();
+            return;
+        }
+
+        const storageKey = `KEYS_${product}_${duration}`;
+        let availableKeys = JSON.parse(localStorage.getItem(storageKey) || "[]");
+
+        if (availableKeys.length > 0) {
+            userBalance -= price;
+            localStorage.setItem("BALANCE_" + userId, userBalance.toFixed(2));
+            loadBalance();
+
+            const deliveredKey = availableKeys.shift();
+            localStorage.setItem(storageKey, JSON.stringify(availableKeys));
+
+            document.getElementById("generatedKey").textContent = deliveredKey;
+            document.getElementById("keyResultBox").style.display = "block";
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else {
+            alert("عذراً، هذا المنتج غير متوفر آلياً حالياً. جاري تحويلك للمالك لتوفيره لك فوراً...");
+            const message = `مرحباً، أود طلب الكود التالي:%0AID: ${userId}%0A- المنتج: ${encodeURIComponent(product)}%0A- المدة: ${encodeURIComponent(duration)}%0A- السعر: $${price}`;
+            const telegramUrl = `https://t.me/ZAKAFFCODE?text=${message}`;
+            window.open(telegramUrl, '_blank');
+        }
+    }
+
+    function copyKey() {
+        const keyText = document.getElementById("generatedKey").textContent;
+        navigator.clipboard.writeText(keyText).then(() => {
+            alert("تم نسخ الكود إلى الحافظة!");
+        });
+    }
 </script>
+
 </body>
 </html>
