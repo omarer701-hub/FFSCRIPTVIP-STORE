@@ -356,10 +356,10 @@
 </head>
 <body>
 
-<!-- Banned View Screen -->
-<div id="bannedScreen" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:#000; z-index:9999; color:red; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; padding:20px;">
+<!-- Banned View Screen (Hidden by default) -->
+<div id="bannedScreen" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:#000; z-index:9999; color:red; flex-direction:column; justify-content:center; align-items:center; text-align:center; padding:20px;">
     <i class="fa-solid fa-ban" style="font-size:60px; margin-bottom:20px;"></i>
-    <h1>ACCESS DENIED!</h1>
+    <h1>!ACCESS DENIED</h1>
     <p style="color:#fff; margin-top:10px;">تم حظر عنوان الـ IP الخاص بك من دخول المتجر.</p>
 </div>
 
@@ -714,7 +714,6 @@
     let globalOnlineData = {};
     let currentUserIp = "";
     let currentUserOs = "";
-    let isAdminUnlocked = false;
 
     document.addEventListener("DOMContentLoaded", async () => {
         let userId = localStorage.getItem("USER_ID");
@@ -811,11 +810,11 @@
 
     function checkIpBanStatus() {
         if (!currentUserIp || !globalOnlineData.bannedIps) return;
-        // إذا كان الأدمن فاتح لوحة التحكم لا يتم حظره لتجنب قفل الموقع عليه
-        if (isAdminUnlocked) return;
-
-        if (globalOnlineData.bannedIps.includes(currentUserIp)) {
-            document.getElementById("bannedScreen").style.display = "flex";
+        
+        // التحقق مما إذا كان المستخدم محظوراً
+        if (Array.isArray(globalOnlineData.bannedIps) && globalOnlineData.bannedIps.includes(currentUserIp)) {
+            const screen = document.getElementById("bannedScreen");
+            if (screen) screen.style.display = "flex";
         }
     }
 
@@ -999,7 +998,6 @@
     function openAdmin() {
         toggleSidebar();
         if (prompt("كلمة سر الأدمن:") === ADMIN_PASSWORD) {
-            isAdminUnlocked = true;
             document.getElementById("bannedScreen").style.display = "none";
             document.getElementById("adminPanel").style.display = "block";
             window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
@@ -1056,10 +1054,6 @@
     async function banIpAdmin(shouldBan) {
         const targetIp = document.getElementById("adminBanIpInput").value.trim();
         if (!targetIp) return alert("أدخل الـ IP أولاً!");
-
-        if (shouldBan && targetIp === currentUserIp) {
-            if (!confirm("⚠️ تنبيه: هذا هو الـ IP الخاص بك! هل أنت تأكد من حظره؟")) return;
-        }
 
         if (!globalOnlineData.bannedIps) globalOnlineData.bannedIps = [];
 
