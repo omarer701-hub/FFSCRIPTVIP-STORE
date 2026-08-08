@@ -382,6 +382,7 @@
         <li class="sidebar-item" onclick="switchTab('tab-reset')">
             <i class="fa-solid fa-rotate-left"></i> Reset Keys
         </li>
+        <!-- زر الأدمن مخفي افتراضياً ولا يظهر إلا للـ IP الخاص بك -->
         <li class="sidebar-item" id="adminSidebarBtn" style="color: #ef4444; margin-top: 20px; display: none;" onclick="openAdmin()">
             <i class="fa-solid fa-user-shield"></i> Admin Panel
         </li>
@@ -689,7 +690,7 @@
         "Rapid Core Root", "SPOTIFY FF ROOT", "STRICKS BR ROOT", "Bala Mod"
     ];
 
-    // الأسعار المخصصة لكل منتج (+20 سنت للأدمن)
+    // الأسعار المخصصة بدقة مع إضافة الـ 20 سنت المطلوبة
     const PRODUCT_PRICES = {
         "Drip Client - Apk Mod": [
             { label: "1 Days", price: 0.60 },
@@ -738,7 +739,6 @@
         ]
     };
 
-    // القائمة الافتراضية لباقي المنتجات (إذا لم يكن لها سعر مخصص)
     const DEFAULT_PRICES = [
         { label: "1 Days", price: 0.60 },
         { label: "3 Days", price: 1.00 },
@@ -888,7 +888,6 @@
         const durationSelect = document.getElementById("durationSelect");
         const selectedProduct = productSelect.value;
 
-        // جلب الأسعار المخصصة للمنتج أو الافتراضية
         const prices = PRODUCT_PRICES[selectedProduct] || DEFAULT_PRICES;
 
         durationSelect.innerHTML = "";
