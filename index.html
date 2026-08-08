@@ -121,7 +121,7 @@
             color: #58a6ff;
         }
 
-        select, textarea, input {
+        select, textarea {
             width: 100%;
             padding: 14px;
             background-color: var(--card-bg);
@@ -132,7 +132,7 @@
             outline: none;
         }
 
-        select:focus, textarea:focus, input:focus {
+        select:focus, textarea:focus {
             border-color: var(--accent-blue);
         }
 
@@ -182,7 +182,6 @@
             cursor: pointer;
         }
 
-        /* Admin Modal */
         .admin-panel {
             display: none;
             background: #11161d;
@@ -235,7 +234,6 @@
         <a href="https://t.me/ZAKAFFCODE" target="_blank" class="btn-support">📞 الدعم الفني</a>
     </div>
 
-    <!-- Result Box for Generated Key -->
     <div class="key-result-box" id="keyResultBox">
         <div style="color: #3fb950; font-weight: bold;">🎉 تم شراء وتوليد الكود بنجاح!</div>
         <div class="key-text" id="generatedKey">XXXX-XXXX-XXXX</div>
@@ -310,17 +308,13 @@
 
     <button class="submit-btn" onclick="sendOrder()">🛒 تأكيد الطلب والشراء</button>
 
-    <!-- Admin Button -->
     <button class="admin-toggle-btn" onclick="openAdmin()">🔐 لوحة التحكم (Admin Panel)</button>
 
-    <!-- Admin Panel Section -->
     <div class="admin-panel" id="adminPanel">
         <h3 style="margin-bottom: 15px; color: #8a2be2;">إدارة المخزون والأكواد</h3>
         <div class="form-group">
             <label>اختر المنتج لربط الأكواد:</label>
-            <select id="adminProductSelect">
-                <!-- Populated via Script -->
-            </select>
+            <select id="adminProductSelect"></select>
         </div>
         <div class="form-group">
             <label>اختر المدة:</label>
@@ -333,17 +327,15 @@
         </div>
         <div class="form-group">
             <label>أدخل الأكواد (كود واحد في كل سطر):</label>
-            <textarea id="adminKeysInput" rows="4" placeholder="KEY123&#10;KEY456&#10;KEY789"></textarea>
+            <textarea id="adminKeysInput" rows="4" placeholder="KEY123&#10;KEY456"></textarea>
         </div>
         <button class="btn-main" style="width: 100%; margin-bottom: 10px;" onclick="saveKeys()">💾 حفظ الأكواد في المخزن</button>
-        <div id="stockStatus" style="font-size: 12px; color: var(--text-muted); text-align: center;"></div>
     </div>
 </div>
 
 <script>
-    const ADMIN_PASSWORD = "1234"; // كلمة السر للوحة الأدمن
+    const ADMIN_PASSWORD = "1234";
 
-    // Copy options to admin
     document.addEventListener("DOMContentLoaded", () => {
         const prodSelect = document.getElementById("productSelect");
         const adminProdSelect = document.getElementById("adminProductSelect");
@@ -385,7 +377,7 @@
         
         localStorage.setItem(storageKey, JSON.stringify(existingKeys));
         document.getElementById("adminKeysInput").value = "";
-        alert(`تم إضافة ${newKeys.length} كود بنجاح لمنتج ${product} (${duration})!`);
+        alert(`تم إضافة ${newKeys.length} كود بنجاح!`);
     }
 
     function sendOrder() {
@@ -398,7 +390,6 @@
         let availableKeys = JSON.parse(localStorage.getItem(storageKey) || "[]");
 
         if (availableKeys.length > 0) {
-            // Deliver available key automatically
             const deliveredKey = availableKeys.shift();
             localStorage.setItem(storageKey, JSON.stringify(availableKeys));
 
@@ -406,7 +397,6 @@
             document.getElementById("keyResultBox").style.display = "block";
             window.scrollTo({ top: 0, behavior: 'smooth' });
         } else {
-            // Redirect to Telegram if out of stock
             alert("جاري تحويلك للأدمن لاستلام الكود مباشرة عبر التليجرام...");
             const message = `مرحباً، أود طلب الكود التالي:%0A- المنتج: ${encodeURIComponent(product)}%0A- المدة: ${encodeURIComponent(duration)}%0A- السعر: $${price}`;
             const telegramUrl = `https://t.me/ZAKAFFCODE?text=${message}`;
@@ -419,250 +409,6 @@
         navigator.clipboard.writeText(keyText).then(() => {
             alert("تم نسخ الكود إلى الحافظة!");
         });
-    }
-</script>
-
-</body>
-</html>
-            max-width: 480px;
-            background: #090d12;
-            border-radius: 20px;
-            padding: 20px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
-            border: 1px solid var(--border-color);
-        }
-
-        .header {
-            text-align: center;
-            padding-bottom: 20px;
-            border-bottom: 1px solid var(--border-color);
-            margin-bottom: 20px;
-        }
-
-        .avatar {
-            width: 70px;
-            height: 70px;
-            background: linear-gradient(135deg, #7c3aed, #2563eb);
-            border-radius: 50%;
-            margin: 0 auto 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 32px;
-            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4);
-        }
-
-        .shop-title {
-            font-size: 20px;
-            font-weight: bold;
-            color: #ffffff;
-            margin-bottom: 4px;
-        }
-
-        .user-welcome {
-            font-size: 13px;
-            color: var(--text-muted);
-            margin-bottom: 12px;
-        }
-
-        .action-btns {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .btn-main {
-            flex: 1;
-            background: linear-gradient(135deg, #238636, #2ea043);
-            color: #fff;
-            border: none;
-            padding: 12px;
-            border-radius: 12px;
-            font-weight: bold;
-            font-size: 14px;
-            text-align: center;
-            text-decoration: none;
-            display: block;
-        }
-
-        .btn-support {
-            flex: 1;
-            background: #21262d;
-            color: #c9d1d9;
-            border: 1px solid var(--border-color);
-            padding: 12px;
-            border-radius: 12px;
-            font-weight: bold;
-            font-size: 14px;
-            text-align: center;
-            text-decoration: none;
-            display: block;
-        }
-
-        .form-group {
-            margin-bottom: 18px;
-        }
-
-        label {
-            display: block;
-            font-size: 14px;
-            font-weight: bold;
-            margin-bottom: 8px;
-            color: #58a6ff;
-        }
-
-        select {
-            width: 100%;
-            padding: 14px;
-            background-color: var(--card-bg);
-            color: #ffffff;
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            font-size: 14px;
-            outline: none;
-            cursor: pointer;
-        }
-
-        select:focus {
-            border-color: var(--accent-blue);
-        }
-
-        .price-box {
-            background: #161b22;
-            border: 1px dashed var(--accent-blue);
-            padding: 15px;
-            border-radius: 12px;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .price-title {
-            font-size: 13px;
-            color: var(--text-muted);
-        }
-
-        .price-amount {
-            font-size: 22px;
-            font-weight: bold;
-            color: #3fb950;
-            margin-top: 5px;
-        }
-
-        .submit-btn {
-            width: 100%;
-            background: linear-gradient(135deg, #8b5cf6, #6366f1);
-            color: white;
-            border: none;
-            padding: 15px;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
-        }
-    </style>
-</head>
-<body>
-
-<div class="app-container">
-    <div class="header">
-        <div class="avatar">👑</div>
-        <div class="shop-title">FFSCRIPTVIP STORE</div>
-        <div class="user-welcome">Key Generator - التسليم والتفعيل المباشر</div>
-    </div>
-
-    <div class="action-btns">
-        <a href="https://t.me/ZAKAFFCODE" target="_blank" class="btn-main">💰 شحن رصيد</a>
-        <a href="https://t.me/ZAKAFFCODE" target="_blank" class="btn-support">📞 الدعم الفني</a>
-    </div>
-
-    <div class="form-group">
-        <label for="productSelect">📦 اختر المنتج (Product Type):</label>
-        <select id="productSelect" onchange="updatePrice()">
-            <option value="Drip Proxy Android">Drip Proxy Android</option>
-            <option value="Drip Client - Apk Mod">Drip Client - Apk Mod</option>
-            <option value="Drip Client - Root Device">Drip Client - Root Device</option>
-            <option value="Pato Team Apkmod Orange">Pato Team Apkmod Orange</option>
-            <option value="Pato Team Apkmod Blue">Pato Team Apkmod Blue</option>
-            <option value="Hg Cheats Apk Mod">Hg Cheats Apk Mod</option>
-            <option value="Hg Cheats Proxy Apk">Hg Cheats Proxy Apk</option>
-            <option value="Gbox Esign Cert">Gbox Esign Cert</option>
-            <option value="Fluorite FF iOS">Fluorite FF iOS</option>
-            <option value="Fluorite 8BP IOS">Fluorite 8BP IOS</option>
-            <option value="Fluorite MLBB IOS">Fluorite MLBB IOS</option>
-            <option value="BR MODS PC SILENT">BR MODS PC SILENT</option>
-            <option value="BR MODS PC AIMKILL">BR MODS PC AIMKILL</option>
-            <option value="BR MODS ROOT">BR MODS ROOT</option>
-            <option value="SCORPION ROOT LITE">SCORPION ROOT LITE</option>
-            <option value="SCORPION ROOT BRUTAL">SCORPION ROOT BRUTAL</option>
-            <option value="Zytron Root">Zytron Root</option>
-            <option value="Angry mod root">Angry mod root</option>
-            <option value="Reaper X Pro Root">Reaper X Pro Root</option>
-            <option value="DRIP AIMKILL X86 Pc">DRIP AIMKILL X86 Pc</option>
-            <option value="Haxxcker Pro Root">Haxxcker Pro Root</option>
-            <option value="Prime Mods Apkmod">Prime Mods Apkmod</option>
-            <option value="Terminal x PC Aimkill">Terminal x PC Aimkill</option>
-            <option value="Terminal x PC Aimkill cover">Terminal x PC Aimkill cover</option>
-            <option value="Cloud CODM IOS">Cloud CODM IOS</option>
-            <option value="8ball IOS GBD">8ball IOS GBD</option>
-            <option value="EzTeam 8boll pool Apk">EzTeam 8boll pool Apk</option>
-            <option value="Pubg Zolo Android">Pubg Zolo Android</option>
-            <option value="MIGUL - MONITE IOS [PRO]">MIGUL - MONITE IOS [PRO]</option>
-            <option value="MIGUL - MONITE IOS [BASIC]">MIGUL - MONITE IOS [BASIC]</option>
-            <option value="MIGUL - MONITE IOS [VN-PRO]">MIGUL - MONITE IOS [VN-PRO]</option>
-            <option value="SILENT CHEATS MODMENU">SILENT CHEATS MODMENU</option>
-            <option value="SILENT CHEATS SAFE">SILENT CHEATS SAFE</option>
-            <option value="SILENT CHEATS BRUTAL">SILENT CHEATS BRUTAL</option>
-            <option value="Lk team Root+Pc">Lk team Root+Pc</option>
-            <option value="Alien MLBB (Android)">Alien MLBB (Android)</option>
-            <option value="King iOS">King iOS</option>
-            <option value="Wingmod Root">Wingmod Root</option>
-            <option value="WizardiOS 8bp">WizardiOS 8bp</option>
-            <option value="VOLUME STEAMER PRO">VOLUME STEAMER PRO</option>
-            <option value="iOSSTAR 8bp">iOSSTAR 8bp</option>
-            <option value="Rapid Core Root">Rapid Core Root</option>
-            <option value="SPOTIFY FF ROOT">SPOTIFY FF ROOT</option>
-            <option value="STRICKS BR ROOT">STRICKS BR ROOT</option>
-            <option value="Bala Mod">Bala Mod</option>
-        </select>
-    </div>
-
-    <div class="form-group">
-        <label for="durationSelect">⏳ اختر المدة (Duration):</label>
-        <select id="durationSelect" onchange="updatePrice()">
-            <option value="1 Days" data-price="0.60">1 Days - $0.60</option>
-            <option value="3 Days" data-price="1.00">3 Days - $1.00</option>
-            <option value="7 Days" data-price="2.50">7 Days - $2.50</option>
-            <option value="30 Days" data-price="6.00">30 Days - $6.00</option>
-        </select>
-    </div>
-
-    <div class="price-box">
-        <div class="price-title">التكلفة الإجمالية:</div>
-        <div class="price-amount" id="displayPrice">$0.60</div>
-    </div>
-
-    <button class="submit-btn" onclick="sendOrder()">🛒 تأكيد الطلب والشراء</button>
-</div>
-
-<script>
-    function updatePrice() {
-        const durationSelect = document.getElementById("durationSelect");
-        const selectedOption = durationSelect.options[durationSelect.selectedIndex];
-        const price = selectedOption.getAttribute("data-price");
-        document.getElementById("displayPrice").textContent = "$" + parseFloat(price).toFixed(2);
-    }
-
-    function sendOrder() {
-        const product = document.getElementById("productSelect").value;
-        const durationSelect = document.getElementById("durationSelect");
-        const duration = durationSelect.value;
-        const price = durationSelect.options[durationSelect.selectedIndex].getAttribute("data-price");
-        
-        const message = `مرحباً، أود طلب الكود التالي:%0A- المنتج: ${encodeURIComponent(product)}%0A- المدة: ${encodeURIComponent(duration)}%0A- السعر: $${price}`;
-        const telegramUrl = `https://t.me/ZAKAFFCODE?text=${message}`;
-        
-        window.open(telegramUrl, '_blank');
     }
 </script>
 
