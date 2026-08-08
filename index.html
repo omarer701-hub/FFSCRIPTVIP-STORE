@@ -489,9 +489,6 @@
 
 <script>
     const ADMIN_PASSWORD = "mra359rt";
-    
-    // كود سر تفعيل رتبة البائع (تقدر تغيره لأي كلمة تحبها)
-    const RESELLER_SECRET_CODE = "VIP2026";
 
     const PRICING = {
         client: [
@@ -528,14 +525,20 @@
         return localStorage.getItem("MY_ROLE") || "client";
     }
 
+    // دالة التفعيل الذكي القائمة على الـ ID الخاص بالمستخدم
     function activateResellerCode() {
+        const userId = localStorage.getItem("USER_ID");
         const inputCode = document.getElementById("resellerCodeInput").value.trim();
-        if (inputCode === RESELLER_SECRET_CODE) {
+        
+        // الكود المسموح هو كلمة ACTIVATE_ + الـ ID الخاص بالمستخدم
+        const correctCode = "ACTIVATE_" + userId;
+
+        if (inputCode === correctCode) {
             localStorage.setItem("MY_ROLE", "reseller");
             alert("🎉 مبروك! تم تفعيل حسابك كـ بائع VIP وتخفيض كافة الأسعار!");
             updateUserRoleDisplay();
         } else {
-            alert("❌ كود البائع غير صحيح!");
+            alert("❌ كود التفعيل غير صحيح لهذا الحساب!");
         }
     }
 
@@ -547,7 +550,7 @@
         if (role === "reseller") {
             badge.className = "role-badge role-reseller";
             badge.textContent = "⭐ حساب بائع VIP (أسعار خاصة)";
-            codeBox.style.display = "none"; // إخفاء مربع الكود إذا كان أصل بائع
+            codeBox.style.display = "none";
         } else {
             badge.className = "role-badge role-client";
             badge.textContent = "👤 حساب زبون عادي";
@@ -788,3 +791,4 @@
 
 </body>
 </html>
+
