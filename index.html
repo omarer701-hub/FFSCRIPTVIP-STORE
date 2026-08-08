@@ -295,15 +295,6 @@
             margin: 10px 0;
             word-break: break-all;
         }
-
-        .reseller-code-box {
-            background: #161b22;
-            border: 1px solid var(--accent-gold);
-            border-radius: 12px;
-            padding: 12px;
-            margin-bottom: 15px;
-            text-align: center;
-        }
     </style>
 </head>
 <body>
@@ -313,7 +304,7 @@
         <div style="font-size: 30px;">👑</div>
         <div style="font-size: 19px; font-weight: bold; color: #ffffff;">FFSCRIPTVIP STORE</div>
         <div class="user-id-badge" onclick="copyUserId()" title="اضغط لنسخ الـ ID">
-            ID: <span id="myUserId">...</span> 📋
+            ID: <span id="myUserId">جاري التحميل...</span> 📋
         </div>
         <br>
         <div id="userRoleBadge" class="role-badge role-client">👤 حساب زبون عادي</div>
@@ -321,15 +312,6 @@
 
     <div class="balance-box">
         💰 الرصيد الحالي: $<span id="userBalance">0.00</span>
-    </div>
-
-    <!-- قسم إدخال كود التفعيل / الإلغاء -->
-    <div class="reseller-code-box" id="resellerCodeContainer">
-        <label style="color: #d29922; font-size: 13px;">⭐ تفعيل أو إلغاء حساب بائع VIP:</label>
-        <div style="display: flex; gap: 6px; margin-top: 5px;">
-            <input type="text" id="resellerCodeInput" placeholder="أدخل كود التفعيل أو الإلغاء هنا" style="padding: 8px; font-size: 12px;">
-            <button class="btn-gold" style="white-space: nowrap; font-size: 12px;" onclick="activateResellerCode()">تفعيل / إلغاء</button>
-        </div>
     </div>
 
     <div class="action-btns">
@@ -412,18 +394,13 @@
     <div class="admin-panel" id="adminPanel">
         <h3 style="margin-bottom: 15px; color: #8a2be2; text-align: center;">⚙️ لوحة إدارة الأدمن</h3>
 
-        <!-- مولد أكواد التفعيل والإلغاء -->
+        <!-- تغيير رتبة المستخدم (بائع / زبون) -->
         <div class="admin-section">
-            <label style="color: #d29922;">⭐ إدارة رتبة المستخدم (تفعيل / إلغاء VIP):</label>
-            <input type="text" id="adminGenTargetId" placeholder="أدخل ID العميل هنا" style="margin-bottom: 6px;">
+            <label style="color: #d29922;">⭐ إدارة رتبة المستخدم (ترقية / تنزيل):</label>
+            <input type="text" id="adminRoleTargetId" placeholder="أدخل ID المستخدم هنا" style="margin-bottom: 6px;">
             <div style="display: flex; gap: 8px; margin-top: 4px;">
-                <button class="btn-gold" style="flex: 1;" onclick="generateResellerCodeAdmin()">🔑 كود التفعيل</button>
-                <button class="btn-danger" style="flex: 1;" onclick="generateDeactivateCodeAdmin()">❌ كود الإلغاء</button>
-            </div>
-            <div id="generatedResellerCodeBox" style="display:none; margin-top: 10px; background: #0d1117; padding: 10px; border-radius: 8px; border: 1px dashed #d29922; text-align: center;">
-                <span id="codeTypeLabel" style="font-size: 12px; color: #8b949e;">الكود الخص بالعميل:</span>
-                <div id="adminGeneratedCodeText" style="font-size: 16px; font-weight: bold; color: #d29922; margin: 5px 0;"></div>
-                <button class="copy-code-btn" onclick="copyAdminGeneratedCode()">📋 نسخ الكود للعميل</button>
+                <button class="btn-gold" style="flex: 1;" onclick="changeRoleAdmin('reseller')">⭐ رفعه لبائع VIP</button>
+                <button class="btn-support" style="flex: 1; background: #30363d; color: white;" onclick="changeRoleAdmin('client')">👤 تنزيله لزبون عادي</button>
             </div>
         </div>
 
@@ -450,7 +427,7 @@
         <div class="admin-section">
             <label style="color: #58a6ff;">🔍 معاينة رصيد حساب من الـ ID:</label>
             <input type="text" id="adminCheckTargetId" placeholder="أدخل ID المستخدم">
-            <button class="btn-support" style="width: 100%; margin-top: 8px; background: #1f6feb; color: white;" onclick="checkBalanceAdmin()">🔎 كشف الرصيد</button>
+            <button class="btn-support" style="width: 100%; margin-top: 8px; background: #1f6feb; color: white;" onclick="checkBalanceAdmin()">🔎 كشف البيانات أونلاين</button>
         </div>
 
         <!-- إدخال وتخزين الأكواد -->
@@ -505,9 +482,9 @@
 <script>
     const ADMIN_PASSWORD = "mra359rt";
     
-    // الكلمات السرية الخفية للأدمن
-    const SECRET_SALT_ACTIVATE = "ZAKAVIP";
-    const SECRET_SALT_DEACTIVATE = "CANCELVIP";
+    // الأكواد الخاصة بك من موقع JSONBin
+    const JSONBIN_BIN_ID = "6a7771aeda38895dfecaa3a9";
+    const JSONBIN_API_KEY = "$2a$10$MoDxxOV9R4GgMSmNuVovC.K9uapoJVJlqFE2XrVrq26RVYrNhkWJW";
 
     const PRICING = {
         client: [
@@ -524,7 +501,9 @@
         ]
     };
 
-    document.addEventListener("DOMContentLoaded", () => {
+    let globalOnlineData = {};
+
+    document.addEventListener("DOMContentLoaded", async () => {
         let userId = localStorage.getItem("USER_ID");
         if (!userId) {
             userId = "USER_" + Math.floor(100000 + Math.random() * 900000);
@@ -536,74 +515,46 @@
         const adminProdSelect = document.getElementById("adminProductSelect");
         adminProdSelect.innerHTML = prodSelect.innerHTML;
 
-        updateUserRoleDisplay();
-        loadBalance();
+        await fetchOnlineData();
     });
 
-    function getUserRole() {
-        return localStorage.getItem("MY_ROLE") || "client";
-    }
+    async function fetchOnlineData() {
+        try {
+            const res = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {
+                headers: { "X-Master-Key": JSONBIN_API_KEY }
+            });
+            const json = await res.json();
+            globalOnlineData = json.record || {};
 
-    // تفعيل أو إلغاء حساب البائع
-    function activateResellerCode() {
-        const userId = localStorage.getItem("USER_ID");
-        const inputCode = document.getElementById("resellerCodeInput").value.trim();
-        
-        const activateCode = SECRET_SALT_ACTIVATE + userId;
-        const deactivateCode = SECRET_SALT_DEACTIVATE + userId;
+            const userId = localStorage.getItem("USER_ID");
+            const userData = globalOnlineData[userId] || { balance: 0.00, role: "client" };
 
-        if (inputCode === activateCode) {
-            localStorage.setItem("MY_ROLE", "reseller");
-            alert("🎉 مبروك! تم تفعيل حسابك كـ بائع VIP وتخفيض كافة الأسعار!");
-            updateUserRoleDisplay();
-        } else if (inputCode === deactivateCode) {
-            localStorage.setItem("MY_ROLE", "client");
-            alert("🔄 تم إلغاء تفعيل البائع وإعادة حسابك إلى زبون عادي.");
-            updateUserRoleDisplay();
-        } else {
-            alert("❌ كود التفعيل أو الإلغاء غير صحيح لهذا الحساب!");
+            document.getElementById("userBalance").textContent = parseFloat(userData.balance || 0).toFixed(2);
+            updateUserRoleDisplay(userData.role || "client");
+        } catch (err) {
+            console.error("خطأ في جلب البيانات أونلاين:", err);
         }
     }
 
-    // إنتاج كود التفعيل لبائع VIP
-    function generateResellerCodeAdmin() {
-        const targetId = document.getElementById("adminGenTargetId").value.trim();
-        if (!targetId) {
-            alert("يرجى إدخال ID العميل أولاً!");
-            return;
+    async function saveOnlineData() {
+        try {
+            await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-Master-Key": JSONBIN_API_KEY
+                },
+                body: JSON.stringify(globalOnlineData)
+            });
+            return true;
+        } catch (err) {
+            alert("❌ حدث خطأ أثناء الحفظ على السيرفر، يرجى المحاولة لاحقاً.");
+            return false;
         }
-
-        const generatedCode = SECRET_SALT_ACTIVATE + targetId;
-        document.getElementById("codeTypeLabel").textContent = "كود التفعيل لبائع VIP:";
-        document.getElementById("adminGeneratedCodeText").textContent = generatedCode;
-        document.getElementById("generatedResellerCodeBox").style.display = "block";
     }
 
-    // إنتاج كود الإلغاء والنزول لزبون عادي
-    function generateDeactivateCodeAdmin() {
-        const targetId = document.getElementById("adminGenTargetId").value.trim();
-        if (!targetId) {
-            alert("يرجى إدخال ID العميل أولاً!");
-            return;
-        }
-
-        const generatedCode = SECRET_SALT_DEACTIVATE + targetId;
-        document.getElementById("codeTypeLabel").textContent = "كود الإلغاء (الرجوع لزبون عادي):";
-        document.getElementById("adminGeneratedCodeText").textContent = generatedCode;
-        document.getElementById("generatedResellerCodeBox").style.display = "block";
-    }
-
-    function copyAdminGeneratedCode() {
-        const code = document.getElementById("adminGeneratedCodeText").textContent;
-        navigator.clipboard.writeText(code).then(() => {
-            alert("تم نسخ الكود بنجاح!\n" + code);
-        });
-    }
-
-    function updateUserRoleDisplay() {
-        const role = getUserRole();
+    function updateUserRoleDisplay(role) {
         const badge = document.getElementById("userRoleBadge");
-        const codeBox = document.getElementById("resellerCodeContainer");
 
         if (role === "reseller") {
             badge.className = "role-badge role-reseller";
@@ -612,16 +563,13 @@
             badge.className = "role-badge role-client";
             badge.textContent = "👤 حساب زبون عادي";
         }
-        // إبقاء مربع الكود ظاهراً دائماً ليتمكن المستخدم من الخروج من وضع VIP إن أراد
-        codeBox.style.display = "block";
 
-        updateDurationOptions();
+        updateDurationOptions(role);
     }
 
-    function updateDurationOptions() {
-        const role = getUserRole();
+    function updateDurationOptions(role = "client") {
         const durationSelect = document.getElementById("durationSelect");
-        const prices = PRICING[role];
+        const prices = PRICING[role] || PRICING["client"];
 
         durationSelect.innerHTML = "";
         prices.forEach(item => {
@@ -633,6 +581,101 @@
         });
 
         updatePrice();
+    }
+
+    async function changeRoleAdmin(newRole) {
+        const targetId = document.getElementById("adminRoleTargetId").value.trim();
+        if (!targetId) {
+            alert("يرجى إدخال ID العميل أولاً!");
+            return;
+        }
+
+        if (!globalOnlineData[targetId]) {
+            globalOnlineData[targetId] = { balance: 0.00, role: "client" };
+        }
+
+        globalOnlineData[targetId].role = newRole;
+        
+        if (await saveOnlineData()) {
+            const roleText = newRole === "reseller" ? "بائع VIP ⭐" : "زبون عادي 👤";
+            alert(`✅ تم تغيير رتبة العميل (${targetId}) إلى ${roleText} بنجاح!`);
+            fetchOnlineData();
+        }
+    }
+
+    async function addBalanceAdmin() {
+        const targetId = document.getElementById("adminAddTargetId").value.trim();
+        const amount = parseFloat(document.getElementById("adminAddAmount").value);
+        
+        if (!targetId || isNaN(amount) || amount <= 0) {
+            alert("يرجى إدخال ID صحيح ومبلغ صحيح!");
+            return;
+        }
+        
+        if (!globalOnlineData[targetId]) {
+            globalOnlineData[targetId] = { balance: 0.00, role: "client" };
+        }
+
+        globalOnlineData[targetId].balance = (parseFloat(globalOnlineData[targetId].balance) || 0) + amount;
+
+        if (await saveOnlineData()) {
+            alert(`✅ تم إضافة $${amount.toFixed(2)} للمستخدم (${targetId})\nالرصيد الجديد: $${globalOnlineData[targetId].balance.toFixed(2)}`);
+            document.getElementById("adminAddAmount").value = "";
+            fetchOnlineData();
+        }
+    }
+
+    async function deductBalanceAdmin() {
+        const targetId = document.getElementById("adminDeductTargetId").value.trim();
+        const amount = parseFloat(document.getElementById("adminDeductAmount").value);
+        
+        if (!targetId || isNaN(amount) || amount <= 0) {
+            alert("يرجى إدخال ID صحيح ومبلغ صحيح!");
+            return;
+        }
+        
+        if (!globalOnlineData[targetId]) {
+            alert("المستخدم غير موجود أصلاً!");
+            return;
+        }
+
+        let curr = parseFloat(globalOnlineData[targetId].balance) || 0;
+        globalOnlineData[targetId].balance = Math.max(0, curr - amount);
+
+        if (await saveOnlineData()) {
+            alert(`🔻 تم خصم $${amount.toFixed(2)} من المستخدم (${targetId})\nالرصيد المتبقي: $${globalOnlineData[targetId].balance.toFixed(2)}`);
+            document.getElementById("adminDeductAmount").value = "";
+            fetchOnlineData();
+        }
+    }
+
+    async function zeroBalanceAdmin() {
+        const targetId = document.getElementById("adminDeductTargetId").value.trim();
+        if (!targetId) {
+            alert("يرجى إدخال ID المستخدم لتصفير حسابه!");
+            return;
+        }
+
+        if (confirm(`هل أنت تأكد من تصفير رصيد حساب (${targetId}) تماماً؟`)) {
+            if (!globalOnlineData[targetId]) globalOnlineData[targetId] = { balance: 0.00, role: "client" };
+            globalOnlineData[targetId].balance = 0.00;
+
+            if (await saveOnlineData()) {
+                alert(`🧹 تم تصفير رصيد الحساب (${targetId}) بنجاح!`);
+                fetchOnlineData();
+            }
+        }
+    }
+
+    function checkBalanceAdmin() {
+        const targetId = document.getElementById("adminCheckTargetId").value.trim();
+        if (!targetId) {
+            alert("يرجى إدخال الـ ID أولاً!");
+            return;
+        }
+
+        const data = globalOnlineData[targetId] || { balance: 0.00, role: "client" };
+        alert(`🔍 بيانات الحساب (${targetId}) أونلاين:\n💰 الرصيد: $${data.balance.toFixed(2)}\n⭐ الرتبة: ${data.role}`);
     }
 
     function sendPaymentViaTelegram() {
@@ -661,12 +704,6 @@
                 alert("تم نسخ الـ ID الخاص بك بنجاح:\n" + userId);
             });
         }
-    }
-
-    function loadBalance() {
-        const userId = localStorage.getItem("USER_ID");
-        let balance = parseFloat(localStorage.getItem("BALANCE_" + userId) || "0.00");
-        document.getElementById("userBalance").textContent = balance.toFixed(2);
     }
 
     function updatePrice() {
@@ -717,69 +754,6 @@
         }
     }
 
-    function addBalanceAdmin() {
-        const targetId = document.getElementById("adminAddTargetId").value.trim();
-        const amount = parseFloat(document.getElementById("adminAddAmount").value);
-        
-        if (!targetId || isNaN(amount) || amount <= 0) {
-            alert("يرجى إدخال ID صحيح ومبلغ صحيح!");
-            return;
-        }
-        
-        let currentBalance = parseFloat(localStorage.getItem("BALANCE_" + targetId) || "0.00");
-        let newBalance = currentBalance + amount;
-        
-        localStorage.setItem("BALANCE_" + targetId, newBalance.toFixed(2));
-        alert(`✅ تم إضافة $${amount.toFixed(2)} للمستخدم (${targetId})\nالرصيد الجديد: $${newBalance.toFixed(2)}`);
-        
-        document.getElementById("adminAddAmount").value = "";
-        loadBalance();
-    }
-
-    function deductBalanceAdmin() {
-        const targetId = document.getElementById("adminDeductTargetId").value.trim();
-        const amount = parseFloat(document.getElementById("adminDeductAmount").value);
-        
-        if (!targetId || isNaN(amount) || amount <= 0) {
-            alert("يرجى إدخال ID صحيح ومبلغ المراد خصمه!");
-            return;
-        }
-        
-        let currentBalance = parseFloat(localStorage.getItem("BALANCE_" + targetId) || "0.00");
-        let newBalance = Math.max(0, currentBalance - amount);
-        
-        localStorage.setItem("BALANCE_" + targetId, newBalance.toFixed(2));
-        alert(`🔻 تم خصم $${amount.toFixed(2)} من المستخدم (${targetId})\nالرصيد المتبقي: $${newBalance.toFixed(2)}`);
-        
-        document.getElementById("adminDeductAmount").value = "";
-        loadBalance();
-    }
-
-    function zeroBalanceAdmin() {
-        const targetId = document.getElementById("adminDeductTargetId").value.trim();
-        if (!targetId) {
-            alert("يرجى إدخال ID المستخدم لتصفير حسابه!");
-            return;
-        }
-
-        if (confirm(`هل أنت تأكد من تصفير رصيد حساب (${targetId}) تماماً؟`)) {
-            localStorage.setItem("BALANCE_" + targetId, "0.00");
-            alert(`🧹 تم تصفير رصيد الحساب (${targetId}) بنجاح! الرصيد الحالي: $0.00`);
-            loadBalance();
-        }
-    }
-
-    function checkBalanceAdmin() {
-        const targetId = document.getElementById("adminCheckTargetId").value.trim();
-        if (!targetId) {
-            alert("يرجى إدخال الـ ID أولاً!");
-            return;
-        }
-
-        let balance = parseFloat(localStorage.getItem("BALANCE_" + targetId) || "0.00");
-        alert(`🔍 رصيد الحساب (${targetId}) الحالي هو:\n💰 $${balance.toFixed(2)} USD`);
-    }
-
     function saveKeys() {
         const product = document.getElementById("adminProductSelect").value;
         const duration = document.getElementById("adminDurationSelect").value;
@@ -801,14 +775,15 @@
         alert(`تم إضافة ${newKeys.length} كود بنجاح!`);
     }
 
-    function sendOrder() {
+    async function sendOrder() {
         const userId = localStorage.getItem("USER_ID");
         const product = document.getElementById("productSelect").value;
         const durationSelect = document.getElementById("durationSelect");
         const duration = durationSelect.value;
         const price = parseFloat(durationSelect.options[durationSelect.selectedIndex].getAttribute("data-price"));
         
-        let userBalance = parseFloat(localStorage.getItem("BALANCE_" + userId) || "0.00");
+        const userData = globalOnlineData[userId] || { balance: 0.00, role: "client" };
+        let userBalance = parseFloat(userData.balance || 0);
 
         if (userBalance < price) {
             alert(`رصيدك الحالي ($${userBalance.toFixed(2)}) غير كافٍ لشراء هذا المنتج ($${price.toFixed(2)}).\nيرجى شحن رصيدك أولاً!`);
@@ -821,14 +796,15 @@
 
         if (availableKeys.length > 0) {
             userBalance -= price;
-            localStorage.setItem("BALANCE_" + userId, userBalance.toFixed(2));
-            loadBalance();
+            globalOnlineData[userId].balance = userBalance;
+            await saveOnlineData();
 
             const deliveredKey = availableKeys.shift();
             localStorage.setItem(storageKey, JSON.stringify(availableKeys));
 
             document.getElementById("generatedKey").textContent = deliveredKey;
             document.getElementById("keyResultBox").style.display = "block";
+            fetchOnlineData();
             window.scrollTo({ top: 0, behavior: 'smooth' });
         } else {
             alert("عذراً، هذا المنتج غير متوفر آلياً حالياً. جاري تحويلك للمالك لتوفيره لك فوراً...");
