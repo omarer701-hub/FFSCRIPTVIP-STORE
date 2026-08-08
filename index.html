@@ -323,12 +323,12 @@
         💰 الرصيد الحالي: $<span id="userBalance">0.00</span>
     </div>
 
-    <!-- قسم إدخال كود البائع للمستخدم -->
+    <!-- قسم إدخال كود التفعيل / الإلغاء -->
     <div class="reseller-code-box" id="resellerCodeContainer">
-        <label style="color: #d29922; font-size: 13px;">⭐ تفعيل حساب بائع VIP:</label>
+        <label style="color: #d29922; font-size: 13px;">⭐ تفعيل أو إلغاء حساب بائع VIP:</label>
         <div style="display: flex; gap: 6px; margin-top: 5px;">
-            <input type="text" id="resellerCodeInput" placeholder="أدخل كود البائع هنا" style="padding: 8px; font-size: 12px;">
-            <button class="btn-gold" style="white-space: nowrap; font-size: 12px;" onclick="activateResellerCode()">تفعيل</button>
+            <input type="text" id="resellerCodeInput" placeholder="أدخل كود التفعيل أو الإلغاء هنا" style="padding: 8px; font-size: 12px;">
+            <button class="btn-gold" style="white-space: nowrap; font-size: 12px;" onclick="activateResellerCode()">تفعيل / إلغاء</button>
         </div>
     </div>
 
@@ -412,6 +412,21 @@
     <div class="admin-panel" id="adminPanel">
         <h3 style="margin-bottom: 15px; color: #8a2be2; text-align: center;">⚙️ لوحة إدارة الأدمن</h3>
 
+        <!-- مولد أكواد التفعيل والإلغاء -->
+        <div class="admin-section">
+            <label style="color: #d29922;">⭐ إدارة رتبة المستخدم (تفعيل / إلغاء VIP):</label>
+            <input type="text" id="adminGenTargetId" placeholder="أدخل ID العميل هنا" style="margin-bottom: 6px;">
+            <div style="display: flex; gap: 8px; margin-top: 4px;">
+                <button class="btn-gold" style="flex: 1;" onclick="generateResellerCodeAdmin()">🔑 كود التفعيل</button>
+                <button class="btn-danger" style="flex: 1;" onclick="generateDeactivateCodeAdmin()">❌ كود الإلغاء</button>
+            </div>
+            <div id="generatedResellerCodeBox" style="display:none; margin-top: 10px; background: #0d1117; padding: 10px; border-radius: 8px; border: 1px dashed #d29922; text-align: center;">
+                <span id="codeTypeLabel" style="font-size: 12px; color: #8b949e;">الكود الخص بالعميل:</span>
+                <div id="adminGeneratedCodeText" style="font-size: 16px; font-weight: bold; color: #d29922; margin: 5px 0;"></div>
+                <button class="copy-code-btn" onclick="copyAdminGeneratedCode()">📋 نسخ الكود للعميل</button>
+            </div>
+        </div>
+
         <!-- إضافة رصيد -->
         <div class="admin-section">
             <label style="color: #3fb950;">💵 إضافة رصيد لمستخدم:</label>
@@ -489,6 +504,10 @@
 
 <script>
     const ADMIN_PASSWORD = "mra359rt";
+    
+    // الكلمات السرية الخفية للأدمن
+    const SECRET_SALT_ACTIVATE = "ZAKAVIP";
+    const SECRET_SALT_DEACTIVATE = "CANCELVIP";
 
     const PRICING = {
         client: [
@@ -498,10 +517,10 @@
             { label: "30 Days", price: 6.00 }
         ],
         reseller: [
-            { label: "1 Days", price: 0.40 }, // سعر البائع
-            { label: "3 Days", price: 0.75 }, // سعر البائع
-            { label: "7 Days", price: 1.80 }, // سعر البائع
-            { label: "30 Days", price: 4.50 }  // سعر البائع
+            { label: "1 Days", price: 0.40 }, 
+            { label: "3 Days", price: 0.75 }, 
+            { label: "7 Days", price: 1.80 }, 
+            { label: "30 Days", price: 4.50 }  
         ]
     };
 
@@ -525,21 +544,60 @@
         return localStorage.getItem("MY_ROLE") || "client";
     }
 
-    // دالة التفعيل الذكي القائمة على الـ ID الخاص بالمستخدم
+    // تفعيل أو إلغاء حساب البائع
     function activateResellerCode() {
         const userId = localStorage.getItem("USER_ID");
         const inputCode = document.getElementById("resellerCodeInput").value.trim();
         
-        // الكود المسموح هو كلمة ACTIVATE_ + الـ ID الخاص بالمستخدم
-        const correctCode = "ACTIVATE_" + userId;
+        const activateCode = SECRET_SALT_ACTIVATE + userId;
+        const deactivateCode = SECRET_SALT_DEACTIVATE + userId;
 
-        if (inputCode === correctCode) {
+        if (inputCode === activateCode) {
             localStorage.setItem("MY_ROLE", "reseller");
             alert("🎉 مبروك! تم تفعيل حسابك كـ بائع VIP وتخفيض كافة الأسعار!");
             updateUserRoleDisplay();
+        } else if (inputCode === deactivateCode) {
+            localStorage.setItem("MY_ROLE", "client");
+            alert("🔄 تم إلغاء تفعيل البائع وإعادة حسابك إلى زبون عادي.");
+            updateUserRoleDisplay();
         } else {
-            alert("❌ كود التفعيل غير صحيح لهذا الحساب!");
+            alert("❌ كود التفعيل أو الإلغاء غير صحيح لهذا الحساب!");
         }
+    }
+
+    // إنتاج كود التفعيل لبائع VIP
+    function generateResellerCodeAdmin() {
+        const targetId = document.getElementById("adminGenTargetId").value.trim();
+        if (!targetId) {
+            alert("يرجى إدخال ID العميل أولاً!");
+            return;
+        }
+
+        const generatedCode = SECRET_SALT_ACTIVATE + targetId;
+        document.getElementById("codeTypeLabel").textContent = "كود التفعيل لبائع VIP:";
+        document.getElementById("adminGeneratedCodeText").textContent = generatedCode;
+        document.getElementById("generatedResellerCodeBox").style.display = "block";
+    }
+
+    // إنتاج كود الإلغاء والنزول لزبون عادي
+    function generateDeactivateCodeAdmin() {
+        const targetId = document.getElementById("adminGenTargetId").value.trim();
+        if (!targetId) {
+            alert("يرجى إدخال ID العميل أولاً!");
+            return;
+        }
+
+        const generatedCode = SECRET_SALT_DEACTIVATE + targetId;
+        document.getElementById("codeTypeLabel").textContent = "كود الإلغاء (الرجوع لزبون عادي):";
+        document.getElementById("adminGeneratedCodeText").textContent = generatedCode;
+        document.getElementById("generatedResellerCodeBox").style.display = "block";
+    }
+
+    function copyAdminGeneratedCode() {
+        const code = document.getElementById("adminGeneratedCodeText").textContent;
+        navigator.clipboard.writeText(code).then(() => {
+            alert("تم نسخ الكود بنجاح!\n" + code);
+        });
     }
 
     function updateUserRoleDisplay() {
@@ -550,12 +608,12 @@
         if (role === "reseller") {
             badge.className = "role-badge role-reseller";
             badge.textContent = "⭐ حساب بائع VIP (أسعار خاصة)";
-            codeBox.style.display = "none";
         } else {
             badge.className = "role-badge role-client";
             badge.textContent = "👤 حساب زبون عادي";
-            codeBox.style.display = "block";
         }
+        // إبقاء مربع الكود ظاهراً دائماً ليتمكن المستخدم من الخروج من وضع VIP إن أراد
+        codeBox.style.display = "block";
 
         updateDurationOptions();
     }
