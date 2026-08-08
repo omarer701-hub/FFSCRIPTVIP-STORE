@@ -382,7 +382,6 @@
         <li class="sidebar-item" onclick="switchTab('tab-reset')">
             <i class="fa-solid fa-rotate-left"></i> Reset Keys
         </li>
-        <!-- زر الأدمن يظهر فقط للـ IP الخاص بك -->
         <li class="sidebar-item" id="adminSidebarBtn" style="color: #ef4444; margin-top: 20px; display: none;" onclick="openAdmin()">
             <i class="fa-solid fa-user-shield"></i> Admin Panel
         </li>
@@ -690,60 +689,60 @@
         "Rapid Core Root", "SPOTIFY FF ROOT", "STRICKS BR ROOT", "Bala Mod"
     ];
 
-    // الأسعار المخصصة (مضاف إليها 20 سنت للأدمن على كل منتج كما طلبت)
+    // الأسعار بالكامل مضاف إليها زيادة الـ 20 سنت المطلوبة
     const PRODUCT_PRICES = {
         "Drip Client - Apk Mod": [
-            { label: "1 Days", price: 0.60 },
-            { label: "3 Days", price: 1.40 },
-            { label: "7 Days", price: 2.50 },
-            { label: "15 Days", price: 4.00 },
-            { label: "30 Days", price: 6.00 }
+            { label: "1 Days", price: 0.80 },
+            { label: "3 Days", price: 1.60 },
+            { label: "7 Days", price: 2.70 },
+            { label: "15 Days", price: 4.20 },
+            { label: "30 Days", price: 6.20 }
         ],
         "Pato Team Apkmod Orange": [
-            { label: "3 Days", price: 3.00 },
-            { label: "7 Days", price: 4.00 },
-            { label: "15 Days", price: 6.00 },
-            { label: "30 Days", price: 10.00 }
+            { label: "3 Days", price: 3.20 },
+            { label: "7 Days", price: 4.20 },
+            { label: "15 Days", price: 6.20 },
+            { label: "30 Days", price: 10.20 }
         ],
         "Pato Team Apkmod Blue": [
-            { label: "3 Days", price: 2.00 },
-            { label: "7 Days", price: 4.00 },
-            { label: "15 Days", price: 5.00 },
-            { label: "30 Days", price: 8.00 }
+            { label: "3 Days", price: 2.20 },
+            { label: "7 Days", price: 4.20 },
+            { label: "15 Days", price: 5.20 },
+            { label: "30 Days", price: 8.20 }
         ],
         "Hg Cheats Proxy Apk": [
-            { label: "1 Days", price: 1.00 },
-            { label: "7 Days", price: 1.50 },
-            { label: "30 Days", price: 4.00 }
+            { label: "1 Days", price: 1.20 },
+            { label: "7 Days", price: 1.70 },
+            { label: "30 Days", price: 4.20 }
         ],
         "Gbox Esign Cert": [
-            { label: "30 Days", price: 4.00 },
-            { label: "60 Days", price: 8.00 },
-            { label: "90 Days", price: 10.00 }
+            { label: "30 Days", price: 4.20 },
+            { label: "60 Days", price: 8.20 },
+            { label: "90 Days", price: 10.20 }
         ],
         "Hg Cheats Apk Mod": [
-            { label: "1 Days", price: 0.80 },
-            { label: "7 Days", price: 2.50 },
-            { label: "10 Days", price: 3.00 },
-            { label: "30 Days", price: 7.00 }
+            { label: "1 Days", price: 1.00 },
+            { label: "7 Days", price: 2.70 },
+            { label: "10 Days", price: 3.20 },
+            { label: "30 Days", price: 7.20 }
         ],
         "Fluorite FF iOS": [
-            { label: "1 Days", price: 5.00 },
-            { label: "7 Days", price: 13.00 },
-            { label: "31 Days", price: 24.00 }
+            { label: "1 Days", price: 5.20 },
+            { label: "7 Days", price: 13.20 },
+            { label: "31 Days", price: 24.20 }
         ],
         "Fluorite 8BP IOS": [
-            { label: "1 Days", price: 4.00 },
-            { label: "7 Days", price: 12.00 },
-            { label: "30 Days", price: 24.00 }
+            { label: "1 Days", price: 4.20 },
+            { label: "7 Days", price: 12.20 },
+            { label: "30 Days", price: 24.20 }
         ]
     };
 
     const DEFAULT_PRICES = [
-        { label: "1 Days", price: 0.60 },
-        { label: "3 Days", price: 1.00 },
-        { label: "7 Days", price: 2.50 },
-        { label: "30 Days", price: 6.00 }
+        { label: "1 Days", price: 0.80 },
+        { label: "3 Days", price: 1.20 },
+        { label: "7 Days", price: 2.70 },
+        { label: "30 Days", price: 6.20 }
     ];
 
     let globalOnlineData = {};
@@ -824,7 +823,8 @@
     async function fetchOnlineData() {
         try {
             const res = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {
-                headers: { "X-Master-Key": JSONBIN_API_KEY }
+                headers: { "X-Master-Key": JSONBIN_API_KEY },
+                cache: "no-store"
             });
             const json = await res.json();
             globalOnlineData = json.record || {};
@@ -849,6 +849,9 @@
     async function syncUserLogs() {
         const userId = localStorage.getItem("USER_ID");
         if (!userId) return;
+
+        // سحب أحدث نسخة قبل التعديل لمنع تداخل البيانات
+        await fetchOnlineData();
 
         if (!globalOnlineData[userId]) {
             globalOnlineData[userId] = { balance: 0.00, role: "client", history: [], tx: [] };
@@ -875,12 +878,12 @@
 
     async function saveOnlineData() {
         try {
-            await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`, {
+            const res = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json", "X-Master-Key": JSONBIN_API_KEY },
                 body: JSON.stringify(globalOnlineData)
             });
-            return true;
+            return res.ok;
         } catch (err) {
             return false;
         }
@@ -922,6 +925,7 @@
     }
 
     async function sendOrder() {
+        await fetchOnlineData();
         const userId = localStorage.getItem("USER_ID");
         const product = document.getElementById("productSelect").value;
         const durationSelect = document.getElementById("durationSelect");
@@ -964,7 +968,7 @@
 
             document.getElementById("generatedKey").value = deliveredKeys.join("\n");
             document.getElementById("keyResultBox").style.display = "block";
-            fetchOnlineData();
+            await fetchOnlineData();
         } else {
             alert(`عذراً، المتوفر حالياً من هذا المنتج هو (${availableKeys.length}) أكواد فقط. جاري تحويلك للدعم...`);
             const textMsg = `💰 *طلب شراء بدون كارت متوفر*%0A👤 *ID:* \`${userId}\`%0A📦 *المنتج:* \`${product}\`%0A⏳ *المدة:* \`${duration}\`%0A🔢 *الكمية:* \`${qty}\``;
@@ -1068,19 +1072,22 @@
     }
 
     async function changeRoleAdmin(role) {
+        await fetchOnlineData();
         const id = document.getElementById("adminRoleTargetId").value.trim();
         if (!id) return alert("اكتب ID العميل!");
         if (!globalOnlineData[id]) globalOnlineData[id] = { balance: 0.00, role: "client", history: [], tx: [] };
+        
         globalOnlineData[id].role = role;
         if (await saveOnlineData()) {
             alert("تم تغيير رتبة المستخدم بنجاح!");
-            fetchOnlineData();
+            await fetchOnlineData();
         } else {
             alert("حدث خطأ أثناء الحفظ، حاول مرة أخرى.");
         }
     }
 
     async function addBalanceAdmin() {
+        await fetchOnlineData();
         const id = document.getElementById("adminAddTargetId").value.trim();
         const amt = parseFloat(document.getElementById("adminAddAmount").value);
         if (!id || isNaN(amt)) return alert("بيانات غير صحيحة!");
@@ -1091,14 +1098,15 @@
         globalOnlineData[id].tx.unshift({ date: new Date().toLocaleDateString(), type: 'ADD', amount: amt });
         
         if (await saveOnlineData()) {
-            alert("تمت إضافة الرصيد بنجاح!");
-            fetchOnlineData();
+            alert("تمت إضافة الرصيد بنجاح وتم الحفظ على السيرفر!");
+            await fetchOnlineData();
         } else {
             alert("حدث خطأ أثناء الحفظ، حاول مرة أخرى.");
         }
     }
 
     async function deductBalanceAdmin() {
+        await fetchOnlineData();
         const id = document.getElementById("adminDeductTargetId").value.trim();
         const amt = parseFloat(document.getElementById("adminDeductAmount").value);
         if (!id || isNaN(amt)) return alert("أدخل البيانات بشكل صحيح!");
@@ -1112,13 +1120,14 @@
 
         if (await saveOnlineData()) {
             alert(`تم خصم $${amt} بنجاح!\nالرصيد المتبقي: $${globalOnlineData[id].balance}`);
-            fetchOnlineData();
+            await fetchOnlineData();
         } else {
             alert("حدث خطأ أثناء الحفظ.");
         }
     }
 
     async function zeroBalanceAdmin() {
+        await fetchOnlineData();
         const id = document.getElementById("adminDeductTargetId").value.trim();
         if (!id) return alert("أدخل ID المستخدم!");
         if (confirm(`تأكيد تصفير حساب (${id}) بالكامل؟`)) {
@@ -1127,14 +1136,15 @@
             
             if (await saveOnlineData()) {
                 alert("تم تصفير الحساب بنجاح!");
-                fetchOnlineData();
+                await fetchOnlineData();
             } else {
                 alert("حدث خطأ أثناء الحفظ.");
             }
         }
     }
 
-    function checkBalanceAdmin() {
+    async function checkBalanceAdmin() {
+        await fetchOnlineData();
         const id = document.getElementById("adminCheckTargetId").value.trim();
         if (!id) return alert("أدخل الـ ID للبحث!");
         const data = globalOnlineData[id] || { balance: 0.00, role: "client" };
@@ -1142,6 +1152,7 @@
     }
 
     async function banIpAdmin(shouldBan) {
+        await fetchOnlineData();
         const targetIp = document.getElementById("adminBanIpInput").value.trim();
         if (!targetIp) return alert("أدخل الـ IP أولاً!");
 
@@ -1183,3 +1194,4 @@
 
 </body>
 </html>
+
