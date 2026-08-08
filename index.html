@@ -3,19 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FFSCRIPTVIP STORE</title>
+    <title>FFSCRIPT VIP - RESELLER PANEL</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --bg-color: #0d1117;
-            --card-bg: #161b22;
-            --text-color: #f0f6fc;
-            --text-muted: #8b949e;
-            --accent-purple: #8a2be2;
-            --accent-blue: #2f81f7;
-            --accent-green: #238636;
-            --accent-red: #da3633;
-            --accent-gold: #d29922;
-            --border-color: #30363d;
+            --bg-dark: #09070f;
+            --card-bg: rgba(22, 16, 38, 0.85);
+            --primary-purple: #9d4edd;
+            --accent-glow: #7b2cbf;
+            --button-purple: #8a2be2;
+            --border-purple: #3c1361;
+            --text-main: #f3f0ff;
+            --text-muted: #a093c4;
+            --green-glow: #10b981;
+            --red-glow: #ef4444;
         }
 
         * {
@@ -23,201 +24,293 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             padding: 0;
+            user-select: none;
         }
 
         body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            padding: 15px;
-            direction: rtl;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-bottom: 30px;
+            background-image: radial-gradient(circle at 50% 0%, #240046 0%, #09070f 70%);
+        }
+
+        /* Top Header */
+        .top-navbar {
+            width: 100%;
+            max-width: 500px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background: rgba(15, 10, 26, 0.9);
+            border-bottom: 1px solid var(--border-purple);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        .brand-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: bold;
+            font-size: 16px;
+            color: #fff;
+        }
+
+        .brand-icon {
+            background: linear-gradient(135deg, #7b2cbf, #9d4edd);
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
             display: flex;
             justify-content: center;
+            align-items: center;
+            box-shadow: 0 0 12px rgba(157, 78, 221, 0.5);
         }
 
-        .app-container {
-            width: 100%;
-            max-width: 480px;
-            background: #090d12;
-            border-radius: 20px;
-            padding: 20px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
-            border: 1px solid var(--border-color);
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
 
-        .header {
-            text-align: center;
-            padding-bottom: 15px;
-            border-bottom: 1px solid var(--border-color);
-            margin-bottom: 15px;
-        }
-
-        .user-id-badge {
-            background: #21262d;
+        .balance-badge {
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.4);
+            color: #34d399;
             padding: 6px 14px;
             border-radius: 8px;
-            font-size: 12px;
-            color: #8b949e;
-            margin-top: 6px;
-            display: inline-flex;
+            font-weight: bold;
+            font-size: 14px;
+            display: flex;
             align-items: center;
             gap: 6px;
-            border: 1px solid var(--border-color);
+        }
+
+        .menu-btn {
+            background: rgba(138, 43, 226, 0.2);
+            border: 1px solid var(--border-purple);
+            color: var(--text-main);
+            width: 38px;
+            height: 38px;
+            border-radius: 8px;
             cursor: pointer;
-        }
-
-        .role-badge {
-            display: inline-block;
-            padding: 4px 10px;
-            border-radius: 6px;
-            font-size: 11px;
-            font-weight: bold;
-            margin-top: 6px;
-        }
-
-        .role-client {
-            background: rgba(47, 129, 247, 0.2);
-            color: #58a6ff;
-            border: 1px solid var(--accent-blue);
-        }
-
-        .role-reseller {
-            background: rgba(210, 153, 34, 0.2);
-            color: #d29922;
-            border: 1px solid var(--accent-gold);
-        }
-
-        .balance-box {
-            background: rgba(35, 134, 54, 0.15);
-            border: 1px solid var(--accent-green);
-            border-radius: 12px;
-            padding: 10px;
-            text-align: center;
-            margin-bottom: 15px;
-            font-weight: bold;
-            color: #3fb950;
-            font-size: 15px;
-        }
-
-        .action-btns {
             display: flex;
-            gap: 10px;
+            justify-content: center;
+            align-items: center;
+            font-size: 18px;
+        }
+
+        /* Sidebar Navigation Drawer */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -100%;
+            width: 280px;
+            height: 100%;
+            background: #0f0b1a;
+            border-right: 1px solid var(--border-purple);
+            z-index: 1000;
+            transition: 0.3s ease-in-out;
+            padding: 20px;
+            box-shadow: 10px 0 30px rgba(0,0,0,0.8);
+        }
+
+        .sidebar.active {
+            left: 0;
+        }
+
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-purple);
             margin-bottom: 20px;
         }
 
-        .btn-main {
-            flex: 1;
-            background: linear-gradient(135deg, #238636, #2ea043);
-            color: #fff;
-            border: none;
-            padding: 12px;
-            border-radius: 12px;
-            font-weight: bold;
-            font-size: 14px;
-            text-align: center;
-            cursor: pointer;
-            text-decoration: none;
+        .sidebar-menu {
+            list-style: none;
         }
 
-        .btn-gold {
-            background: linear-gradient(135deg, #d29922, #9e6a03);
-            color: #fff;
-            border: none;
-            padding: 10px;
+        .sidebar-item {
+            padding: 12px 15px;
             border-radius: 10px;
-            font-weight: bold;
+            margin-bottom: 10px;
+            color: var(--text-muted);
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: bold;
+            font-size: 14px;
+            transition: 0.2s;
         }
 
-        .btn-danger {
-            flex: 1;
-            background: linear-gradient(135deg, #da3633, #b62324);
+        .sidebar-item:hover, .sidebar-item.active {
+            background: linear-gradient(90deg, #7b2cbf, #9d4edd);
             color: #fff;
-            border: none;
-            padding: 12px;
-            border-radius: 12px;
-            font-weight: bold;
-            font-size: 14px;
-            text-align: center;
-            cursor: pointer;
+            box-shadow: 0 0 15px rgba(123, 44, 191, 0.4);
         }
 
-        .btn-support {
-            flex: 1;
-            background: #21262d;
-            color: #c9d1d9;
-            border: 1px solid var(--border-color);
-            padding: 12px;
-            border-radius: 12px;
-            font-weight: bold;
-            font-size: 14px;
-            text-align: center;
-            text-decoration: none;
+        .overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 999;
+            display: none;
+        }
+
+        .overlay.active {
             display: block;
+        }
+
+        /* Main Container */
+        .container {
+            width: 100%;
+            max-width: 460px;
+            padding: 20px 15px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-purple);
+            border-radius: 18px;
+            padding: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            backdrop-filter: blur(10px);
+            margin-bottom: 20px;
+        }
+
+        .card-header-title {
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--primary-purple);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
 
         .form-group {
-            margin-bottom: 18px;
+            margin-bottom: 16px;
         }
 
-        label {
+        .form-group label {
             display: block;
-            font-size: 14px;
+            font-size: 12px;
+            color: var(--text-muted);
             font-weight: bold;
             margin-bottom: 8px;
-            color: #58a6ff;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
-        select, textarea, input {
+        select, input, textarea {
             width: 100%;
             padding: 12px;
-            background-color: var(--card-bg);
-            color: #ffffff;
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
+            background: #0a0714;
+            border: 1px solid var(--border-purple);
+            border-radius: 10px;
+            color: #fff;
             font-size: 14px;
             outline: none;
         }
 
-        .price-box {
-            background: #161b22;
-            border: 1px dashed var(--accent-blue);
-            padding: 12px;
-            border-radius: 12px;
-            text-align: center;
-            margin-bottom: 15px;
+        select:focus, input:focus {
+            border-color: var(--primary-purple);
+            box-shadow: 0 0 8px rgba(157, 78, 221, 0.4);
         }
 
-        .price-amount {
-            font-size: 20px;
+        /* Quantity Counter */
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .qty-btn {
+            background: var(--button-purple);
+            color: white;
+            border: none;
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            font-size: 18px;
             font-weight: bold;
-            color: #3fb950;
-            margin-top: 4px;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(138, 43, 226, 0.3);
+        }
+
+        .qty-input {
+            text-align: center;
+            font-weight: bold;
+            font-size: 16px;
         }
 
         .submit-btn {
             width: 100%;
-            background: linear-gradient(135deg, #8b5cf6, #6366f1);
-            color: white;
-            border: none;
             padding: 14px;
+            background: linear-gradient(135deg, #7b2cbf, #9d4edd);
+            border: none;
             border-radius: 12px;
-            font-size: 16px;
+            color: white;
+            font-size: 15px;
             font-weight: bold;
             cursor: pointer;
-            margin-bottom: 15px;
+            box-shadow: 0 0 18px rgba(157, 78, 221, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            margin-top: 10px;
         }
 
-        .admin-toggle-btn {
-            background: transparent;
-            color: var(--text-muted);
-            border: 1px dashed var(--border-color);
+        .submit-btn:hover {
+            opacity: 0.9;
+        }
+
+        /* Results & Key History Tables */
+        .data-table {
             width: 100%;
-            padding: 10px;
-            border-radius: 10px;
+            border-collapse: collapse;
             font-size: 12px;
-            cursor: pointer;
+            margin-top: 10px;
         }
 
+        .data-table th, .data-table td {
+            padding: 10px;
+            border: 1px solid var(--border-purple);
+            text-align: center;
+        }
+
+        .data-table th {
+            background: #140d24;
+            color: var(--primary-purple);
+        }
+
+        .user-id-box {
+            background: rgba(138, 43, 226, 0.1);
+            border: 1px dashed var(--border-purple);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Modal Settings */
         .modal {
             display: none;
             position: fixed;
@@ -225,279 +318,291 @@
             background: rgba(0,0,0,0.85);
             justify-content: center;
             align-items: center;
-            z-index: 999;
+            z-index: 2000;
             padding: 15px;
         }
 
         .modal-content {
-            background: #161b22;
-            border: 1px solid var(--border-color);
+            background: #0f0b1a;
+            border: 1px solid var(--border-purple);
             border-radius: 16px;
             padding: 20px;
             width: 100%;
             max-width: 400px;
         }
 
-        .payment-option {
-            background: #0d1117;
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 12px;
-            margin-bottom: 12px;
-        }
-
-        .payment-title {
-            font-weight: bold;
-            color: #58a6ff;
-            margin-bottom: 5px;
-        }
-
-        .copy-code-btn {
-            background: #238636;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 6px;
-            font-size: 12px;
-            cursor: pointer;
-            margin-top: 5px;
-        }
-
-        .admin-panel {
+        .tab-section {
             display: none;
-            background: #11161d;
-            border: 1px solid var(--accent-purple);
-            padding: 15px;
-            border-radius: 15px;
-            margin-top: 15px;
         }
 
-        .admin-section {
-            border-bottom: 1px dashed var(--border-color);
-            padding-bottom: 15px;
-            margin-bottom: 15px;
-        }
-
-        .key-result-box {
-            display: none;
-            background: #102a1d;
-            border: 1px solid #238636;
-            padding: 15px;
-            border-radius: 12px;
-            text-align: center;
-            margin-bottom: 15px;
-        }
-
-        .key-text {
-            font-size: 18px;
-            font-weight: bold;
-            color: #3fb950;
-            margin: 10px 0;
-            word-break: break-all;
+        .tab-section.active {
+            display: block;
         }
     </style>
 </head>
 <body>
 
-<div class="app-container">
-    <div class="header">
-        <div style="font-size: 30px;">👑</div>
-        <div style="font-size: 19px; font-weight: bold; color: #ffffff;">FFSCRIPTVIP STORE</div>
-        <div class="user-id-badge" onclick="copyUserId()" title="اضغط لنسخ الـ ID">
-            ID: <span id="myUserId">جاري التحميل...</span> 📋
+<!-- Sidebar Menu Overlay -->
+<div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+<!-- Sidebar Menu -->
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <div style="font-weight: bold; color: #fff; font-size: 16px;" id="sidebarUserRole">FF SCRIPT VIP</div>
+        <i class="fa-solid fa-xmark" style="cursor: pointer; font-size: 20px;" onclick="toggleSidebar()"></i>
+    </div>
+    <ul class="sidebar-menu">
+        <li class="sidebar-item active" onclick="switchTab('tab-generate')">
+            <i class="fa-solid fa-key"></i> Generate Keys
+        </li>
+        <li class="sidebar-item" onclick="switchTab('tab-stats')">
+            <i class="fa-solid fa-chart-line"></i> Statistics
+        </li>
+        <li class="sidebar-item" onclick="switchTab('tab-history')">
+            <i class="fa-solid fa-list-check"></i> Key History
+        </li>
+        <li class="sidebar-item" onclick="switchTab('tab-transactions')">
+            <i class="fa-solid fa-money-bill-transfer"></i> Transactions
+        </li>
+        <li class="sidebar-item" onclick="switchTab('tab-reset')">
+            <i class="fa-solid fa-rotate-left"></i> Reset Keys
+        </li>
+        <li class="sidebar-item" style="color: #ef4444; margin-top: 20px;" onclick="openAdmin()">
+            <i class="fa-solid fa-user-shield"></i> Admin Panel
+        </li>
+    </ul>
+</div>
+
+<!-- Top Navbar -->
+<div class="top-navbar">
+    <div class="brand-title">
+        <div class="brand-icon"><i class="fa-solid fa-crown" style="color: #fff;"></i></div>
+        <span>Reseller Admin</span>
+    </div>
+    <div class="nav-right">
+        <div class="balance-badge" onclick="openPaymentModal()" style="cursor: pointer;">
+            <i class="fa-solid fa-wallet"></i>
+            $<span id="userBalance">0.00</span>
         </div>
-        <br>
-        <div id="userRoleBadge" class="role-badge role-client">👤 حساب زبون عادي</div>
-    </div>
-
-    <div class="balance-box">
-        💰 الرصيد الحالي: $<span id="userBalance">0.00</span>
-    </div>
-
-    <div class="action-btns">
-        <button class="btn-main" onclick="openPaymentModal()">➕ شحن رصيد</button>
-        <a href="https://t.me/ZAKAFFCODE" target="_blank" class="btn-support">📞 الدعم الفني</a>
-    </div>
-
-    <div class="key-result-box" id="keyResultBox">
-        <div style="color: #3fb950; font-weight: bold;">🎉 تم الشراء بنجاح!</div>
-        <div class="key-text" id="generatedKey">XXXX-XXXX-XXXX</div>
-        <button class="copy-code-btn" onclick="copyKey()">📋 نسخ الكود</button>
-    </div>
-
-    <div class="form-group">
-        <label for="productSelect">📦 اختر المنتج (Product Type):</label>
-        <select id="productSelect" onchange="updateDurationOptions()">
-            <option value="Drip Proxy Android">Drip Proxy Android</option>
-            <option value="Drip Client - Apk Mod">Drip Client - Apk Mod</option>
-            <option value="Drip Client - Root Device">Drip Client - Root Device</option>
-            <option value="Pato Team Apkmod Orange">Pato Team Apkmod Orange</option>
-            <option value="Pato Team Apkmod Blue">Pato Team Apkmod Blue</option>
-            <option value="Hg Cheats Apk Mod">Hg Cheats Apk Mod</option>
-            <option value="Hg Cheats Proxy Apk">Hg Cheats Proxy Apk</option>
-            <option value="Gbox Esign Cert">Gbox Esign Cert</option>
-            <option value="Fluorite FF iOS">Fluorite FF iOS</option>
-            <option value="Fluorite 8BP IOS">Fluorite 8BP IOS</option>
-            <option value="Fluorite MLBB IOS">Fluorite MLBB IOS</option>
-            <option value="BR MODS PC SILENT">BR MODS PC SILENT</option>
-            <option value="BR MODS PC AIMKILL">BR MODS PC AIMKILL</option>
-            <option value="BR MODS ROOT">BR MODS ROOT</option>
-            <option value="SCORPION ROOT LITE">SCORPION ROOT LITE</option>
-            <option value="SCORPION ROOT BRUTAL">SCORPION ROOT BRUTAL</option>
-            <option value="Zytron Root">Zytron Root</option>
-            <option value="Angry mod root">Angry mod root</option>
-            <option value="Reaper X Pro Root">Reaper X Pro Root</option>
-            <option value="DRIP AIMKILL X86 Pc">DRIP AIMKILL X86 Pc</option>
-            <option value="Haxxcker Pro Root">Haxxcker Pro Root</option>
-            <option value="Prime Mods Apkmod">Prime Mods Apkmod</option>
-            <option value="Terminal x PC Aimkill">Terminal x PC Aimkill</option>
-            <option value="Terminal x PC Aimkill cover">Terminal x PC Aimkill cover</option>
-            <option value="Cloud CODM IOS">Cloud CODM IOS</option>
-            <option value="8ball IOS GBD">8ball IOS GBD</option>
-            <option value="EzTeam 8boll pool Apk">EzTeam 8boll pool Apk</option>
-            <option value="Pubg Zolo Android">Pubg Zolo Android</option>
-            <option value="MIGUL - MONITE IOS [PRO]">MIGUL - MONITE IOS [PRO]</option>
-            <option value="MIGUL - MONITE IOS [BASIC]">MIGUL - MONITE IOS [BASIC]</option>
-            <option value="MIGUL - MONITE IOS [VN-PRO]">MIGUL - MONITE IOS [VN-PRO]</option>
-            <option value="SILENT CHEATS MODMENU">SILENT CHEATS MODMENU</option>
-            <option value="SILENT CHEATS SAFE">SILENT CHEATS SAFE</option>
-            <option value="SILENT CHEATS BRUTAL">SILENT CHEATS BRUTAL</option>
-            <option value="Lk team Root+Pc">Lk team Root+Pc</option>
-            <option value="Alien MLBB (Android)">Alien MLBB (Android)</option>
-            <option value="King iOS">King iOS</option>
-            <option value="Wingmod Root">Wingmod Root</option>
-            <option value="WizardiOS 8bp">WizardiOS 8bp</option>
-            <option value="VOLUME STEAMER PRO">VOLUME STEAMER PRO</option>
-            <option value="iOSSTAR 8bp">iOSSTAR 8bp</option>
-            <option value="Rapid Core Root">Rapid Core Root</option>
-            <option value="SPOTIFY FF ROOT">SPOTIFY FF ROOT</option>
-            <option value="STRICKS BR ROOT">STRICKS BR ROOT</option>
-            <option value="Bala Mod">Bala Mod</option>
-        </select>
-    </div>
-
-    <div class="form-group">
-        <label for="durationSelect">⏳ اختر المدة (Duration):</label>
-        <select id="durationSelect" onchange="updatePrice()"></select>
-    </div>
-
-    <div class="price-box">
-        <div style="font-size: 12px; color: var(--text-muted);">التكلفة الإجمالية:</div>
-        <div class="price-amount" id="displayPrice">$0.60</div>
-    </div>
-
-    <button class="submit-btn" onclick="sendOrder()">🛒 تأكيد الطلب والشراء</button>
-
-    <button class="admin-toggle-btn" onclick="openAdmin()">🔐 لوحة التحكم (Admin Panel)</button>
-
-    <!-- Admin Panel -->
-    <div class="admin-panel" id="adminPanel">
-        <h3 style="margin-bottom: 15px; color: #8a2be2; text-align: center;">⚙️ لوحة إدارة الأدمن</h3>
-
-        <!-- تغيير رتبة المستخدم (بائع / زبون) -->
-        <div class="admin-section">
-            <label style="color: #d29922;">⭐ إدارة رتبة المستخدم (ترقية / تنزيل):</label>
-            <input type="text" id="adminRoleTargetId" placeholder="أدخل ID المستخدم هنا" style="margin-bottom: 6px;">
-            <div style="display: flex; gap: 8px; margin-top: 4px;">
-                <button class="btn-gold" style="flex: 1;" onclick="changeRoleAdmin('reseller')">⭐ رفعه لبائع VIP</button>
-                <button class="btn-support" style="flex: 1; background: #30363d; color: white;" onclick="changeRoleAdmin('client')">👤 تنزيله لزبون عادي</button>
-            </div>
-        </div>
-
-        <!-- إضافة رصيد -->
-        <div class="admin-section">
-            <label style="color: #3fb950;">💵 إضافة رصيد لمستخدم:</label>
-            <input type="text" id="adminAddTargetId" placeholder="ID المستخدم" style="margin-bottom: 6px;">
-            <input type="number" id="adminAddAmount" placeholder="المبلغ المراد إضافته ($)">
-            <button class="btn-main" style="width: 100%; margin-top: 8px;" onclick="addBalanceAdmin()">➕ إضافة الرصيد</button>
-        </div>
-
-        <!-- خصم / تصفير رصيد -->
-        <div class="admin-section">
-            <label style="color: #f85149;">🔻 خصم أو تصفير رصيد مستخدم:</label>
-            <input type="text" id="adminDeductTargetId" placeholder="ID المستخدم" style="margin-bottom: 6px;">
-            <input type="number" id="adminDeductAmount" placeholder="المبلغ المراد خصمه">
-            <div style="display: flex; gap: 8px; margin-top: 8px;">
-                <button class="btn-danger" style="flex: 1;" onclick="deductBalanceAdmin()">➖ خصم مبلغ</button>
-                <button class="btn-danger" style="flex: 1; background: #8b0000;" onclick="zeroBalanceAdmin()">🧹 تصفير كامل</button>
-            </div>
-        </div>
-
-        <!-- معاينة رصيد حساب -->
-        <div class="admin-section">
-            <label style="color: #58a6ff;">🔍 معاينة رصيد حساب من الـ ID:</label>
-            <input type="text" id="adminCheckTargetId" placeholder="أدخل ID المستخدم">
-            <button class="btn-support" style="width: 100%; margin-top: 8px; background: #1f6feb; color: white;" onclick="checkBalanceAdmin()">🔎 كشف البيانات أونلاين</button>
-        </div>
-
-        <!-- إدخال وتخزين الأكواد -->
-        <div class="admin-section" style="border-bottom: none; padding-bottom: 0; margin-bottom: 0;">
-            <label style="color: #a371f7;">🔑 شحن أكواد المنتجات:</label>
-            <div class="form-group" style="margin-bottom: 8px;">
-                <select id="adminProductSelect"></select>
-            </div>
-            <div class="form-group" style="margin-bottom: 8px;">
-                <select id="adminDurationSelect">
-                    <option value="1 Days">1 Days</option>
-                    <option value="3 Days">3 Days</option>
-                    <option value="7 Days">7 Days</option>
-                    <option value="30 Days">30 Days</option>
-                </select>
-            </div>
-            <div class="form-group" style="margin-bottom: 8px;">
-                <textarea id="adminKeysInput" rows="3" placeholder="أدخل الأكواد هنا (كود واحد في كل سطر)"></textarea>
-            </div>
-            <button class="btn-main" style="width: 100%; background: linear-gradient(135deg, #8b5cf6, #6366f1);" onclick="saveKeys()">💾 حفظ الأكواد</button>
-        </div>
+        <button class="menu-btn" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
     </div>
 </div>
 
-<div class="modal" id="paymentModal">
-    <div class="modal-content">
-        <h3 style="margin-bottom: 15px; text-align: center; color: #58a6ff;">💳 طرق الدفع والشحن</h3>
-        
-        <div class="payment-option">
-            <div class="payment-title">📱 فودافون كاش (Vodafone Cash)</div>
-            <div style="font-size: 13px; margin: 5px 0;">الرقم: <b>01004238357</b></div>
-            <button class="copy-code-btn" onclick="copyText('01004238357')">📋 نسخ الرقم</button>
+<div class="container">
+    
+    <div class="user-id-box">
+        <span><i class="fa-solid fa-id-badge"></i> ID: <b id="myUserId">جاري التحميل...</b></span>
+        <button onclick="copyUserId()" style="background: none; border: none; color: var(--primary-purple); cursor: pointer;"><i class="fa-solid fa-copy"></i></button>
+    </div>
+
+    <!-- TAB 1: KEY GENERATOR -->
+    <div id="tab-generate" class="tab-section active">
+        <div class="card">
+            <div class="card-header-title">
+                <i class="fa-solid fa-bolt"></i> Key Generator
+            </div>
+
+            <div class="form-group">
+                <label><i class="fa-solid fa-box"></i> PRODUCT TYPE:</label>
+                <select id="productSelect" onchange="updatePrice()"></select>
+            </div>
+
+            <div class="form-group">
+                <label><i class="fa-solid fa-hourglass-half"></i> VALIDITY:</label>
+                <select id="durationSelect" onchange="updatePrice()"></select>
+            </div>
+
+            <div class="form-group">
+                <label><i class="fa-solid fa-cubes"></i> QUANTITY:</label>
+                <div class="quantity-control">
+                    <button class="qty-btn" onclick="changeQty(-1)">-</button>
+                    <input type="number" id="keyQuantity" class="qty-input" value="1" readonly>
+                    <button class="qty-btn" onclick="changeQty(1)">+</button>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin: 15px 0; color: var(--text-muted); font-size: 13px;">
+                الإجمالي: <b id="displayPrice" style="color: var(--green-glow); font-size: 16px;">$0.00</b>
+            </div>
+
+            <button class="submit-btn" onclick="sendOrder()">
+                <i class="fa-solid fa-bolt"></i> GENERATE KEYS
+            </button>
         </div>
 
-        <div class="payment-option">
-            <div class="payment-title">🟡 باينانس (Binance Pay)</div>
-            <div style="font-size: 13px; margin: 5px 0;">Binance ID: <b>1213460225</b></div>
-            <button class="copy-code-btn" onclick="copyText('1213460225')">📋 نسخ الـ ID</button>
+        <!-- Generated Key Output Box -->
+        <div class="card" id="keyResultBox" style="display: none; text-align: center; border-color: var(--green-glow);">
+            <div style="color: var(--green-glow); font-weight: bold; margin-bottom: 10px;">🎉 تم توليد المفاتيح بنجاح!</div>
+            <textarea id="generatedKey" rows="3" style="text-align: center; font-weight: bold; color: var(--green-glow);" readonly></textarea>
+            <button class="submit-btn" style="background: var(--green-glow); margin-top: 10px;" onclick="copyKey()">
+                <i class="fa-solid fa-copy"></i> نسخ الأكواد
+            </button>
+        </div>
+    </div>
+
+    <!-- TAB 2: STATISTICS -->
+    <div id="tab-stats" class="tab-section">
+        <div class="card">
+            <div class="card-header-title">
+                <i class="fa-solid fa-chart-pie"></i> Statistics Breakdown
+            </div>
+            <div style="text-align: center; padding: 10px; font-size: 14px;">
+                إجمالي الكروت المباعة: <b id="totalSoldStat" style="color: var(--primary-purple); font-size: 18px;">0</b>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 3: KEY HISTORY -->
+    <div id="tab-history" class="tab-section">
+        <div class="card">
+            <div class="card-header-title">
+                <i class="fa-solid fa-history"></i> Key History
+            </div>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>KEY</th>
+                        <th>PRICE</th>
+                    </tr>
+                </thead>
+                <tbody id="keyHistoryTable">
+                    <tr><td colspan="3" style="color: var(--text-muted);">لا توجد عمليات سابقة</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- TAB 4: TRANSACTIONS -->
+    <div id="tab-transactions" class="tab-section">
+        <div class="card">
+            <div class="card-header-title">
+                <i class="fa-solid fa-receipt"></i> Balance Transactions History
+            </div>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>التاريخ</th>
+                        <th>النوع</th>
+                        <th>المبلغ</th>
+                    </tr>
+                </thead>
+                <tbody id="transactionsTable">
+                    <tr><td colspan="3" style="color: var(--text-muted);">لا توجد عمليات شحن</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- TAB 5: RESET KEYS -->
+    <div id="tab-reset" class="tab-section">
+        <div class="card">
+            <div class="card-header-title">
+                <i class="fa-solid fa-rotate"></i> Reset License Key (HWID)
+            </div>
+            <div class="form-group">
+                <label>Enter License Key/Token:</label>
+                <input type="text" id="resetKeyInput" placeholder="Paste your license key here...">
+            </div>
+            <button class="submit-btn" onclick="requestResetKey()">
+                <i class="fa-solid fa-rotate"></i> RESET KEY
+            </button>
+        </div>
+    </div>
+
+    <!-- TAB 6: ADMIN PANEL -->
+    <div id="adminPanel" class="card" style="display: none; border-color: #ef4444;">
+        <div class="card-header-title" style="color: #ef4444;">
+            <i class="fa-solid fa-user-shield"></i> Admin Control
+        </div>
+
+        <div class="form-group">
+            <label style="color: #f59e0b;">⭐ إدارة رتبة المستخدم:</label>
+            <input type="text" id="adminRoleTargetId" placeholder="ID المستخدم">
+            <div style="display: flex; gap: 8px; margin-top: 8px;">
+                <button class="submit-btn" style="background: #f59e0b;" onclick="changeRoleAdmin('reseller')">رفعه VIP</button>
+                <button class="submit-btn" style="background: #4b5563;" onclick="changeRoleAdmin('client')">تنزيله لزبون</button>
+            </div>
         </div>
 
         <div class="form-group" style="margin-top: 15px;">
-            <label>أدخل رقم عملية التحويل / أو رقمك:</label>
-            <input type="text" id="transactionIdInput" placeholder="أدخل رقم العملية أو الرقم المحوَّل منه">
+            <label style="color: var(--green-glow);">💵 إضافة رصيد:</label>
+            <input type="text" id="adminAddTargetId" placeholder="ID المستخدم">
+            <input type="number" id="adminAddAmount" placeholder="المبلغ ($)" style="margin-top: 5px;">
+            <button class="submit-btn" style="background: var(--green-glow);" onclick="addBalanceAdmin()">إضافة الرصيد</button>
         </div>
 
-        <button class="submit-btn" onclick="sendPaymentViaTelegram()">📩 إرسال الطلب عبر التليجرام</button>
+        <div class="form-group" style="margin-top: 15px;">
+            <label style="color: #ef4444;">🔑 شحن الأكواد للسيرفر:</label>
+            <select id="adminProductSelect" style="margin-bottom: 5px;"></select>
+            <select id="adminDurationSelect" style="margin-bottom: 5px;">
+                <option value="1 Days">1 Days</option>
+                <option value="3 Days">3 Days</option>
+                <option value="7 Days">7 Days</option>
+                <option value="30 Days">30 Days</option>
+            </select>
+            <textarea id="adminKeysInput" rows="3" placeholder="كود واحد في كل سطر"></textarea>
+            <button class="submit-btn" style="background: #8a2be2;" onclick="saveKeys()">💾 حفظ الأكواد</button>
+        </div>
+    </div>
+
+</div>
+
+<!-- Payment Modal -->
+<div class="modal" id="paymentModal">
+    <div class="modal-content">
+        <h3 style="margin-bottom: 15px; text-align: center; color: var(--primary-purple);">💳 شحن الرصيد</h3>
         
-        <button onclick="closePaymentModal()" style="width: 100%; padding: 10px; background: transparent; border: 1px solid var(--border-color); color: var(--text-muted); border-radius: 10px; cursor: pointer;">إغلاق</button>
+        <div style="background: #0a0714; border: 1px solid var(--border-purple); padding: 10px; border-radius: 10px; margin-bottom: 10px;">
+            <div style="font-size: 12px; color: var(--text-muted);">📱 فودافون كاش:</div>
+            <b style="color: #fff;">01004238357</b>
+            <button onclick="copyText('01004238357')" style="float: left; background: var(--button-purple); border: none; color: white; padding: 3px 8px; border-radius: 5px; cursor: pointer; font-size: 11px;">نسخ</button>
+        </div>
+
+        <div style="background: #0a0714; border: 1px solid var(--border-purple); padding: 10px; border-radius: 10px; margin-bottom: 10px;">
+            <div style="font-size: 12px; color: var(--text-muted);">🟡 باينانس Pay ID:</div>
+            <b style="color: #fff;">1213460225</b>
+            <button onclick="copyText('1213460225')" style="float: left; background: var(--button-purple); border: none; color: white; padding: 3px 8px; border-radius: 5px; cursor: pointer; font-size: 11px;">نسخ</button>
+        </div>
+
+        <div class="form-group" style="margin-top: 15px;">
+            <label>رقم العملية أو المحول منه:</label>
+            <input type="text" id="transactionIdInput" placeholder="أدخل رقم التحويل">
+        </div>
+
+        <button class="submit-btn" onclick="sendPaymentViaTelegram()">📩 إرسال للتليجرام</button>
+        <button onclick="closePaymentModal()" style="width: 100%; padding: 10px; background: transparent; border: none; color: var(--text-muted); cursor: pointer; margin-top: 5px;">إغلاق</button>
     </div>
 </div>
 
 <script>
     const ADMIN_PASSWORD = "mra359rt";
-    
-    // الأكواد الخاصة بك من موقع JSONBin
     const JSONBIN_BIN_ID = "6a7771aeda38895dfecaa3a9";
     const JSONBIN_API_KEY = "$2a$10$MoDxxOV9R4GgMSmNuVovC.K9uapoJVJlqFE2XrVrq26RVYrNhkWJW";
 
+    const PRODUCTS = [
+        "Drip Proxy Android", "Drip Client - Apk Mod", "Drip Client - Root Device",
+        "Pato Team Apkmod Orange", "Pato Team Apkmod Blue", "Hg Cheats Apk Mod",
+        "Hg Cheats Proxy Apk", "Gbox Esign Cert", "Fluorite FF iOS", "Fluorite 8BP IOS",
+        "Fluorite MLBB IOS", "BR MODS PC SILENT", "BR MODS PC AIMKILL", "BR MODS ROOT",
+        "SCORPION ROOT LITE", "SCORPION ROOT BRUTAL", "Zytron Root", "Angry mod root",
+        "Reaper X Pro Root", "DRIP AIMKILL X86 Pc", "Haxxcker Pro Root", "Prime Mods Apkmod",
+        "Terminal x PC Aimkill", "Terminal x PC Aimkill cover", "Cloud CODM IOS",
+        "8ball IOS GBD", "EzTeam 8boll pool Apk", "Pubg Zolo Android", "MIGUL - MONITE IOS [PRO]",
+        "MIGUL - MONITE IOS [BASIC]", "MIGUL - MONITE IOS [VN-PRO]", "SILENT CHEATS MODMENU",
+        "SILENT CHEATS SAFE", "SILENT CHEATS BRUTAL", "Lk team Root+Pc", "Alien MLBB (Android)",
+        "King iOS", "Wingmod Root", "WizardiOS 8bp", "VOLUME STEAMER PRO", "iOSSTAR 8bp",
+        "Rapid Core Root", "SPOTIFY FF ROOT", "STRICKS BR ROOT", "Bala Mod"
+    ];
+
     const PRICING = {
         client: [
-            { label: "1 Days", price: 0.60 },
-            { label: "3 Days", price: 1.00 },
-            { label: "7 Days", price: 2.50 },
-            { label: "30 Days", price: 6.00 }
+            { label: "1 Days", price: 0.60 }, { label: "3 Days", price: 1.00 },
+            { label: "7 Days", price: 2.50 }, { label: "30 Days", price: 6.00 }
         ],
         reseller: [
-            { label: "1 Days", price: 0.40 }, 
-            { label: "3 Days", price: 0.75 }, 
-            { label: "7 Days", price: 1.80 }, 
-            { label: "30 Days", price: 4.50 }  
+            { label: "1 Days", price: 0.40 }, { label: "3 Days", price: 0.75 },
+            { label: "7 Days", price: 1.80 }, { label: "30 Days", price: 4.50 }
         ]
     };
 
@@ -511,9 +616,15 @@
         }
         document.getElementById("myUserId").textContent = userId;
 
+        // Populate Products Options
         const prodSelect = document.getElementById("productSelect");
         const adminProdSelect = document.getElementById("adminProductSelect");
-        adminProdSelect.innerHTML = prodSelect.innerHTML;
+        PRODUCTS.forEach(prod => {
+            let opt = document.createElement("option");
+            opt.value = prod; opt.textContent = prod;
+            prodSelect.appendChild(opt);
+            adminProdSelect.appendChild(opt.cloneNode(true));
+        });
 
         await fetchOnlineData();
     });
@@ -527,12 +638,15 @@
             globalOnlineData = json.record || {};
 
             const userId = localStorage.getItem("USER_ID");
-            const userData = globalOnlineData[userId] || { balance: 0.00, role: "client" };
+            const userData = globalOnlineData[userId] || { balance: 0.00, role: "client", history: [], tx: [] };
 
             document.getElementById("userBalance").textContent = parseFloat(userData.balance || 0).toFixed(2);
-            updateUserRoleDisplay(userData.role || "client");
+            document.getElementById("sidebarUserRole").textContent = userData.role === "reseller" ? "⭐ VIP RESELLER" : "👤 CLIENT";
+            
+            updateDurationOptions(userData.role || "client");
+            renderTables(userData);
         } catch (err) {
-            console.error("خطأ في جلب البيانات أونلاين:", err);
+            console.error("Online Error:", err);
         }
     }
 
@@ -540,37 +654,19 @@
         try {
             await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`, {
                 method: "PUT",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-Master-Key": JSONBIN_API_KEY
-                },
+                headers: { "Content-Type": "application/json", "X-Master-Key": JSONBIN_API_KEY },
                 body: JSON.stringify(globalOnlineData)
             });
             return true;
         } catch (err) {
-            alert("❌ حدث خطأ أثناء الحفظ على السيرفر، يرجى المحاولة لاحقاً.");
+            alert("❌ حدث خطأ في حفظ البيانات!");
             return false;
         }
-    }
-
-    function updateUserRoleDisplay(role) {
-        const badge = document.getElementById("userRoleBadge");
-
-        if (role === "reseller") {
-            badge.className = "role-badge role-reseller";
-            badge.textContent = "⭐ حساب بائع VIP (أسعار خاصة)";
-        } else {
-            badge.className = "role-badge role-client";
-            badge.textContent = "👤 حساب زبون عادي";
-        }
-
-        updateDurationOptions(role);
     }
 
     function updateDurationOptions(role = "client") {
         const durationSelect = document.getElementById("durationSelect");
         const prices = PRICING[role] || PRICING["client"];
-
         durationSelect.innerHTML = "";
         prices.forEach(item => {
             const opt = document.createElement("option");
@@ -579,200 +675,23 @@
             opt.textContent = `${item.label} - $${item.price.toFixed(2)}`;
             durationSelect.appendChild(opt);
         });
-
         updatePrice();
     }
 
-    async function changeRoleAdmin(newRole) {
-        const targetId = document.getElementById("adminRoleTargetId").value.trim();
-        if (!targetId) {
-            alert("يرجى إدخال ID العميل أولاً!");
-            return;
-        }
-
-        if (!globalOnlineData[targetId]) {
-            globalOnlineData[targetId] = { balance: 0.00, role: "client" };
-        }
-
-        globalOnlineData[targetId].role = newRole;
-        
-        if (await saveOnlineData()) {
-            const roleText = newRole === "reseller" ? "بائع VIP ⭐" : "زبون عادي 👤";
-            alert(`✅ تم تغيير رتبة العميل (${targetId}) إلى ${roleText} بنجاح!`);
-            fetchOnlineData();
-        }
-    }
-
-    async function addBalanceAdmin() {
-        const targetId = document.getElementById("adminAddTargetId").value.trim();
-        const amount = parseFloat(document.getElementById("adminAddAmount").value);
-        
-        if (!targetId || isNaN(amount) || amount <= 0) {
-            alert("يرجى إدخال ID صحيح ومبلغ صحيح!");
-            return;
-        }
-        
-        if (!globalOnlineData[targetId]) {
-            globalOnlineData[targetId] = { balance: 0.00, role: "client" };
-        }
-
-        globalOnlineData[targetId].balance = (parseFloat(globalOnlineData[targetId].balance) || 0) + amount;
-
-        if (await saveOnlineData()) {
-            alert(`✅ تم إضافة $${amount.toFixed(2)} للمستخدم (${targetId})\nالرصيد الجديد: $${globalOnlineData[targetId].balance.toFixed(2)}`);
-            document.getElementById("adminAddAmount").value = "";
-            fetchOnlineData();
-        }
-    }
-
-    async function deductBalanceAdmin() {
-        const targetId = document.getElementById("adminDeductTargetId").value.trim();
-        const amount = parseFloat(document.getElementById("adminDeductAmount").value);
-        
-        if (!targetId || isNaN(amount) || amount <= 0) {
-            alert("يرجى إدخال ID صحيح ومبلغ صحيح!");
-            return;
-        }
-        
-        if (!globalOnlineData[targetId]) {
-            alert("المستخدم غير موجود أصلاً!");
-            return;
-        }
-
-        let curr = parseFloat(globalOnlineData[targetId].balance) || 0;
-        globalOnlineData[targetId].balance = Math.max(0, curr - amount);
-
-        if (await saveOnlineData()) {
-            alert(`🔻 تم خصم $${amount.toFixed(2)} من المستخدم (${targetId})\nالرصيد المتبقي: $${globalOnlineData[targetId].balance.toFixed(2)}`);
-            document.getElementById("adminDeductAmount").value = "";
-            fetchOnlineData();
-        }
-    }
-
-    async function zeroBalanceAdmin() {
-        const targetId = document.getElementById("adminDeductTargetId").value.trim();
-        if (!targetId) {
-            alert("يرجى إدخال ID المستخدم لتصفير حسابه!");
-            return;
-        }
-
-        if (confirm(`هل أنت تأكد من تصفير رصيد حساب (${targetId}) تماماً؟`)) {
-            if (!globalOnlineData[targetId]) globalOnlineData[targetId] = { balance: 0.00, role: "client" };
-            globalOnlineData[targetId].balance = 0.00;
-
-            if (await saveOnlineData()) {
-                alert(`🧹 تم تصفير رصيد الحساب (${targetId}) بنجاح!`);
-                fetchOnlineData();
-            }
-        }
-    }
-
-    function checkBalanceAdmin() {
-        const targetId = document.getElementById("adminCheckTargetId").value.trim();
-        if (!targetId) {
-            alert("يرجى إدخال الـ ID أولاً!");
-            return;
-        }
-
-        const data = globalOnlineData[targetId] || { balance: 0.00, role: "client" };
-        alert(`🔍 بيانات الحساب (${targetId}) أونلاين:\n💰 الرصيد: $${data.balance.toFixed(2)}\n⭐ الرتبة: ${data.role}`);
-    }
-
-    function sendPaymentViaTelegram() {
-        const transId = document.getElementById("transactionIdInput").value.trim();
-        const userId = localStorage.getItem("USER_ID");
-
-        if (!transId) {
-            alert("يرجى إدخال رقم العملية أو رقم الهاتف المحوَّل منه!");
-            return;
-        }
-
-        const formattedUserId = "`" + userId + "`";
-        const formattedTransId = "`" + transId + "`";
-
-        const message = `مرحباً أود شحن رصيد%0A👤 ID الحساب: ${formattedUserId}%0A🔢 بيانات التحويل: ${formattedTransId}`;
-        const telegramUrl = `https://t.me/ZAKAFFCODE?text=${message}`;
-        
-        window.open(telegramUrl, '_blank');
-        closePaymentModal();
-    }
-
-    function copyUserId() {
-        const userId = localStorage.getItem("USER_ID");
-        if (userId) {
-            navigator.clipboard.writeText(userId).then(() => {
-                alert("تم نسخ الـ ID الخاص بك بنجاح:\n" + userId);
-            });
-        }
+    function changeQty(delta) {
+        const qtyInput = document.getElementById("keyQuantity");
+        let val = parseInt(qtyInput.value) + delta;
+        if (val < 1) val = 1;
+        qtyInput.value = val;
+        updatePrice();
     }
 
     function updatePrice() {
         const durationSelect = document.getElementById("durationSelect");
         if (!durationSelect.options.length) return;
-        const selectedOption = durationSelect.options[durationSelect.selectedIndex];
-        const price = selectedOption.getAttribute("data-price");
-        document.getElementById("displayPrice").textContent = "$" + parseFloat(price).toFixed(2);
-    }
-
-    function openPaymentModal() {
-        document.getElementById("paymentModal").style.display = "flex";
-    }
-
-    function closePaymentModal() {
-        document.getElementById("paymentModal").style.display = "none";
-    }
-
-    function copyText(text) {
-        navigator.clipboard.writeText(text).then(() => {
-            alert("تم النسخ بنجاح: " + text);
-        });
-    }
-
-    function openAdmin() {
-        let lockUntil = localStorage.getItem("ADMIN_LOCK_UNTIL");
-        if (lockUntil && Date.now() < parseInt(lockUntil)) {
-            const remainingMins = Math.ceil((parseInt(lockUntil) - Date.now()) / (60 * 1000));
-            alert(`❌ أخطأت في كلمة السر 4 مرات. الدخول محظور لمدة ${remainingMins} دقيقة أخرى.`);
-            return;
-        }
-
-        const pass = prompt("أدخل كلمة سر الأدمن:");
-        if (pass === ADMIN_PASSWORD) {
-            localStorage.setItem("ADMIN_FAIL_COUNT", 0);
-            document.getElementById("adminPanel").style.display = "block";
-            alert("✅ تم تسجيل الدخول كأدمن بنجاح!");
-        } else if (pass !== null) {
-            let fails = parseInt(localStorage.getItem("ADMIN_FAIL_COUNT") || 0) + 1;
-            localStorage.setItem("ADMIN_FAIL_COUNT", fails);
-            
-            if (fails >= 4) {
-                localStorage.setItem("ADMIN_LOCK_UNTIL", Date.now() + (30 * 60 * 1000));
-                alert("❌ تم إدخال كلمة السر خاطئة 4 مرات! تم حظرك من محاولة الدخول لمدة 30 دقيقة.");
-            } else {
-                alert(`❌ كلمة السر خاطئة! المحاولات المتبقية: ${4 - fails}`);
-            }
-        }
-    }
-
-    function saveKeys() {
-        const product = document.getElementById("adminProductSelect").value;
-        const duration = document.getElementById("adminDurationSelect").value;
-        const keysText = document.getElementById("adminKeysInput").value.trim();
-
-        if (!keysText) {
-            alert("يرجى كتابة كود واحد على الأقل!");
-            return;
-        }
-
-        const newKeys = keysText.split("\n").map(k => k.trim()).filter(k => k.length > 0);
-        const storageKey = `KEYS_${product}_${duration}`;
-        
-        let existingKeys = JSON.parse(localStorage.getItem(storageKey) || "[]");
-        existingKeys = existingKeys.concat(newKeys);
-        
-        localStorage.setItem(storageKey, JSON.stringify(existingKeys));
-        document.getElementById("adminKeysInput").value = "";
-        alert(`تم إضافة ${newKeys.length} كود بنجاح!`);
+        const price = parseFloat(durationSelect.options[durationSelect.selectedIndex].getAttribute("data-price"));
+        const qty = parseInt(document.getElementById("keyQuantity").value);
+        document.getElementById("displayPrice").textContent = "$" + (price * qty).toFixed(2);
     }
 
     async function sendOrder() {
@@ -780,13 +699,15 @@
         const product = document.getElementById("productSelect").value;
         const durationSelect = document.getElementById("durationSelect");
         const duration = durationSelect.value;
-        const price = parseFloat(durationSelect.options[durationSelect.selectedIndex].getAttribute("data-price"));
-        
-        const userData = globalOnlineData[userId] || { balance: 0.00, role: "client" };
+        const singlePrice = parseFloat(durationSelect.options[durationSelect.selectedIndex].getAttribute("data-price"));
+        const qty = parseInt(document.getElementById("keyQuantity").value);
+        const totalPrice = singlePrice * qty;
+
+        const userData = globalOnlineData[userId] || { balance: 0.00, role: "client", history: [], tx: [] };
         let userBalance = parseFloat(userData.balance || 0);
 
-        if (userBalance < price) {
-            alert(`رصيدك الحالي ($${userBalance.toFixed(2)}) غير كافٍ لشراء هذا المنتج ($${price.toFixed(2)}).\nيرجى شحن رصيدك أولاً!`);
+        if (userBalance < totalPrice) {
+            alert(`رصيدك الحالي ($${userBalance.toFixed(2)}) غير كافٍ لشراء ${qty} كارت بـ ($${totalPrice.toFixed(2)}).`);
             openPaymentModal();
             return;
         }
@@ -794,32 +715,142 @@
         const storageKey = `KEYS_${product}_${duration}`;
         let availableKeys = JSON.parse(localStorage.getItem(storageKey) || "[]");
 
-        if (availableKeys.length > 0) {
-            userBalance -= price;
+        if (availableKeys.length >= qty) {
+            userBalance -= totalPrice;
             globalOnlineData[userId].balance = userBalance;
-            await saveOnlineData();
 
-            const deliveredKey = availableKeys.shift();
+            let deliveredKeys = [];
+            for (let i = 0; i < qty; i++) {
+                deliveredKeys.push(availableKeys.shift());
+            }
+
             localStorage.setItem(storageKey, JSON.stringify(availableKeys));
 
-            document.getElementById("generatedKey").textContent = deliveredKey;
+            // Record History
+            if (!globalOnlineData[userId].history) globalOnlineData[userId].history = [];
+            deliveredKeys.forEach(k => {
+                globalOnlineData[userId].history.unshift({ key: k, price: singlePrice, date: new Date().toLocaleDateString() });
+            });
+
+            await saveOnlineData();
+
+            document.getElementById("generatedKey").value = deliveredKeys.join("\n");
             document.getElementById("keyResultBox").style.display = "block";
             fetchOnlineData();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
         } else {
-            alert("عذراً، هذا المنتج غير متوفر آلياً حالياً. جاري تحويلك للمالك لتوفيره لك فوراً...");
-            const formattedUserId = "`" + userId + "`";
-            const message = `مرحباً، أود طلب الكود التالي:%0A👤 ID الحساب: ${formattedUserId}%0A- المنتج: ${encodeURIComponent(product)}%0A- المدة: ${encodeURIComponent(duration)}%0A- السعر: $${price}`;
-            const telegramUrl = `https://t.me/ZAKAFFCODE?text=${message}`;
-            window.open(telegramUrl, '_blank');
+            alert(`عذراً، المتوفر حالياً من هذا المنتج هو (${availableKeys.length}) أكواد فقط. جاري تحويلك للدعم...`);
+            const msg = `طلب شراء عاجل:%0AID: ${userId}%0Aالمنتج: ${product}%0Aالمدة: ${duration}%0Aالكمية: ${qty}`;
+            window.open(`https://t.me/ZAKAFFCODE?text=${msg}`, '_blank');
         }
     }
 
+    function renderTables(userData) {
+        // Render Key History
+        const historyTable = document.getElementById("keyHistoryTable");
+        const history = userData.history || [];
+        document.getElementById("totalSoldStat").textContent = history.length;
+
+        if (history.length > 0) {
+            historyTable.innerHTML = history.slice(0, 10).map((item, idx) => `
+                <tr>
+                    <td>${idx + 1}</td>
+                    <td style="color: var(--green-glow);">${item.key}</td>
+                    <td>$${item.price.toFixed(2)}</td>
+                </tr>
+            `).join('');
+        }
+
+        // Render Transactions
+        const txTable = document.getElementById("transactionsTable");
+        const tx = userData.tx || [];
+        if (tx.length > 0) {
+            txTable.innerHTML = tx.map(item => `
+                <tr>
+                    <td>${item.date}</td>
+                    <td style="color: ${item.type === 'ADD' ? 'var(--green-glow)' : 'var(--red-glow)'};">${item.type}</td>
+                    <td>$${item.amount.toFixed(2)}</td>
+                </tr>
+            `).join('');
+        }
+    }
+
+    /* Helper & Admin Logic */
+    function toggleSidebar() {
+        document.getElementById("sidebar").classList.toggle("active");
+        document.getElementById("overlay").classList.toggle("active");
+    }
+
+    function switchTab(tabId) {
+        document.querySelectorAll(".tab-section").forEach(t => t.classList.remove("active"));
+        document.querySelectorAll(".sidebar-item").forEach(i => i.classList.remove("active"));
+        document.getElementById(tabId).classList.add("active");
+        toggleSidebar();
+    }
+
+    function copyUserId() {
+        navigator.clipboard.writeText(localStorage.getItem("USER_ID")).then(() => alert("تم نسخ الـ ID!"));
+    }
+
     function copyKey() {
-        const keyText = document.getElementById("generatedKey").textContent;
-        navigator.clipboard.writeText(keyText).then(() => {
-            alert("تم نسخ الكود إلى الحافظة!");
-        });
+        navigator.clipboard.writeText(document.getElementById("generatedKey").value).then(() => alert("تم نسخ الأكواد!"));
+    }
+
+    function openPaymentModal() { document.getElementById("paymentModal").style.display = "flex"; }
+    function closePaymentModal() { document.getElementById("paymentModal").style.display = "none"; }
+    function copyText(t) { navigator.clipboard.writeText(t).then(() => alert("تم النسخ!")); }
+
+    function sendPaymentViaTelegram() {
+        const transId = document.getElementById("transactionIdInput").value.trim();
+        const userId = localStorage.getItem("USER_ID");
+        if (!transId) return alert("يرجى كتابة رقم العملية!");
+        window.open(`https://t.me/ZAKAFFCODE?text=شحن%20رصيد%0AID:%20${userId}%0Aالتحويل:%20${transId}`, '_blank');
+        closePaymentModal();
+    }
+
+    function openAdmin() {
+        toggleSidebar();
+        if (prompt("كلمة سر الأدمن:") === ADMIN_PASSWORD) {
+            document.getElementById("adminPanel").style.display = "block";
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        }
+    }
+
+    async function changeRoleAdmin(role) {
+        const id = document.getElementById("adminRoleTargetId").value.trim();
+        if (!id) return alert("اكتب ID العميل!");
+        if (!globalOnlineData[id]) globalOnlineData[id] = { balance: 0.00, role: "client", history: [], tx: [] };
+        globalOnlineData[id].role = role;
+        if (await saveOnlineData()) alert("تم تغيير الرتبة بنجاح!");
+    }
+
+    async function addBalanceAdmin() {
+        const id = document.getElementById("adminAddTargetId").value.trim();
+        const amt = parseFloat(document.getElementById("adminAddAmount").value);
+        if (!id || isNaN(amt)) return alert("بيانات غير صحيحة!");
+        if (!globalOnlineData[id]) globalOnlineData[id] = { balance: 0.00, role: "client", history: [], tx: [] };
+        globalOnlineData[id].balance = (parseFloat(globalOnlineData[id].balance) || 0) + amt;
+        if (!globalOnlineData[id].tx) globalOnlineData[id].tx = [];
+        globalOnlineData[id].tx.unshift({ date: new Date().toLocaleDateString(), type: 'ADD', amount: amt });
+        if (await saveOnlineData()) alert("تمت إضافة الرصيد بنجاح!");
+    }
+
+    function saveKeys() {
+        const prod = document.getElementById("adminProductSelect").value;
+        const dur = document.getElementById("adminDurationSelect").value;
+        const keys = document.getElementById("adminKeysInput").value.trim().split("\n").map(k=>k.trim()).filter(k=>k);
+        if (!keys.length) return alert("ادخل كود واحد على الأقل!");
+        const key = `KEYS_${prod}_${dur}`;
+        let current = JSON.parse(localStorage.getItem(key) || "[]");
+        localStorage.setItem(key, JSON.stringify(current.concat(keys)));
+        alert(`تم حفظ ${keys.length} كود بنجاح!`);
+        document.getElementById("adminKeysInput").value = "";
+    }
+
+    function requestResetKey() {
+        const k = document.getElementById("resetKeyInput").value.trim();
+        if (!k) return alert("أدخل الكود أولاً!");
+        alert("جاري تحويل طلب التصفير (HWID Reset) للادمن...");
+        window.open(`https://t.me/ZAKAFFCODE?text=طلب%20تصفير%20كود%0AKey:%20${k}`, '_blank');
     }
 </script>
 
