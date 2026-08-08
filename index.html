@@ -51,13 +51,21 @@
 
         .user-id-badge {
             background: #21262d;
-            padding: 5px 12px;
+            padding: 6px 14px;
             border-radius: 8px;
             font-size: 12px;
             color: #8b949e;
             margin-top: 6px;
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
             border: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .user-id-badge:active {
+            background: #30363d;
         }
 
         .balance-box {
@@ -248,7 +256,9 @@
     <div class="header">
         <div style="font-size: 30px;">👑</div>
         <div style="font-size: 19px; font-weight: bold; color: #ffffff;">FFSCRIPTVIP STORE</div>
-        <div class="user-id-badge">ID: <span id="myUserId">...</span></div>
+        <div class="user-id-badge" onclick="copyUserId()" title="اضغط لنسخ الـ ID">
+            ID: <span id="myUserId">...</span> 📋
+        </div>
     </div>
 
     <div class="balance-box">
@@ -414,6 +424,15 @@
         const telegramMsg = `مرحباً، أرسل إسكرين تحويل لإضافة الرصيد لحسابي:%0AID: ${userId}`;
         document.getElementById("telegramPaymentLink").href = `https://t.me/ZAKAFFCODE?text=${telegramMsg}`;
     });
+
+    function copyUserId() {
+        const userId = localStorage.getItem("USER_ID");
+        if (userId) {
+            navigator.clipboard.writeText(userId).then(() => {
+                alert("تم نسخ الـ ID الخاص بك بنجاح:\n" + userId);
+            });
+        }
+    }
 
     function loadBalance() {
         const userId = localStorage.getItem("USER_ID");
