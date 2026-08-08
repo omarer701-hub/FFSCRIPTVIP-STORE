@@ -13,6 +13,7 @@
             --accent-purple: #8a2be2;
             --accent-blue: #2f81f7;
             --accent-green: #238636;
+            --accent-red: #da3633;
             --border-color: #30363d;
         }
 
@@ -93,6 +94,19 @@
             text-align: center;
             cursor: pointer;
             text-decoration: none;
+        }
+
+        .btn-danger {
+            flex: 1;
+            background: linear-gradient(135deg, #da3633, #b62324);
+            color: #fff;
+            border: none;
+            padding: 12px;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 14px;
+            text-align: center;
+            cursor: pointer;
         }
 
         .btn-support {
@@ -226,6 +240,12 @@
             margin-top: 15px;
         }
 
+        .admin-section {
+            border-bottom: 1px dashed var(--border-color);
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+
         .key-result-box {
             display: none;
             background: #102a1d;
@@ -341,35 +361,55 @@
 
     <button class="admin-toggle-btn" onclick="openAdmin()">🔐 لوحة التحكم (Admin Panel)</button>
 
+    <!-- Admin Panel -->
     <div class="admin-panel" id="adminPanel">
-        <h3 style="margin-bottom: 15px; color: #8a2be2;">إدارة الأدمن</h3>
+        <h3 style="margin-bottom: 15px; color: #8a2be2; text-align: center;">⚙️ لوحة إدارة الأدمن</h3>
         
-        <div class="form-group" style="border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
-            <label>ID المستخدم المستهدف:</label>
-            <input type="text" id="adminTargetIdInput" placeholder="مثال: USER_123456">
-            <label style="margin-top: 8px;">المبلغ المراد إضافته ($):</label>
-            <input type="number" id="adminAddBalanceInput" placeholder="0.00">
-            <button class="btn-main" style="width: 100%; margin-top: 8px;" onclick="addBalanceAdmin()">💵 إضافة الرصيد للزبون</button>
+        <!-- 1. إضافة رصيد -->
+        <div class="admin-section">
+            <label style="color: #3fb950;">💵 إضافة رصيد لمستخدم:</label>
+            <input type="text" id="adminAddTargetId" placeholder="ID المستخدم (مثال: USER_123456)" style="margin-bottom: 6px;">
+            <input type="number" id="adminAddAmount" placeholder="المبلغ المراد إضافته ($)">
+            <button class="btn-main" style="width: 100%; margin-top: 8px;" onclick="addBalanceAdmin()">➕ إضافة الرصيد</button>
         </div>
 
-        <div class="form-group">
-            <label>اختر المنتج لربط الأكواد:</label>
-            <select id="adminProductSelect"></select>
+        <!-- 2. خصم / تصفير رصيد -->
+        <div class="admin-section">
+            <label style="color: #f85149;">🔻 خصم أو تصفير رصيد مستخدم:</label>
+            <input type="text" id="adminDeductTargetId" placeholder="ID المستخدم" style="margin-bottom: 6px;">
+            <input type="number" id="adminDeductAmount" placeholder="المبلغ المراد خصمه (أو اتركه فارغاً للتصفير كامل)">
+            <div style="display: flex; gap: 8px; margin-top: 8px;">
+                <button class="btn-danger" style="flex: 1;" onclick="deductBalanceAdmin()">➖ خصم مبلغ</button>
+                <button class="btn-danger" style="flex: 1; background: #8b0000;" onclick="zeroBalanceAdmin()">🧹 تصفير كامل</button>
+            </div>
         </div>
-        <div class="form-group">
-            <label>اختر المدة:</label>
-            <select id="adminDurationSelect">
-                <option value="1 Days">1 Days</option>
-                <option value="3 Days">3 Days</option>
-                <option value="7 Days">7 Days</option>
-                <option value="30 Days">30 Days</option>
-            </select>
+
+        <!-- 3. الاستعلام عن رصيد حساب -->
+        <div class="admin-section">
+            <label style="color: #58a6ff;">🔍 معرفة رصيد حساب من الـ ID:</label>
+            <input type="text" id="adminCheckTargetId" placeholder="أدخل ID المستخدم للمعاينة">
+            <button class="btn-support" style="width: 100%; margin-top: 8px; background: #1f6feb; color: white;" onclick="checkBalanceAdmin()">🔎 كشف الرصيد الحالي</button>
         </div>
-        <div class="form-group">
-            <label>أدخل الأكواد (كود واحد في كل سطر):</label>
-            <textarea id="adminKeysInput" rows="3" placeholder="KEY123&#10;KEY456"></textarea>
+
+        <!-- 4. إدخال وتخزين الأكواد -->
+        <div class="admin-section" style="border-bottom: none; padding-bottom: 0; margin-bottom: 0;">
+            <label style="color: #a371f7;">🔑 شحن أكواد المنتجات:</label>
+            <div class="form-group" style="margin-bottom: 8px;">
+                <select id="adminProductSelect"></select>
+            </div>
+            <div class="form-group" style="margin-bottom: 8px;">
+                <select id="adminDurationSelect">
+                    <option value="1 Days">1 Days</option>
+                    <option value="3 Days">3 Days</option>
+                    <option value="7 Days">7 Days</option>
+                    <option value="30 Days">30 Days</option>
+                </select>
+            </div>
+            <div class="form-group" style="margin-bottom: 8px;">
+                <textarea id="adminKeysInput" rows="3" placeholder="أدخل الأكواد هنا (كود واحد في كل سطر)"></textarea>
+            </div>
+            <button class="btn-main" style="width: 100%; background: linear-gradient(135deg, #8b5cf6, #6366f1);" onclick="saveKeys()">💾 حفظ الأكواد</button>
         </div>
-        <button class="btn-main" style="width: 100%;" onclick="saveKeys()">💾 حفظ الأكواد</button>
     </div>
 </div>
 
@@ -423,11 +463,10 @@
         const userId = localStorage.getItem("USER_ID");
 
         if (!transId) {
-            alert("يرجى إدخال رقم العملية أو رقم الهاتف المحوَّل منه!");
+            alert("يرجى إدخل رقم العملية أو رقم الهاتف المحوَّل منه!");
             return;
         }
 
-        // تنسيق الـ ID ورقم العملية كرمز قابل للنسخ بنقرة واحدة في التليجرام
         const formattedUserId = "`" + userId + "`";
         const formattedTransId = "`" + transId + "`";
 
@@ -500,9 +539,12 @@
         }
     }
 
+    // --- وظائف لوحة التحكم الأدمن الجديدة --- //
+
+    // 1. إضافة رصيد
     function addBalanceAdmin() {
-        const targetId = document.getElementById("adminTargetIdInput").value.trim();
-        const amount = parseFloat(document.getElementById("adminAddBalanceInput").value);
+        const targetId = document.getElementById("adminAddTargetId").value.trim();
+        const amount = parseFloat(document.getElementById("adminAddAmount").value);
         
         if (!targetId || isNaN(amount) || amount <= 0) {
             alert("يرجى إدخال ID صحيح ومبلغ صحيح!");
@@ -513,10 +555,57 @@
         let newBalance = currentBalance + amount;
         
         localStorage.setItem("BALANCE_" + targetId, newBalance.toFixed(2));
-        alert(`تم إضافة $${amount.toFixed(2)} للمستخدم ${targetId} بنجاح!`);
+        alert(`✅ تم إضافة $${amount.toFixed(2)} للمستخدم (${targetId})\nالرصيد الجديد: $${newBalance.toFixed(2)}`);
         
-        document.getElementById("adminAddBalanceInput").value = "";
+        document.getElementById("adminAddAmount").value = "";
         loadBalance();
+    }
+
+    // 2. خصم مبلغ معين
+    function deductBalanceAdmin() {
+        const targetId = document.getElementById("adminDeductTargetId").value.trim();
+        const amount = parseFloat(document.getElementById("adminDeductAmount").value);
+        
+        if (!targetId || isNaN(amount) || amount <= 0) {
+            alert("يرجى إدخال ID صحيح ومبلغ المراد خصمه!");
+            return;
+        }
+        
+        let currentBalance = parseFloat(localStorage.getItem("BALANCE_" + targetId) || "0.00");
+        let newBalance = Math.max(0, currentBalance - amount);
+        
+        localStorage.setItem("BALANCE_" + targetId, newBalance.toFixed(2));
+        alert(`🔻 تم خصم $${amount.toFixed(2)} من المستخدم (${targetId})\nالرصيد المتبقي: $${newBalance.toFixed(2)}`);
+        
+        document.getElementById("adminDeductAmount").value = "";
+        loadBalance();
+    }
+
+    // 3. تصفير الحساب كاملاً (0.00$)
+    function zeroBalanceAdmin() {
+        const targetId = document.getElementById("adminDeductTargetId").value.trim();
+        if (!targetId) {
+            alert("يرجى إدخال ID المستخدم لتصفير حسابه!");
+            return;
+        }
+
+        if (confirm(`هل أنت تأكد من تصفير رصيد حساب (${targetId}) تماماً؟`)) {
+            localStorage.setItem("BALANCE_" + targetId, "0.00");
+            alert(`🧹 تم تصفير رصيد الحساب (${targetId}) بنجاح! الرصيد الحالي: $0.00`);
+            loadBalance();
+        }
+    }
+
+    // 4. معرفة رصيد حساب من الـ ID
+    function checkBalanceAdmin() {
+        const targetId = document.getElementById("adminCheckTargetId").value.trim();
+        if (!targetId) {
+            alert("يرجى إدخال الـ ID أولاً!");
+            return;
+        }
+
+        let balance = parseFloat(localStorage.getItem("BALANCE_" + targetId) || "0.00");
+        alert(`🔍 رصيد الحساب (${targetId}) الحالي هو:\n💰 $${balance.toFixed(2)} USD`);
     }
 
     function saveKeys() {
@@ -588,4 +677,3 @@
 
 </body>
 </html>
-
