@@ -382,7 +382,6 @@
         <li class="sidebar-item" onclick="switchTab('tab-reset')">
             <i class="fa-solid fa-rotate-left"></i> Reset Keys
         </li>
-        <!-- زر الأدمن مخفي افتراضياً بـ display: none -->
         <li class="sidebar-item" id="adminSidebarBtn" style="color: #ef4444; margin-top: 20px; display: none;" onclick="openAdmin()">
             <i class="fa-solid fa-user-shield"></i> Admin Panel
         </li>
@@ -629,7 +628,12 @@
                 <option value="1 Days">1 Days</option>
                 <option value="3 Days">3 Days</option>
                 <option value="7 Days">7 Days</option>
+                <option value="10 Days">10 Days</option>
+                <option value="15 Days">15 Days</option>
                 <option value="30 Days">30 Days</option>
+                <option value="60 Days">60 Days</option>
+                <option value="90 Days">90 Days</option>
+                <option value="31 Days">31 Days</option>
             </select>
             <textarea id="adminKeysInput" rows="3" placeholder="كود واحد في كل سطر"></textarea>
             <button class="submit-btn" style="background: var(--button-purple);" onclick="saveKeys()">💾 حفظ الأكواد</button>
@@ -668,7 +672,7 @@
     const ADMIN_PASSWORD = "mra359rt";
     const JSONBIN_BIN_ID = "6a7771aeda38895dfecaa3a9";
     const JSONBIN_API_KEY = "$2a$10$MoDxxOV9R4GgMSmNuVovC.K9uapoJVJlqFE2XrVrq26RVYrNhkWJW";
-    const ADMIN_IP = "41.235.71.132"; // الـ IP الخاص بك المسموح له بظهور زر الأدمن
+    const ADMIN_IP = "41.235.71.132";
 
     const PRODUCTS = [
         "Drip Proxy Android", "Drip Client - Apk Mod", "Drip Client - Root Device",
@@ -685,16 +689,62 @@
         "Rapid Core Root", "SPOTIFY FF ROOT", "STRICKS BR ROOT", "Bala Mod"
     ];
 
-    const PRICING = {
-        client: [
-            { label: "1 Days", price: 0.60 }, { label: "3 Days", price: 1.00 },
-            { label: "7 Days", price: 2.50 }, { label: "30 Days", price: 6.00 }
+    // الأسعار المخصصة لكل منتج (+20 سنت للأدمن)
+    const PRODUCT_PRICES = {
+        "Drip Client - Apk Mod": [
+            { label: "1 Days", price: 0.60 },
+            { label: "3 Days", price: 1.40 },
+            { label: "7 Days", price: 2.50 },
+            { label: "15 Days", price: 4.00 },
+            { label: "30 Days", price: 6.00 }
         ],
-        reseller: [
-            { label: "1 Days", price: 0.40 }, { label: "3 Days", price: 0.75 },
-            { label: "7 Days", price: 1.80 }, { label: "30 Days", price: 4.50 }
+        "Pato Team Apkmod Orange": [
+            { label: "3 Days", price: 3.00 },
+            { label: "7 Days", price: 4.00 },
+            { label: "15 Days", price: 6.00 },
+            { label: "30 Days", price: 10.00 }
+        ],
+        "Pato Team Apkmod Blue": [
+            { label: "3 Days", price: 2.00 },
+            { label: "7 Days", price: 4.00 },
+            { label: "15 Days", price: 5.00 },
+            { label: "30 Days", price: 8.00 }
+        ],
+        "Hg Cheats Proxy Apk": [
+            { label: "1 Days", price: 1.00 },
+            { label: "7 Days", price: 1.50 },
+            { label: "30 Days", price: 4.00 }
+        ],
+        "Gbox Esign Cert": [
+            { label: "30 Days", price: 4.00 },
+            { label: "60 Days", price: 8.00 },
+            { label: "90 Days", price: 10.00 }
+        ],
+        "Hg Cheats Apk Mod": [
+            { label: "1 Days", price: 0.80 },
+            { label: "7 Days", price: 2.50 },
+            { label: "10 Days", price: 3.00 },
+            { label: "30 Days", price: 7.00 }
+        ],
+        "Fluorite FF iOS": [
+            { label: "1 Days", price: 5.00 },
+            { label: "7 Days", price: 13.00 },
+            { label: "31 Days", price: 24.00 }
+        ],
+        "Fluorite 8BP IOS": [
+            { label: "1 Days", price: 4.00 },
+            { label: "7 Days", price: 12.00 },
+            { label: "30 Days", price: 24.00 }
         ]
     };
+
+    // القائمة الافتراضية لباقي المنتجات (إذا لم يكن لها سعر مخصص)
+    const DEFAULT_PRICES = [
+        { label: "1 Days", price: 0.60 },
+        { label: "3 Days", price: 1.00 },
+        { label: "7 Days", price: 2.50 },
+        { label: "30 Days", price: 6.00 }
+    ];
 
     let globalOnlineData = {};
     let currentUserIp = "";
@@ -720,6 +770,7 @@
 
         detectDeviceInfo();
         await fetchOnlineData();
+        updatePrice();
     });
 
     function detectDeviceInfo() {
@@ -758,7 +809,6 @@
                 currentUserIp = data.ip;
                 document.getElementById("devIp").textContent = currentUserIp;
 
-                // إظهار زر الأدمن فقط إذا كان الـ IP هو الـ IP الخاص بك
                 if (currentUserIp === ADMIN_IP) {
                     const btn = document.getElementById("adminSidebarBtn");
                     if (btn) btn.style.display = "flex";
@@ -785,7 +835,6 @@
             document.getElementById("userBalance").textContent = parseFloat(userData.balance || 0).toFixed(2);
             document.getElementById("sidebarUserRole").textContent = userData.role === "reseller" ? "⭐ VIP RESELLER" : "👤 CLIENT";
             
-            updateDurationOptions(userData.role || "client");
             renderTables(userData);
             renderUsersLogAdmin();
             checkIpBanStatus();
@@ -834,9 +883,14 @@
         }
     }
 
-    function updateDurationOptions(role = "client") {
+    function updatePrice() {
+        const productSelect = document.getElementById("productSelect");
         const durationSelect = document.getElementById("durationSelect");
-        const prices = PRICING[role] || PRICING["client"];
+        const selectedProduct = productSelect.value;
+
+        // جلب الأسعار المخصصة للمنتج أو الافتراضية
+        const prices = PRODUCT_PRICES[selectedProduct] || DEFAULT_PRICES;
+
         durationSelect.innerHTML = "";
         prices.forEach(item => {
             const opt = document.createElement("option");
@@ -845,7 +899,8 @@
             opt.textContent = `${item.label} - $${item.price.toFixed(2)}`;
             durationSelect.appendChild(opt);
         });
-        updatePrice();
+
+        calcTotalPrice();
     }
 
     function changeQty(delta) {
@@ -853,10 +908,10 @@
         let val = parseInt(qtyInput.value) + delta;
         if (val < 1) val = 1;
         qtyInput.value = val;
-        updatePrice();
+        calcTotalPrice();
     }
 
-    function updatePrice() {
+    function calcTotalPrice() {
         const durationSelect = document.getElementById("durationSelect");
         if (!durationSelect.options.length) return;
         const price = parseFloat(durationSelect.options[durationSelect.selectedIndex].getAttribute("data-price"));
@@ -1097,3 +1152,4 @@
 
 </body>
 </html>
+
