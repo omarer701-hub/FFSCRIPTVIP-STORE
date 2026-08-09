@@ -559,6 +559,21 @@
             border-bottom: 1px dashed var(--border-purple);
             font-size: 13px;
         }
+
+        .delete-btn-sm {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid var(--accent-red);
+            color: #ef4444;
+            padding: 3px 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 10px;
+            transition: 0.2s;
+        }
+        .delete-btn-sm:hover {
+            background: var(--accent-red);
+            color: #fff;
+        }
     </style>
 </head>
 <body>
@@ -611,7 +626,6 @@
 
 <div class="sidebar" id="sidebar">
     <div class="sidebar-header">
-        <!-- USERNAME SHOWN DYNAMICALLY IN SIDEBAR HEADER -->
         <div style="font-weight: bold; color: #fff; font-size: 16px;" id="sidebarHeaderUsername">GUEST USER</div>
         <i class="fa-solid fa-xmark" style="cursor: pointer; font-size: 20px;" onclick="toggleSidebar()"></i>
     </div>
@@ -643,7 +657,6 @@
 <div class="top-navbar">
     <div class="brand-title" onclick="handleBrandClick()">
         <div class="brand-icon"><i class="fa-solid fa-crown" style="color: #fff;"></i></div>
-        <!-- USERNAME SHOWN DYNAMICALLY IN TOP NAVBAR -->
         <span id="navUsername">GUEST USER</span>
     </div>
     <div class="nav-right">
@@ -879,33 +892,69 @@
             </div>
         </div>
 
-        <div class="form-group" style="margin-top: 15px;">
-            <label style="color: var(--primary-purple);">🔑 Stock Key Vault:</label>
-            <select id="adminProductSelect" style="margin-bottom: 5px;"></select>
-            <select id="adminDurationSelect" style="margin-bottom: 5px;">
-                <option value="1 Hour">1 Hour</option>
-                <option value="6 Hours">6 Hours</option>
-                <option value="24 Hours (1 Day)">24 Hours (1 Day)</option>
-                <option value="48 Hours (2 Days)">48 Hours (2 Days)</option>
-                <option value="1 Days">1 Days</option>
-                <option value="3 Days">3 Days</option>
-                <option value="5 Days">5 Days</option>
-                <option value="7 Days">7 Days</option>
-                <option value="10 Days">10 Days</option>
-                <option value="14 Days">14 Days</option>
-                <option value="15 Days">15 Days</option>
-                <option value="20 Days">20 Days</option>
-                <option value="28 Days">28 Days</option>
-                <option value="30 Days">30 Days</option>
-                <option value="31 Days">31 Days</option>
-                <option value="60 Days">60 Days</option>
-                <option value="90 Days">90 Days</option>
-                <option value="168 Hours (7 Days)">168 Hours (7 Days)</option>
-                <option value="720 Hours (30 Days)">720 Hours (30 Days)</option>
-            </select>
-            <textarea id="adminKeysInput" rows="3" placeholder="Enter 1 Key per line"></textarea>
-            <button class="submit-btn" style="background: var(--primary-purple);" onclick="saveKeys()">Stock Keys To Server</button>
+        <!-- ENHANCED STOCK KEY VAULT SECTION -->
+        <div class="form-group" style="margin-top: 20px; background: rgba(139, 92, 246, 0.05); padding: 15px; border-radius: 12px; border: 1px solid var(--border-purple);">
+            <label style="color: var(--primary-purple); font-size: 14px;"><i class="fa-solid fa-key"></i> STOCK KEY VAULT & INVENTORY</label>
+
+            <div style="margin-top: 10px;">
+                <label>Select Product:</label>
+                <select id="adminProductSelect" style="margin-bottom: 8px;"></select>
+                
+                <label>Select Duration:</label>
+                <select id="adminDurationSelect" style="margin-bottom: 8px;">
+                    <option value="1 Hour">1 Hour</option>
+                    <option value="6 Hours">6 Hours</option>
+                    <option value="24 Hours (1 Day)">24 Hours (1 Day)</option>
+                    <option value="48 Hours (2 Days)">48 Hours (2 Days)</option>
+                    <option value="1 Days">1 Days</option>
+                    <option value="3 Days">3 Days</option>
+                    <option value="5 Days">5 Days</option>
+                    <option value="7 Days">7 Days</option>
+                    <option value="10 Days">10 Days</option>
+                    <option value="14 Days">14 Days</option>
+                    <option value="15 Days">15 Days</option>
+                    <option value="20 Days">20 Days</option>
+                    <option value="28 Days">28 Days</option>
+                    <option value="30 Days">30 Days</option>
+                    <option value="31 Days">31 Days</option>
+                    <option value="60 Days">60 Days</option>
+                    <option value="90 Days">90 Days</option>
+                    <option value="168 Hours (7 Days)">168 Hours (7 Days)</option>
+                    <option value="720 Hours (30 Days)">720 Hours (30 Days)</option>
+                </select>
+
+                <label>Enter Keys (1 Key per line):</label>
+                <textarea id="adminKeysInput" rows="3" placeholder="Enter 1 Key per line"></textarea>
+                <button class="submit-btn" style="background: var(--primary-purple); margin-bottom: 15px;" onclick="saveKeys()">
+                    <i class="fa-solid fa-plus-circle"></i> Add Keys To Vault
+                </button>
+            </div>
+
+            <!-- INVENTORY MANAGER TABLE -->
+            <div style="margin-top: 15px; border-top: 1px dashed var(--border-purple); padding-top: 12px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <span style="font-size: 12px; font-weight: bold; color: #fff;">📦 Vault Inventory (<span id="totalKeysCount">0</span> Keys)</span>
+                    <button onclick="clearSelectedStockGroup()" class="delete-btn-sm" title="Clear selected product & duration stock">Clear Current Group</button>
+                </div>
+
+                <div class="table-container" style="max-height: 220px; overflow-y: auto;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Duration</th>
+                                <th>Key Code</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventoryTableBody">
+                            <tr><td colspan="4" style="color: var(--text-muted);">No keys in vault</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
+
     </div>
 
 </div>
@@ -1111,14 +1160,12 @@
         }, 50);
     }
 
-    // UPDATE DYNAMIC USERNAME ACROSS NAVBAR & SIDEBAR
     function updateUIUsername(username) {
         const display = username || "GUEST USER";
         document.getElementById("navUsername").textContent = display;
         document.getElementById("sidebarHeaderUsername").textContent = display;
     }
 
-    // AUTHENTICATION ENGINE
     async function handleLogin() {
         playClickSound();
         const u = document.getElementById("loginUsername").value.trim();
@@ -1126,9 +1173,7 @@
 
         await fetchOnlineData();
 
-        if (!globalOnlineData.usersDb) {
-            globalOnlineData.usersDb = {};
-        }
+        if (!globalOnlineData.usersDb) globalOnlineData.usersDb = {};
 
         let foundUserId = null;
         for (const uid in globalOnlineData.usersDb) {
@@ -1191,6 +1236,7 @@
         }
 
         updatePrice();
+        renderVaultInventory();
     });
 
     function handleBrandClick() {
@@ -1267,9 +1313,7 @@
         if (!loggedInUserId || !globalOnlineData.usersDb[loggedInUserId]) return;
         const userData = globalOnlineData.usersDb[loggedInUserId];
         
-        // Dynamically reflect current username on Interface & Sidebar
         updateUIUsername(userData.username);
-
         document.getElementById("userBalance").textContent = parseFloat(userData.balance || 0).toFixed(2);
         renderTables(userData);
     }
@@ -1397,6 +1441,7 @@
             playSuccessSound();
             showToast("Keys generated successfully!", "success");
             loadUserData();
+            renderVaultInventory();
         } else {
             showToast("Stock empty! Redirecting to support...", "error");
             const textMsg = `💰 *Key Purchase Request*%0A👤 *User ID:* \`${loggedInUserId}\`%0A📦 *Product:* \`${product}\`%0A⏳ *Validity:* \`${duration}\`%0A🔢 *Qty:* \`${qty}\``;
@@ -1506,6 +1551,7 @@
             document.getElementById("adminPasswordInput").value = "";
             document.getElementById("bannedScreen").style.display = "none";
             document.getElementById("adminPanel").style.display = "block";
+            renderVaultInventory();
             showToast("Admin Panel Unlocked!");
             window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
         } else {
@@ -1642,17 +1688,104 @@
         }
     }
 
+    /* ---------------- STOCK KEY VAULT & INVENTORY FUNCTIONS ---------------- */
+
     function saveKeys() {
         playClickSound();
         const prod = document.getElementById("adminProductSelect").value;
         const dur = document.getElementById("adminDurationSelect").value;
         const keys = document.getElementById("adminKeysInput").value.trim().split("\n").map(k=>k.trim()).filter(k=>k);
+        
         if (!keys.length) return showToast("Enter at least one key!", "error");
-        const key = `KEYS_${prod}_${dur}`;
-        let current = JSON.parse(localStorage.getItem(key) || "[]");
-        localStorage.setItem(key, JSON.stringify(current.concat(keys)));
+        
+        const keyStorageName = `KEYS_${prod}_${dur}`;
+        let current = JSON.parse(localStorage.getItem(keyStorageName) || "[]");
+        localStorage.setItem(keyStorageName, JSON.stringify(current.concat(keys)));
+        
         showToast(`${keys.length} keys stocked successfully!`);
         document.getElementById("adminKeysInput").value = "";
+        renderVaultInventory();
+    }
+
+    function renderVaultInventory() {
+        const tableBody = document.getElementById("inventoryTableBody");
+        const totalCounter = document.getElementById("totalKeysCount");
+        let inventoryList = [];
+        let totalCount = 0;
+
+        for (let i = 0; i < localStorage.length; i++) {
+            const storageKey = localStorage.key(i);
+            if (storageKey.startsWith("KEYS_")) {
+                const parts = storageKey.replace("KEYS_", "").split("_");
+                const prod = parts[0];
+                const dur = parts[1] || "Default";
+                const keysArr = JSON.parse(localStorage.getItem(storageKey) || "[]");
+
+                keysArr.forEach((keyCode, idx) => {
+                    inventoryList.push({
+                        storageKey: storageKey,
+                        prod: prod,
+                        dur: dur,
+                        code: keyCode,
+                        indexInArr: idx
+                    });
+                });
+
+                totalCount += keysArr.length;
+            }
+        }
+
+        totalCounter.textContent = totalCount;
+
+        if (inventoryList.length === 0) {
+            tableBody.innerHTML = `<tr><td colspan="4" style="color: var(--text-muted);">No keys in vault</td></tr>`;
+            return;
+        }
+
+        tableBody.innerHTML = inventoryList.map(item => `
+            <tr>
+                <td style="color: #a855f7; font-weight: bold;">${item.prod}</td>
+                <td style="color: var(--text-muted);">${item.dur}</td>
+                <td style="font-family: monospace; color: var(--green-glow);">${item.code}</td>
+                <td>
+                    <button class="delete-btn-sm" onclick="deleteSingleKey('${item.storageKey}', ${item.indexInArr})">
+                        <i class="fa-solid fa-trash"></i> Delete
+                    </button>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    function deleteSingleKey(storageKey, index) {
+        playClickSound();
+        let keysArr = JSON.parse(localStorage.getItem(storageKey) || "[]");
+        if (index >= 0 && index < keysArr.length) {
+            keysArr.splice(index, 1);
+            if (keysArr.length > 0) {
+                localStorage.setItem(storageKey, JSON.stringify(keysArr));
+            } else {
+                localStorage.removeItem(storageKey);
+            }
+            showToast("Key deleted!");
+            renderVaultInventory();
+        }
+    }
+
+    function clearSelectedStockGroup() {
+        playClickSound();
+        const prod = document.getElementById("adminProductSelect").value;
+        const dur = document.getElementById("adminDurationSelect").value;
+        const targetStorageKey = `KEYS_${prod}_${dur}`;
+
+        if (localStorage.getItem(targetStorageKey)) {
+            if (confirm(`Are you sure you want to delete all stock for (${prod} - ${dur})?`)) {
+                localStorage.removeItem(targetStorageKey);
+                showToast("Stock group cleared!");
+                renderVaultInventory();
+            }
+        } else {
+            showToast("No stock found for this selected product & duration", "error");
+        }
     }
 
     function requestResetKey() {
@@ -1666,4 +1799,3 @@
 
 </body>
 </html>
-
