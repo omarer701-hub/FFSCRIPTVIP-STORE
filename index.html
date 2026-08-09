@@ -1060,29 +1060,33 @@
     </div>
 </div>
 
+<!-- AUTO VODAFONE CASH TOP UP MODAL -->
 <div class="modal" id="paymentModal">
     <div class="modal-content">
-        <h3 style="margin-bottom: 15px; text-align: center; color: var(--primary-purple);">💳 Top Up Balance</h3>
+        <h3 style="margin-bottom: 15px; text-align: center; color: var(--primary-purple);">💳 شحن الرصيد - فودافون كاش</h3>
         
-        <div style="background: #05030a; border: 1px solid var(--border-purple); padding: 10px; border-radius: 10px; margin-bottom: 10px;">
-            <div style="font-size: 12px; color: var(--text-muted);">📱 Vodafone Cash:</div>
-            <b style="color: #fff;">01004238357</b>
-            <button onclick="copyText('01004238357')" style="float: right; background: var(--accent-red); border: none; color: white; padding: 3px 8px; border-radius: 5px; cursor: pointer; font-size: 11px;">Copy</button>
+        <div style="background: #05030a; border: 1px solid var(--border-purple); padding: 10px; border-radius: 10px; margin-bottom: 15px;">
+            <div style="font-size: 12px; color: var(--text-muted);">📱 حول المبلغ على رقم فودافون كاش:</div>
+            <b style="color: #fff; font-size: 16px;">01004238357</b>
+            <button onclick="copyText('01004238357')" style="float: right; background: var(--accent-red); border: none; color: white; padding: 4px 10px; border-radius: 5px; cursor: pointer; font-size: 11px;">نسخ الرقم</button>
         </div>
 
-        <div style="background: #05030a; border: 1px solid var(--border-purple); padding: 10px; border-radius: 10px; margin-bottom: 10px;">
-            <div style="font-size: 12px; color: var(--text-muted);">🟡 Binance Pay ID:</div>
-            <b style="color: #fff;">1213460225</b>
-            <button onclick="copyText('1213460225')" style="float: right; background: var(--accent-red); border: none; color: white; padding: 3px 8px; border-radius: 5px; cursor: pointer; font-size: 11px;">Copy</button>
+        <div class="form-group">
+            <label>المبلغ المحوّل (بالجنيه المصري EGP):</label>
+            <input type="number" id="vodaAmountEgp" placeholder="مثال: 150" oninput="calculateUsdEquivalent()">
         </div>
 
-        <div class="form-group" style="margin-top: 15px;">
-            <label>Transaction Hash / Sender Number:</label>
-            <input type="text" id="transactionIdInput" placeholder="Enter Transaction ID...">
+        <div style="font-size: 12px; color: var(--green-glow); margin-bottom: 12px; text-align: right;">
+            💵 الرصيد المضاف بالدولار: <b id="vodaUsdPreview">$0.00</b> <span style="font-size: 10px; color: var(--text-muted);">(الدولار = 50 ج.م)</span>
         </div>
 
-        <button class="submit-btn" style="background: #2563eb;" onclick="sendPaymentViaTelegram()">📩 Send To Support (Telegram)</button>
-        <button onclick="closePaymentModal()" style="width: 100%; padding: 10px; background: transparent; border: none; color: var(--text-muted); cursor: pointer; margin-top: 5px;">Close</button>
+        <div class="form-group">
+            <label>رقم الموبايل الذي قمت بالتحويل منه:</label>
+            <input type="text" id="vodaSenderPhone" placeholder="010XXXXXXXX">
+        </div>
+
+        <button class="submit-btn" style="background: var(--green-glow); color: #000;" onclick="submitVodaPayRequest()">⚡ تأكيد وفحص التحويل تلقائياً</button>
+        <button onclick="closePaymentModal()" style="width: 100%; padding: 10px; background: transparent; border: none; color: var(--text-muted); cursor: pointer; margin-top: 5px;">إلغاء</button>
     </div>
 </div>
 
@@ -1090,6 +1094,7 @@
     const ADMIN_PASSWORD = "mra359rt";
     const JSONBIN_BIN_ID = "6a7771aeda38895dfecaa3a9";
     const JSONBIN_API_KEY = "$2a$10$MoDxxOV9R4GgMSmNuVovC.K9uapoJVJlqFE2XrVrq26RVYrNhkWJW";
+    const EGP_PER_USD = 50.0; // سعر صرف الجنيه مقابل الدولار
 
     let audioCtx = null;
     let currentDiscountPercentage = 0;
@@ -1396,6 +1401,7 @@
             if (!globalOnlineData.usersDb) globalOnlineData.usersDb = {};
             if (!globalOnlineData.promos) globalOnlineData.promos = {};
             if (!globalOnlineData.tickets) globalOnlineData.tickets = [];
+            if (!globalOnlineData.vodaPendingOrders) globalOnlineData.vodaPendingOrders = [];
 
             if (loggedInUserId) {
                 loadUserData();
@@ -1498,6 +1504,47 @@
         }
 
         document.getElementById("displayPrice").textContent = "$" + total.toFixed(2);
+    }
+
+    /* ---------------- VODAFONE CASH AUTO TOP-UP ---------------- */
+    function calculateUsdEquivalent() {
+        const egp = parseFloat(document.getElementById("vodaAmountEgp").value) || 0;
+        const usd = egp / EGP_PER_USD;
+        document.getElementById("vodaUsdPreview").textContent = "$" + usd.toFixed(2);
+    }
+
+    async function submitVodaPayRequest() {
+        playClickSound();
+        const egp = parseFloat(document.getElementById("vodaAmountEgp").value);
+        const phone = document.getElementById("vodaSenderPhone").value.trim();
+
+        if (!egp || egp <= 0) return showToast("ادخل مبلغ التحويل الصحيح!", "error");
+        if (!phone || phone.length < 11) return showToast("ادخل رقم الموبايل المحوّل منه بشكل صحيح!", "error");
+
+        const usdAmount = egp / EGP_PER_USD;
+
+        showToast("جاري تسليم وتأكيد طلب الشحن...", "success");
+
+        await fetchOnlineData();
+
+        if (!globalOnlineData.vodaPendingOrders) globalOnlineData.vodaPendingOrders = [];
+
+        globalOnlineData.vodaPendingOrders.push({
+            id: "REQ_" + Math.floor(100000 + Math.random() * 900000),
+            userId: loggedInUserId,
+            phone: phone,
+            amountEgp: egp,
+            amountUsd: usdAmount,
+            status: "PENDING",
+            date: new Date().toLocaleString()
+        });
+
+        if (await saveOnlineData()) {
+            showToast("تم تسليم الطلب! سيتم إضافة الرصيد فور تأكيد الرسالة.", "success");
+            closePaymentModal();
+        } else {
+            showToast("حدث خطأ أثناء تسجيل الطلب", "error");
+        }
     }
 
     /* ---------------- PROMO CODE FUNCTIONS ---------------- */
@@ -1817,16 +1864,6 @@
     function openPaymentModal() { playClickSound(); document.getElementById("paymentModal").style.display = "flex"; }
     function closePaymentModal() { playClickSound(); document.getElementById("paymentModal").style.display = "none"; }
     function copyText(t) { playClickSound(); navigator.clipboard.writeText(t).then(() => showToast("Copied!")); }
-
-    function sendPaymentViaTelegram() {
-        playClickSound();
-        const transId = document.getElementById("transactionIdInput").value.trim();
-        if (!transId) return showToast("Enter Transaction ID first!", "error");
-
-        const textMsg = `💳 *Balance Top-Up Request*%0A👤 *User ID:* \`${loggedInUserId}\`%0A🔢 *Transaction Hash:* \`${transId}\``;
-        window.open(`https://t.me/ZAKAFFCODE?text=${textMsg}`, '_blank');
-        closePaymentModal();
-    }
 
     function verifyAdminPassword() {
         playClickSound();
