@@ -778,9 +778,7 @@
                 <label>Select Duration:</label>
                 <select id="adminDurationSelect" style="margin-bottom: 8px;">
                     <option value="1 Days">1 Days</option>
-                    <option value="3 Days">3 Days</option>
                     <option value="7 Days">7 Days</option>
-                    <option value="15 Days">15 Days</option>
                     <option value="30 Days">30 Days</option>
                 </select>
 
@@ -879,7 +877,7 @@
 </script>
 
 <script>
-    // نظام أصوات Web Audio API بدون ملفات خارجية
+    // نظام أصوات Web Audio API بدون أي روابط خارجية
     let audioCtx = null;
 
     function getAudioContext() {
@@ -896,7 +894,7 @@
             const gain = ctx.createGain();
             osc.type = "sine";
             osc.frequency.setValueAtTime(600, ctx.currentTime);
-            gain.gain.setValueAtTime(0.05, ctx.currentTime);
+            gain.gain.setValueAtTime(0.04, ctx.currentTime);
             gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
             osc.connect(gain);
             gain.connect(ctx.destination);
@@ -909,24 +907,19 @@
         try {
             const ctx = getAudioContext();
             const now = ctx.currentTime;
-            
             const osc1 = ctx.createOscillator();
-            const osc2 = ctx.createOscillator();
             const gain = ctx.createGain();
 
             osc1.type = "triangle";
-            osc2.type = "sine";
-
-            osc1.frequency.setValueAtTime(523.25, now); // C5
-            osc1.frequency.setValueAtTime(659.25, now + 0.1); // E5
-            osc1.frequency.setValueAtTime(783.99, now + 0.2); // G5
-            osc1.frequency.setValueAtTime(1046.50, now + 0.3); // C6
+            osc1.frequency.setValueAtTime(523.25, now);
+            osc1.frequency.setValueAtTime(659.25, now + 0.1);
+            osc1.frequency.setValueAtTime(783.99, now + 0.2);
+            osc1.frequency.setValueAtTime(1046.50, now + 0.3);
 
             gain.gain.setValueAtTime(0.15, now);
             gain.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
 
             osc1.connect(gain);
-            osc2.connect(gain);
             gain.connect(ctx.destination);
 
             osc1.start(now);
@@ -934,18 +927,32 @@
         } catch(e){}
     }
 
+    // جميع المنتجات الكاملة مع أسعارها
     const PRODUCTS = [
-        "Drip Proxy Android", "Drip Client - Apk Mod", "Drip Client - Root Device",
-        "Pato Team Apkmod Orange", "Pato Team Apkmod Blue", "Hg Cheats Apk Mod",
-        "Gbox Esign Cert", "Fluorite FF iOS", "BR MODS PC SILENT", "BR MODS ROOT"
+        "Drip Proxy Android",
+        "Drip Client - Apk Mod",
+        "Drip Client - Root Device",
+        "Pato Team Apkmod Orange",
+        "Pato Team Apkmod Blue",
+        "Hg Cheats Apk Mod",
+        "Gbox Esign Cert",
+        "Fluorite FF iOS",
+        "BR MODS PC SILENT",
+        "BR MODS ROOT"
     ];
 
     const PRODUCT_PRICES = {
         "Drip Proxy Android": [{ label: "1 Days", price: 0.80 }, { label: "7 Days", price: 2.70 }, { label: "30 Days", price: 6.20 }],
-        "Drip Client - Apk Mod": [{ label: "1 Days", price: 1.00 }, { label: "7 Days", price: 2.90 }, { label: "30 Days", price: 6.40 }]
+        "Drip Client - Apk Mod": [{ label: "1 Days", price: 1.00 }, { label: "7 Days", price: 2.90 }, { label: "30 Days", price: 6.40 }],
+        "Drip Client - Root Device": [{ label: "1 Days", price: 1.20 }, { label: "7 Days", price: 3.50 }, { label: "30 Days", price: 7.50 }],
+        "Pato Team Apkmod Orange": [{ label: "1 Days", price: 1.50 }, { label: "7 Days", price: 4.00 }, { label: "30 Days", price: 8.50 }],
+        "Pato Team Apkmod Blue": [{ label: "1 Days", price: 1.50 }, { label: "7 Days", price: 4.00 }, { label: "30 Days", price: 8.50 }],
+        "Hg Cheats Apk Mod": [{ label: "1 Days", price: 1.10 }, { label: "7 Days", price: 3.20 }, { label: "30 Days", price: 7.00 }],
+        "Gbox Esign Cert": [{ label: "1 Days", price: 2.00 }, { label: "7 Days", price: 5.00 }, { label: "30 Days", price: 12.00 }],
+        "Fluorite FF iOS": [{ label: "1 Days", price: 2.50 }, { label: "7 Days", price: 6.00 }, { label: "30 Days", price: 14.00 }],
+        "BR MODS PC SILENT": [{ label: "1 Days", price: 2.00 }, { label: "7 Days", price: 5.50 }, { label: "30 Days", price: 11.00 }],
+        "BR MODS ROOT": [{ label: "1 Days", price: 1.80 }, { label: "7 Days", price: 4.80 }, { label: "30 Days", price: 10.00 }]
     };
-
-    const DEFAULT_PRICES = [{ label: "1 Days", price: 1.20 }, { label: "7 Days", price: 3.20 }, { label: "30 Days", price: 7.20 }];
 
     let brandClickCount = 0;
     let loggedInUserId = null;
@@ -973,7 +980,6 @@
         }, 40);
     }
 
-    // تسجيل الدخول الخاص بالمستخدمين المحددين من قبل الأدمن فقط
     async function handleLogin() {
         const u = document.getElementById("loginUsername").value.trim();
         const p = document.getElementById("loginPassword").value.trim();
@@ -1017,6 +1023,7 @@
 
         const prodSelect = document.getElementById("productSelect");
         const adminProdSelect = document.getElementById("adminProductSelect");
+        
         PRODUCTS.forEach(prod => {
             let opt = document.createElement("option");
             opt.value = prod; opt.textContent = prod;
@@ -1054,6 +1061,7 @@
         const ua = navigator.userAgent;
         let os = "Android/Device";
         if (ua.indexOf("Windows") !== -1) os = "Windows PC";
+        else if (ua.indexOf("iPhone") !== -1) os = "iOS Device";
         document.getElementById("devOs").textContent = os;
         document.getElementById("devBrowser").textContent = "Standard Browser";
     }
@@ -1062,7 +1070,7 @@
         const productSelect = document.getElementById("productSelect");
         const durationSelect = document.getElementById("durationSelect");
         const selectedProduct = productSelect.value;
-        const prices = PRODUCT_PRICES[selectedProduct] || DEFAULT_PRICES;
+        const prices = PRODUCT_PRICES[selectedProduct] || [];
 
         durationSelect.innerHTML = "";
         prices.forEach(item => {
@@ -1132,7 +1140,7 @@
             document.getElementById("keyResultBox").style.display = "block";
 
             renderHistory(updatedHistory);
-            playBuySuccessSound(); // تشغيل صوت النجاح المميز للشراء
+            playBuySuccessSound();
             showToast("Key generated successfully!");
         } else {
             showToast("Stock empty! Contact support", "error");
@@ -1210,6 +1218,8 @@
         const id = document.getElementById("adminDeductTargetId").value.trim();
         const amt = parseFloat(document.getElementById("adminDeductAmount").value);
 
+        if (!id || isNaN(amt)) return showToast("Invalid inputs!", "error");
+
         const userRef = window.doc(window.db, "users", id);
         const userSnap = await window.getDoc(userRef);
 
@@ -1217,13 +1227,15 @@
             let currentBal = parseFloat(userSnap.data().balance || 0);
             await window.updateDoc(userRef, { balance: Math.max(0, currentBal - amt) });
             showToast("Balance Deducted!");
+        } else {
+            showToast("User ID not found!", "error");
         }
     }
 
     async function zeroBalanceAdmin() {
         const id = document.getElementById("adminDeductTargetId").value.trim();
         if (id && confirm(`Reset balance of (${id}) to zero?`)) {
-            const userRef = window.doc(window.doc(window.db, "users", id));
+            const userRef = window.doc(window.db, "users", id);
             await window.updateDoc(userRef, { balance: 0.00 });
             showToast("Account reset to zero!");
         }
