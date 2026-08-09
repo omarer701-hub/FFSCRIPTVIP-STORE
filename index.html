@@ -611,7 +611,8 @@
 
 <div class="sidebar" id="sidebar">
     <div class="sidebar-header">
-        <div style="font-weight: bold; color: #fff; font-size: 16px;">FF SCRIPT VIP</div>
+        <!-- USERNAME SHOWN DYNAMICALLY IN SIDEBAR HEADER -->
+        <div style="font-weight: bold; color: #fff; font-size: 16px;" id="sidebarHeaderUsername">GUEST USER</div>
         <i class="fa-solid fa-xmark" style="cursor: pointer; font-size: 20px;" onclick="toggleSidebar()"></i>
     </div>
     <ul class="sidebar-menu">
@@ -642,7 +643,8 @@
 <div class="top-navbar">
     <div class="brand-title" onclick="handleBrandClick()">
         <div class="brand-icon"><i class="fa-solid fa-crown" style="color: #fff;"></i></div>
-        <span>FF SCRIPT VIP</span>
+        <!-- USERNAME SHOWN DYNAMICALLY IN TOP NAVBAR -->
+        <span id="navUsername">GUEST USER</span>
     </div>
     <div class="nav-right">
         <div class="balance-badge" onclick="openPaymentModal()" style="cursor: pointer;" title="Top Up Balance">
@@ -817,7 +819,6 @@
             <i class="fa-solid fa-user-shield"></i> Secret Admin Panel
         </div>
 
-        <!-- CREATE NEW REAL USER ACCOUNT -->
         <div class="form-group" style="background: rgba(239,68,68,0.1); padding: 12px; border-radius: 10px; border: 1px dashed var(--border-red);">
             <label style="color: var(--accent-red);">👤 CREATE NEW USER ACCOUNT:</label>
             <input type="text" id="newAccUser" placeholder="Username" style="margin-bottom: 8px;">
@@ -1110,7 +1111,14 @@
         }, 50);
     }
 
-    // AUTHENTICATION ENGINE (REAL MULTI-USER CHECK)
+    // UPDATE DYNAMIC USERNAME ACROSS NAVBAR & SIDEBAR
+    function updateUIUsername(username) {
+        const display = username || "GUEST USER";
+        document.getElementById("navUsername").textContent = display;
+        document.getElementById("sidebarHeaderUsername").textContent = display;
+    }
+
+    // AUTHENTICATION ENGINE
     async function handleLogin() {
         playClickSound();
         const u = document.getElementById("loginUsername").value.trim();
@@ -1122,7 +1130,6 @@
             globalOnlineData.usersDb = {};
         }
 
-        // Search in Database for user matching username and password
         let foundUserId = null;
         for (const uid in globalOnlineData.usersDb) {
             const account = globalOnlineData.usersDb[uid];
@@ -1140,7 +1147,6 @@
             showToast("Logged in successfully!");
             loadUserData();
         } else if (u === "admin" && p === "123456") {
-            // Default Root Admin Account
             loggedInUserId = "USER_ADMIN";
             localStorage.setItem("LOGGED_USER_ID", loggedInUserId);
             if (!globalOnlineData.usersDb[loggedInUserId]) {
@@ -1176,7 +1182,6 @@
         detectDeviceInfo();
         await fetchOnlineData();
 
-        // Auto login if already authenticated
         const savedUid = localStorage.getItem("LOGGED_USER_ID");
         if (savedUid && globalOnlineData.usersDb && globalOnlineData.usersDb[savedUid]) {
             loggedInUserId = savedUid;
@@ -1261,6 +1266,10 @@
     function loadUserData() {
         if (!loggedInUserId || !globalOnlineData.usersDb[loggedInUserId]) return;
         const userData = globalOnlineData.usersDb[loggedInUserId];
+        
+        // Dynamically reflect current username on Interface & Sidebar
+        updateUIUsername(userData.username);
+
         document.getElementById("userBalance").textContent = parseFloat(userData.balance || 0).toFixed(2);
         renderTables(userData);
     }
@@ -1504,7 +1513,6 @@
         }
     }
 
-    // FUNCTION TO CREATE BRAND NEW CLIENT ACCOUNT WITH UNIQUE USERNAME, PASSWORD, ID & BALANCE
     async function createNewUserAccount() {
         playClickSound();
         await fetchOnlineData();
@@ -1516,7 +1524,6 @@
 
         if (!globalOnlineData.usersDb) globalOnlineData.usersDb = {};
 
-        // Check if username already exists
         for (const uid in globalOnlineData.usersDb) {
             if (globalOnlineData.usersDb[uid].username === u) {
                 return showToast("Username already exists! Choose another.", "error");
@@ -1659,3 +1666,4 @@
 
 </body>
 </html>
+
