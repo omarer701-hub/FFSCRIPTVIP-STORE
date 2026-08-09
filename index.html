@@ -38,6 +38,108 @@
             background-image: radial-gradient(circle at 50% 0%, #240046 0%, #07050d 75%);
         }
 
+        /* --- Full Screen Security & Login Overlay --- */
+        #loginGate {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: #07050d;
+            z-index: 90000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-image: radial-gradient(circle at 50% 50%, #17082a 0%, #030206 100%);
+        }
+
+        .auth-card {
+            background: rgba(12, 8, 24, 0.95);
+            border: 1px solid var(--border-purple);
+            border-radius: 20px;
+            padding: 30px 25px;
+            width: 90%;
+            max-width: 380px;
+            box-shadow: 0 0 30px rgba(123, 44, 191, 0.3);
+            text-align: center;
+            backdrop-filter: blur(15px);
+        }
+
+        /* Security Loader Style */
+        .sec-title {
+            color: #10b981;
+            font-weight: bold;
+            font-size: 18px;
+            letter-spacing: 1px;
+            margin-bottom: 25px;
+        }
+
+        .circle-loader {
+            width: 60px;
+            height: 60px;
+            border: 3px solid rgba(16, 185, 129, 0.1);
+            border-top: 3px solid #10b981;
+            border-radius: 50%;
+            margin: 0 auto 20px auto;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .progress-bar-bg {
+            width: 100%;
+            height: 6px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 15px;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: #10b981;
+            box-shadow: 0 0 10px #10b981;
+            transition: width 0.1s linear;
+        }
+
+        /* Login Screen Style */
+        .login-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 25px;
+            letter-spacing: 1px;
+        }
+
+        .input-box {
+            position: relative;
+            margin-bottom: 18px;
+            text-align: right;
+        }
+
+        .input-box label {
+            display: block;
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        .input-box i.input-icon {
+            position: absolute;
+            left: 14px;
+            top: 37px;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .input-box input {
+            padding-left: 40px;
+            border-color: rgba(138, 43, 226, 0.4);
+            background: rgba(5, 3, 10, 0.8);
+        }
+
         #toast-container {
             position: fixed;
             top: 20px;
@@ -390,6 +492,44 @@
 </head>
 <body>
 
+<!-- GATE (SECURITY VALIDATION & LOGIN) -->
+<div id="loginGate">
+    <!-- Step 1: Security Check -->
+    <div class="auth-card" id="secStep">
+        <div class="sec-title">SECURITY VALIDATION</div>
+        <div class="circle-loader"></div>
+        <div style="font-family: monospace; font-size: 13px; color: var(--text-muted);">Verifying domain...</div>
+        <div class="progress-bar-bg">
+            <div class="progress-bar-fill" id="secProgress"></div>
+        </div>
+    </div>
+
+    <!-- Step 2: Key Dashboard Login -->
+    <div class="auth-card" id="loginStep" style="display: none;">
+        <div class="login-title">KEY DASHBOARD</div>
+        
+        <div class="input-box">
+            <label>Username</label>
+            <input type="text" id="loginUsername" placeholder="Enter your username">
+            <i class="fa-solid fa-user input-icon"></i>
+        </div>
+
+        <div class="input-box">
+            <label>Password</label>
+            <input type="password" id="loginPassword" placeholder="Enter your password">
+            <i class="fa-solid fa-lock input-icon"></i>
+        </div>
+
+        <button class="submit-btn" style="border-radius: 10px; margin-top: 20px;" onclick="handleLogin()">
+            Sign In <i class="fa-solid fa-arrow-right"></i>
+        </button>
+
+        <div style="font-size: 11px; color: var(--text-muted); margin-top: 25px; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 15px;">
+            Dashboard 2026
+        </div>
+    </div>
+</div>
+
 <div id="toast-container"></div>
 
 <div id="bannedScreen" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:#000; z-index:9999; color:red; flex-direction:column; justify-content:center; align-items:center; text-align:center; padding:20px;">
@@ -402,7 +542,7 @@
 
 <div class="sidebar" id="sidebar">
     <div class="sidebar-header">
-        <div style="font-weight: bold; color: #fff; font-size: 16px;" id="sidebarUserRole">FF SCRIPT VIP</div>
+        <div style="font-weight: bold; color: #fff; font-size: 16px;">FF SCRIPT VIP</div>
         <i class="fa-solid fa-xmark" style="cursor: pointer; font-size: 20px;" onclick="toggleSidebar()"></i>
     </div>
     <ul class="sidebar-menu">
@@ -601,13 +741,12 @@
             <i class="fa-solid fa-user-shield"></i> لوحة التحكم الإدارية
         </div>
 
-        <div class="form-group">
-            <label style="color: #f59e0b;">⭐ إدارة رتبة المستخدم (ترقية/خفظ):</label>
-            <input type="text" id="adminRoleTargetId" placeholder="ID المستخدم">
-            <div style="display: flex; gap: 8px; margin-top: 8px;">
-                <button class="submit-btn" style="background: #f59e0b;" onclick="changeRoleAdmin('reseller')">ترقية VIP</button>
-                <button class="submit-btn" style="background: #4b5563;" onclick="changeRoleAdmin('client')">تنزيل زبون</button>
-            </div>
+        <!-- جديد: قسم تعديل بيانت تسجيل دخول المتجر -->
+        <div class="form-group" style="background: rgba(138,43,226,0.1); padding: 12px; border-radius: 10px; border: 1px dashed var(--border-purple);">
+            <label style="color: var(--primary-purple);">🔐 تغيير بيانات تسجيل دخول المتجر:</label>
+            <input type="text" id="newStoreUser" placeholder="اسم المستخدم الجديد (Username)" style="margin-bottom: 8px;">
+            <input type="password" id="newStorePass" placeholder="كلمة المرور الجديدة (Password)">
+            <button class="submit-btn" style="background: var(--button-purple);" onclick="updateStoreCredentials()">حفظ بيانات الدخول الجديدة</button>
         </div>
 
         <div class="form-group" style="margin-top: 15px;">
@@ -754,7 +893,6 @@
         "Rapid Core Root", "SPOTIFY FF ROOT", "STRICKS BR ROOT", "Bala Mod"
     ];
 
-    // جدول الأسعار المحدث مع تطبيق الزيادة الجديدة (+0.20$) على Drip Proxy Android
     const PRODUCT_PRICES = {
         "Drip Proxy Android": [
             { label: "1 Days", price: 0.80 },
@@ -1010,7 +1148,41 @@
         setTimeout(() => toast.remove(), 3200);
     }
 
+    // Animation Loader logic
+    function startSecurityValidation() {
+        let p = 0;
+        const fill = document.getElementById("secProgress");
+        const interval = setInterval(() => {
+            p += 5;
+            fill.style.width = p + "%";
+            if (p >= 100) {
+                clearInterval(interval);
+                document.getElementById("secStep").style.display = "none";
+                document.getElementById("loginStep").style.display = "block";
+            }
+        }, 80);
+    }
+
+    async function handleLogin() {
+        const u = document.getElementById("loginUsername").value.trim();
+        const p = document.getElementById("loginPassword").value.trim();
+
+        await fetchOnlineData();
+
+        const validUser = globalOnlineData.storeUser || "admin";
+        const validPass = globalOnlineData.storePass || "123456";
+
+        if (u === validUser && p === validPass) {
+            document.getElementById("loginGate").style.display = "none";
+            showToast("تم تسجيل الدخول بنجاح!");
+        } else {
+            showToast("اسم المستخدم أو كلمة المرور غير صحيحة!", "error");
+        }
+    }
+
     document.addEventListener("DOMContentLoaded", async () => {
+        startSecurityValidation();
+
         let userId = localStorage.getItem("USER_ID");
         if (!userId) {
             userId = "USER_" + Math.floor(100000 + Math.random() * 900000);
@@ -1090,12 +1262,11 @@
 
             const userId = localStorage.getItem("USER_ID");
             if (!globalOnlineData[userId]) {
-                globalOnlineData[userId] = { balance: 0.00, role: "client", history: [], tx: [] };
+                globalOnlineData[userId] = { balance: 0.00, history: [], tx: [] };
             }
             const userData = globalOnlineData[userId];
 
             document.getElementById("userBalance").textContent = parseFloat(userData.balance || 0).toFixed(2);
-            document.getElementById("sidebarUserRole").textContent = userData.role === "reseller" ? "⭐ VIP RESELLER" : "👤 CLIENT";
             
             renderTables(userData);
             renderUsersLogAdmin();
@@ -1111,7 +1282,7 @@
 
         await fetchOnlineData();
         if (!globalOnlineData[userId]) {
-            globalOnlineData[userId] = { balance: 0.00, role: "client", history: [], tx: [] };
+            globalOnlineData[userId] = { balance: 0.00, history: [], tx: [] };
         }
 
         const now = new Date();
@@ -1191,7 +1362,7 @@
         const totalPrice = singlePrice * qty;
 
         if (!globalOnlineData[userId]) {
-            globalOnlineData[userId] = { balance: 0.00, role: "client", history: [], tx: [] };
+            globalOnlineData[userId] = { balance: 0.00, history: [], tx: [] };
         }
         let userBalance = parseFloat(globalOnlineData[userId].balance || 0);
 
@@ -1336,18 +1507,22 @@
         }
     }
 
-    async function changeRoleAdmin(role) {
+    async function updateStoreCredentials() {
         await fetchOnlineData();
-        const id = document.getElementById("adminRoleTargetId").value.trim();
-        if (!id) return showToast("اكتب ID العميل!", "error");
-        if (!globalOnlineData[id]) globalOnlineData[id] = { balance: 0.00, role: "client", history: [], tx: [] };
-        
-        globalOnlineData[id].role = role;
+        const nu = document.getElementById("newStoreUser").value.trim();
+        const np = document.getElementById("newStorePass").value.trim();
+
+        if (!nu || !np) return showToast("أدخل اسم المستخدم وكلمة المرور الجديدة!", "error");
+
+        globalOnlineData.storeUser = nu;
+        globalOnlineData.storePass = np;
+
         if (await saveOnlineData()) {
-            showToast("تم تغيير رتبة المستخدم بنجاح!");
-            await fetchOnlineData();
+            showToast("تم تحديث بيانات تسجيل الدخول للمتجر بنجاح!");
+            document.getElementById("newStoreUser").value = "";
+            document.getElementById("newStorePass").value = "";
         } else {
-            showToast("حدث خطأ أثناء الحفظ", "error");
+            showToast("حدث خطأ أثناء الحفظ على السيرفر!", "error");
         }
     }
 
@@ -1356,7 +1531,7 @@
         const id = document.getElementById("adminAddTargetId").value.trim();
         const amt = parseFloat(document.getElementById("adminAddAmount").value);
         if (!id || isNaN(amt)) return showToast("بيانات غير صحيحة!", "error");
-        if (!globalOnlineData[id]) globalOnlineData[id] = { balance: 0.00, role: "client", history: [], tx: [] };
+        if (!globalOnlineData[id]) globalOnlineData[id] = { balance: 0.00, history: [], tx: [] };
         
         globalOnlineData[id].balance = (parseFloat(globalOnlineData[id].balance) || 0) + amt;
         if (!globalOnlineData[id].tx) globalOnlineData[id].tx = [];
@@ -1396,7 +1571,7 @@
         const id = document.getElementById("adminDeductTargetId").value.trim();
         if (!id) return alert("أدخل ID المستخدم");
         if (confirm(`تأكيد تصفير حساب (${id}) بالكامل؟`)) {
-            if (!globalOnlineData[id]) globalOnlineData[id] = { balance: 0.00, role: "client", history: [], tx: [] };
+            if (!globalOnlineData[id]) globalOnlineData[id] = { balance: 0.00, history: [], tx: [] };
             globalOnlineData[id].balance = 0.00;
             
             if (await saveOnlineData()) {
@@ -1412,8 +1587,8 @@
         await fetchOnlineData();
         const id = document.getElementById("adminCheckTargetId").value.trim();
         if (!id) return showToast("أدخل الـ ID للبحث", "error");
-        const data = globalOnlineData[id] || { balance: 0.00, role: "client" };
-        alert(`🔍 بيانات الحساب أونلاين:\n👤 ID: ${id}\n💰 الرصيد: $${parseFloat(data.balance).toFixed(2)}\n⭐ الرتبة: ${data.role}`);
+        const data = globalOnlineData[id] || { balance: 0.00 };
+        alert(`🔍 بيانات الحساب أونلاين:\n👤 ID: ${id}\n💰 الرصيد: $${parseFloat(data.balance).toFixed(2)}`);
     }
 
     async function banIpAdmin(shouldBan) {
