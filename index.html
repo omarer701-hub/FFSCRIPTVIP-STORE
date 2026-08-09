@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FFSCRIPT VIP - DASHBOARD</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- مكتبة التشفير الأمنية لإخفاء كلمات المرور بـ Hash -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <style>
         :root {
             --bg-dark: #05030a;
@@ -959,7 +961,7 @@
                         <tr>
                             <th>Username</th>
                             <th>User ID</th>
-                            <th>Password</th>
+                            <th>Password (Encrypted)</th>
                             <th>Balance</th>
                             <th>IP</th>
                         </tr>
@@ -1094,7 +1096,7 @@
     const ADMIN_PASSWORD = "mra359rt";
     const JSONBIN_BIN_ID = "6a7771aeda38895dfecaa3a9";
     const JSONBIN_API_KEY = "$2a$10$MoDxxOV9R4GgMSmNuVovC.K9uapoJVJlqFE2XrVrq26RVYrNhkWJW";
-    const EGP_PER_USD = 50.0; // سعر صرف الجنيه مقابل الدولار
+    const EGP_PER_USD = 50.0;
 
     let audioCtx = null;
     let currentDiscountPercentage = 0;
@@ -1223,9 +1225,9 @@
         "Drip Client - Root Device": [{ label: "1 Days", price: 1.00 }, { label: "7 Days", price: 3.00 }, { label: "30 Days", price: 6.00 }],
         "Pato Team Apkmod Orange": [{ label: "3 Days", price: 3.00 }, { label: "7 Days", price: 4.00 }, { label: "15 Days", price: 6.00 }, { label: "30 Days", price: 10.00 }],
         "Pato Team Apkmod Blue": [{ label: "3 Days", price: 2.00 }, { label: "7 Days", price: 4.00 }, { label: "15 Days", price: 5.00 }, { label: "30 Days", price: 8.00 }],
-        "Hg Cheats Proxy Apk": [{ label: "1 Days", price: 1.20 }, { label: "7 Days", price: 1.70 }, { label: "30 Days", price: 4.20 }],
-        "Gbox Esign Cert": [{ label: "30 Days", price: 4.40 }, { label: "60 Days", price: 8.40 }, { label: "90 Days", price: 10.40 }],
-        "Hg Cheats Apk Mod": [{ label: "1 Days", price: 1.00 }, { label: "7 Days", price: 2.70 }, { label: "10 Days", price: 3.20 }, { label: "30 Days", price: 7.20 }],
+        "Hg Cheats Proxy Apk": [{ label: "1 Days", price: 1.00 }, { label: "7 Days", price: 1.50 }, { label: "30 Days", price: 4.00 }],
+        "Gbox Esign Cert": [{ label: "30 Days", price: 4.00 }, { label: "60 Days", price: 8.00 }, { label: "90 Days", price: 10.00 }],
+        "Hg Cheats Apk Mod": [{ label: "1 Days", price: 0.80 }, { label: "7 Days", price: 2.50 }, { label: "10 Days", price: 3.00 }, { label: "30 Days", price: 7.00 }],
         "Fluorite FF iOS": [{ label: "1 Days", price: 5.40 }, { label: "7 Days", price: 13.40 }, { label: "31 Days", price: 24.40 }],
         "Fluorite 8BP IOS": [{ label: "1 Days", price: 4.40 }, { label: "7 Days", price: 12.40 }, { label: "30 Days", price: 24.40 }]
     };
@@ -1272,6 +1274,8 @@
         playClickSound();
         const u = document.getElementById("loginUsername").value.trim();
         const p = document.getElementById("loginPassword").value.trim();
+        
+        const hashedPassword = CryptoJS.SHA256(p).toString();
 
         await fetchOnlineData();
 
@@ -1280,7 +1284,7 @@
         let foundUserId = null;
         for (const uid in globalOnlineData.usersDb) {
             const account = globalOnlineData.usersDb[uid];
-            if (account.username === u && account.password === p) {
+            if (account.username === u && account.password === hashedPassword) {
                 foundUserId = uid;
                 break;
             }
@@ -1297,7 +1301,11 @@
             loggedInUserId = "USER_ADMIN";
             localStorage.setItem("LOGGED_USER_ID", loggedInUserId);
             if (!globalOnlineData.usersDb[loggedInUserId]) {
-                globalOnlineData.usersDb[loggedInUserId] = { username: "admin", password: "123456", balance: 999.00, history: [], tx: [] };
+                globalOnlineData.usersDb[loggedInUserId] = { 
+                    username: "admin", 
+                    password: CryptoJS.SHA256("123456").toString(), 
+                    balance: 999.00, history: [], tx: [] 
+                };
                 await saveOnlineData();
             }
             document.getElementById("loginGate").style.display = "none";
@@ -1507,7 +1515,6 @@
         document.getElementById("displayPrice").textContent = "$" + total.toFixed(2);
     }
 
-    /* ---------------- VODAFONE CASH AUTO TOP-UP ---------------- */
     function calculateUsdEquivalent() {
         const egp = parseFloat(document.getElementById("vodaAmountEgp").value) || 0;
         const usd = egp / EGP_PER_USD;
@@ -1548,7 +1555,6 @@
         }
     }
 
-    /* ---------------- PROMO CODE FUNCTIONS ---------------- */
     async function applyPromoCode() {
         playClickSound();
         await fetchOnlineData();
@@ -1617,7 +1623,6 @@
         }
     }
 
-    /* ---------------- SUPPORT TICKET FUNCTIONS ---------------- */
     async function createNewTicket() {
         playClickSound();
         await fetchOnlineData();
@@ -1830,7 +1835,7 @@
                 <tr>
                     <td style="color: #a855f7; font-weight:bold;">${u.username}</td>
                     <td style="font-size:10px;">${uid}</td>
-                    <td style="color: var(--accent-red); font-family:monospace;">${u.password}</td>
+                    <td style="color: var(--accent-red); font-family:monospace; font-size:10px;">${u.password.substring(0, 15)}...</td>
                     <td style="color: var(--green-glow); font-weight:bold;">$${parseFloat(u.balance || 0).toFixed(2)}</td>
                     <td style="font-size:10px;">${u.ip || '---'}</td>
                 </tr>
@@ -1902,17 +1907,18 @@
         }
 
         const newUid = "USER_" + Math.floor(100000 + Math.random() * 900000);
+        const hashedPass = CryptoJS.SHA256(p).toString();
 
         globalOnlineData.usersDb[newUid] = {
             username: u,
-            password: p,
+            password: hashedPass,
             balance: bal,
             history: [],
             tx: bal > 0 ? [{ date: new Date().toLocaleDateString(), type: 'ADD', amount: bal }] : []
         };
 
         if (await saveOnlineData()) {
-            showToast(`Account Created!\nUser: ${u} | ID: ${newUid} | Balance: $${bal}`);
+            showToast(`Account Created!\nUser: ${u} | ID: ${newUid}`);
             document.getElementById("newAccUser").value = "";
             document.getElementById("newAccPass").value = "";
             document.getElementById("newAccBalance").value = "0";
@@ -1990,7 +1996,7 @@
         if (!id) return showToast("Enter User ID", "error");
         const data = globalOnlineData.usersDb[id];
         if (!data) return showToast("User not found", "error");
-        alert(`🔍 User Data Inspection:\n👤 Username: ${data.username}\n🔑 Pass: ${data.password}\n🆔 ID: ${id}\n💰 Balance: $${parseFloat(data.balance).toFixed(2)}`);
+        alert(`🔍 User Data Inspection:\n👤 Username: ${data.username}\n🆔 ID: ${id}\n💰 Balance: $${parseFloat(data.balance).toFixed(2)}`);
     }
 
     async function banIpAdmin(shouldBan) {
@@ -2012,8 +2018,6 @@
             document.getElementById("adminBanIpInput").value = "";
         }
     }
-
-    /* ---------------- STOCK KEY VAULT & INVENTORY FUNCTIONS ---------------- */
 
     function saveKeys() {
         playClickSound();
