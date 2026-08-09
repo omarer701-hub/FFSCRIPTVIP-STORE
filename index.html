@@ -38,7 +38,6 @@
             background-image: radial-gradient(circle at 50% 0%, #240046 0%, #07050d 75%);
         }
 
-        /* نظام التنبيهات الاحترافي الحديث */
         #toast-container {
             position: fixed;
             top: 20px;
@@ -434,7 +433,7 @@
 <div class="top-navbar">
     <div class="brand-title">
         <div class="brand-icon"><i class="fa-solid fa-crown" style="color: #fff;"></i></div>
-        <span>Reseller Panel</span>
+        <span>Reseller Admin</span>
     </div>
     <div class="nav-right">
         <div class="balance-badge" onclick="openPaymentModal()" style="cursor: pointer;" title="اضغط لشحن الرصيد">
@@ -456,16 +455,16 @@
     <div id="tab-generate" class="tab-section active">
         <div class="card">
             <div class="card-header-title">
-                <i class="fa-solid fa-bolt"></i> Key Generator Center
+                <i class="fa-solid fa-bolt"></i> Key Generator
             </div>
 
             <div class="form-group">
-                <label><i class="fa-solid fa-box"></i> اختر المنتج:</label>
+                <label><i class="fa-solid fa-box"></i> PRODUCT TYPE:</label>
                 <select id="productSelect" onchange="updatePrice()"></select>
             </div>
 
             <div class="form-group">
-                <label><i class="fa-solid fa-hourglass-half"></i> مدة الصلاحية:</label>
+                <label><i class="fa-solid fa-hourglass-half"></i> VALIDITY:</label>
                 <select id="durationSelect" onchange="updatePrice()"></select>
             </div>
 
@@ -745,7 +744,61 @@
         "Rapid Core Root", "SPOTIFY FF ROOT", "STRICKS BR ROOT", "Bala Mod"
     ];
 
+    // تم تحديث الأسعار بدقة وفقاً للصور المرفقة
     const PRODUCT_PRICES = {
+        "Fluorite MLBB IOS": [
+            { label: "1 Days", price: 4.00 },
+            { label: "7 Days", price: 12.00 },
+            { label: "30 Days", price: 24.00 }
+        ],
+        "BR MODS PC SILENT": [
+            { label: "1 Days", price: 1.20 },
+            { label: "10 Days", price: 5.00 },
+            { label: "30 Days", price: 8.00 }
+        ],
+        "BR MODS PC AIMKILL": [
+            { label: "1 Days", price: 1.80 },
+            { label: "10 Days", price: 8.00 },
+            { label: "30 Days", price: 10.00 }
+        ],
+        "BR MODS ROOT": [
+            { label: "1 Days", price: 0.70 },
+            { label: "7 Days", price: 1.50 },
+            { label: "15 Days", price: 3.00 },
+            { label: "30 Days", price: 6.00 }
+        ],
+        "SCORPION ROOT LITE": [
+            { label: "7 Days", price: 2.50 },
+            { label: "15 Days", price: 4.00 },
+            { label: "30 Days", price: 6.50 }
+        ],
+        "SCORPION ROOT BRUTAL": [
+            { label: "7 Days", price: 3.00 },
+            { label: "15 Days", price: 5.00 },
+            { label: "30 Days", price: 7.00 }
+        ],
+        "Zytron Root": [
+            { label: "1 Days", price: 1.00 },
+            { label: "7 Days", price: 2.50 },
+            { label: "15 Days", price: 4.00 },
+            { label: "30 Days", price: 6.50 }
+        ],
+        "Angry mod root": [
+            { label: "1 Days", price: 0.50 },
+            { label: "7 Days", price: 1.00 },
+            { label: "15 Days", price: 2.00 },
+            { label: "30 Days", price: 3.00 }
+        ],
+        "Reaper X Pro Root": [
+            { label: "10 Days", price: 2.25 },
+            { label: "30 Days", price: 6.00 }
+        ],
+        "DRIP AIMKILL X86 Pc": [
+            { label: "1 Days", price: 2.50 },
+            { label: "7 Days", price: 6.00 },
+            { label: "15 Days", price: 8.00 },
+            { label: "30 Days", price: 14.00 }
+        ],
         "Drip Client - Apk Mod": [
             { label: "1 Days", price: 0.80 },
             { label: "3 Days", price: 1.60 },
@@ -794,10 +847,9 @@
     };
 
     const DEFAULT_PRICES = [
-        { label: "1 Days", price: 0.80 },
-        { label: "3 Days", price: 1.20 },
-        { label: "7 Days", price: 2.70 },
-        { label: "30 Days", price: 6.20 }
+        { label: "1 Days", price: 1.00 },
+        { label: "7 Days", price: 3.00 },
+        { label: "30 Days", price: 7.00 }
     ];
 
     let globalOnlineData = {};
