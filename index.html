@@ -559,24 +559,9 @@
             border-bottom: 1px dashed var(--border-purple);
             font-size: 13px;
         }
-
-        .delete-btn-sm {
-            background: rgba(239, 68, 68, 0.2);
-            border: 1px solid var(--accent-red);
-            color: #ef4444;
-            padding: 3px 8px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 10px;
-            transition: 0.2s;
-        }
-        .delete-btn-sm:hover {
-            background: var(--accent-red);
-            color: #fff;
-        }
     </style>
 </head>
-<body>
+<body onclick="playClickSound()">
 
 <!-- GATE (SECURITY VALIDATION & LOGIN) -->
 <div id="loginGate">
@@ -819,11 +804,10 @@
                                 <th>Product</th>
                                 <th>Duration</th>
                                 <th>Key Code</th>
-                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody id="inventoryTableBody">
-                            <tr><td colspan="4" style="color: var(--text-muted);">No keys in vault</td></tr>
+                            <tr><td colspan="3" style="color: var(--text-muted);">No keys in vault</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -868,10 +852,10 @@
     </div>
 </div>
 
-<!-- FIREBASE SECURE ENGINE (خزنة جوجل) -->
+<!-- FIREBASE SECURE ENGINE -->
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyAo9wq2jvx7zhDCyUsvWqqN2-UpDgsxgxc",
@@ -892,10 +876,64 @@
     window.updateDoc = updateDoc;
     window.collection = collection;
     window.getDocs = getDocs;
-    window.deleteDoc = deleteDoc;
 </script>
 
 <script>
+    // نظام أصوات Web Audio API بدون ملفات خارجية
+    let audioCtx = null;
+
+    function getAudioContext() {
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        return audioCtx;
+    }
+
+    function playClickSound() {
+        try {
+            const ctx = getAudioContext();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = "sine";
+            osc.frequency.setValueAtTime(600, ctx.currentTime);
+            gain.gain.setValueAtTime(0.05, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start();
+            osc.stop(ctx.currentTime + 0.05);
+        } catch(e){}
+    }
+
+    function playBuySuccessSound() {
+        try {
+            const ctx = getAudioContext();
+            const now = ctx.currentTime;
+            
+            const osc1 = ctx.createOscillator();
+            const osc2 = ctx.createOscillator();
+            const gain = ctx.createGain();
+
+            osc1.type = "triangle";
+            osc2.type = "sine";
+
+            osc1.frequency.setValueAtTime(523.25, now); // C5
+            osc1.frequency.setValueAtTime(659.25, now + 0.1); // E5
+            osc1.frequency.setValueAtTime(783.99, now + 0.2); // G5
+            osc1.frequency.setValueAtTime(1046.50, now + 0.3); // C6
+
+            gain.gain.setValueAtTime(0.15, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
+
+            osc1.connect(gain);
+            osc2.connect(gain);
+            gain.connect(ctx.destination);
+
+            osc1.start(now);
+            osc1.stop(now + 0.6);
+        } catch(e){}
+    }
+
     const PRODUCTS = [
         "Drip Proxy Android", "Drip Client - Apk Mod", "Drip Client - Root Device",
         "Pato Team Apkmod Orange", "Pato Team Apkmod Blue", "Hg Cheats Apk Mod",
@@ -935,6 +973,7 @@
         }, 40);
     }
 
+    // تسجيل الدخول الخاص بالمستخدمين المحددين من قبل الأدمن فقط
     async function handleLogin() {
         const u = document.getElementById("loginUsername").value.trim();
         const p = document.getElementById("loginPassword").value.trim();
@@ -961,14 +1000,7 @@
                     showToast("Invalid Password!", "error");
                 }
             } else {
-                await window.setDoc(userRef, { username: u, password: p, balance: 0.00, history: [] });
-                loggedInUserId = u;
-                localStorage.setItem("LOGGED_USER_ID", loggedInUserId);
-                document.getElementById("loginGate").style.display = "none";
-                document.getElementById("myUserId").textContent = loggedInUserId;
-                document.getElementById("navUsername").textContent = u;
-                document.getElementById("sidebarHeaderUsername").textContent = u;
-                showToast("New Account Created!");
+                showToast("Account not found! Contact Admin.", "error");
             }
         } catch (e) {
             showToast("Connection Error!", "error");
@@ -996,7 +1028,6 @@
         updatePrice();
     });
 
-    // طريقة دخول الأدمن: الضغط 5 مرات على اللوجو العالي فوق
     function handleBrandClick() {
         brandClickCount++;
         if (brandClickCount >= 5) {
@@ -1005,7 +1036,6 @@
         }
     }
 
-    // التحقق من باسورد الأدمن
     function verifyAdminPassword() {
         const pass = document.getElementById("adminPasswordInput").value;
         if (pass === "mra359rt") {
@@ -1062,7 +1092,6 @@
         document.getElementById("displayPrice").textContent = "$" + (price * qty).toFixed(2);
     }
 
-    // الشراء التلقائي من المخزن
     async function sendOrder() {
         if (!loggedInUserId) return showToast("Please login first!", "error");
 
@@ -1083,30 +1112,33 @@
             return;
         }
 
-        // البحث عن الكارت في المخزن
         const keyStockRef = window.doc(window.db, "stock", `${product}_${duration}`);
         const stockSnap = await window.getDoc(keyStockRef);
 
         if (stockSnap.exists() && stockSnap.data().keys && stockSnap.data().keys.length > 0) {
             let availableKeys = stockSnap.data().keys;
-            let deliveredKey = availableKeys.shift(); // أخذ كود واحد
+            let deliveredKey = availableKeys.shift();
 
-            // تخصيم الرصيد وتحديث الكروت
             userBalance -= price;
-            await window.updateDoc(userRef, { balance: userBalance });
+            
+            let updatedHistory = userData.history || [];
+            updatedHistory.unshift({ key: deliveredKey, price: price, date: new Date().toLocaleDateString() });
+
+            await window.updateDoc(userRef, { balance: userBalance, history: updatedHistory });
             await window.updateDoc(keyStockRef, { keys: availableKeys });
 
             document.getElementById("userBalance").textContent = userBalance.toFixed(2);
             document.getElementById("generatedKeyText").textContent = deliveredKey;
             document.getElementById("keyResultBox").style.display = "block";
 
+            renderHistory(updatedHistory);
+            playBuySuccessSound(); // تشغيل صوت النجاح المميز للشراء
             showToast("Key generated successfully!");
         } else {
             showToast("Stock empty! Contact support", "error");
         }
     }
 
-    // إضافة كروت للمخزن من لوحة الأدمن
     async function saveKeys() {
         const prod = document.getElementById("adminProductSelect").value;
         const dur = document.getElementById("adminDurationSelect").value;
@@ -1129,7 +1161,6 @@
         renderVaultInventory();
     }
 
-    // عرض المخزن للـ Admin
     async function renderVaultInventory() {
         const tableBody = document.getElementById("inventoryTableBody");
         const querySnap = await window.getDocs(window.collection(window.db, "stock"));
@@ -1147,7 +1178,6 @@
                             <td style="color: #a855f7;">${data.product}</td>
                             <td>${data.duration}</td>
                             <td style="color: var(--green-glow);">${k}</td>
-                            <td>-</td>
                         </tr>
                     `;
                 });
@@ -1155,10 +1185,9 @@
         });
 
         document.getElementById("totalKeysCount").textContent = total;
-        tableBody.innerHTML = html || `<tr><td colspan="4" style="color: var(--text-muted);">No keys in vault</td></tr>`;
+        tableBody.innerHTML = html || `<tr><td colspan="3" style="color: var(--text-muted);">No keys in vault</td></tr>`;
     }
 
-    // إضافة رصيد لمستخدم
     async function addBalanceAdmin() {
         const id = document.getElementById("adminAddTargetId").value.trim();
         const amt = parseFloat(document.getElementById("adminAddAmount").value);
@@ -1177,7 +1206,6 @@
         }
     }
 
-    // خصم رصيد
     async function deductBalanceAdmin() {
         const id = document.getElementById("adminDeductTargetId").value.trim();
         const amt = parseFloat(document.getElementById("adminDeductAmount").value);
@@ -1192,17 +1220,15 @@
         }
     }
 
-    // تصفير رصيد
     async function zeroBalanceAdmin() {
         const id = document.getElementById("adminDeductTargetId").value.trim();
         if (id && confirm(`Reset balance of (${id}) to zero?`)) {
-            const userRef = window.doc(window.db, "users", id);
+            const userRef = window.doc(window.doc(window.db, "users", id));
             await window.updateDoc(userRef, { balance: 0.00 });
             showToast("Account reset to zero!");
         }
     }
 
-    // إنشاء مستخدم جديد من لوحة الأدمن
     async function createNewUserAccount() {
         const u = document.getElementById("newAccUser").value.trim();
         const p = document.getElementById("newAccPass").value.trim();
@@ -1212,12 +1238,16 @@
 
         const userRef = window.doc(window.db, "users", u);
         await window.setDoc(userRef, { username: u, password: p, balance: bal, history: [] });
-        showToast(`User (${u}) Created!`);
+        showToast(`User (${u}) Created Successfully!`);
+
+        document.getElementById("newAccUser").value = "";
+        document.getElementById("newAccPass").value = "";
+        document.getElementById("newAccBalance").value = "0";
     }
 
     function renderHistory(history) {
         const table = document.getElementById("keyHistoryTable");
-        if (history.length > 0) {
+        if (history && history.length > 0) {
             table.innerHTML = history.map((item, i) => `
                 <tr>
                     <td>${i+1}</td>
@@ -1255,3 +1285,4 @@
 
 </body>
 </html>
+
