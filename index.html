@@ -559,9 +559,24 @@
             border-bottom: 1px dashed var(--border-purple);
             font-size: 13px;
         }
+
+        .delete-btn-sm {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid var(--accent-red);
+            color: #ef4444;
+            padding: 3px 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 10px;
+            transition: 0.2s;
+        }
+        .delete-btn-sm:hover {
+            background: var(--accent-red);
+            color: #fff;
+        }
     </style>
 </head>
-<body onclick="playClickSound()">
+<body>
 
 <!-- GATE (SECURITY VALIDATION & LOGIN) -->
 <div id="loginGate">
@@ -601,6 +616,12 @@
 
 <div id="toast-container"></div>
 
+<div id="bannedScreen" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:#000; z-index:9999; color:red; flex-direction:column; justify-content:center; align-items:center; text-align:center; padding:20px;">
+    <i class="fa-solid fa-ban" style="font-size:65px; margin-bottom:20px;"></i>
+    <h1>ACCESS DENIED</h1>
+    <p style="color:#fff; margin-top:10px;">Your IP address has been permanently banned.</p>
+</div>
+
 <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
 
 <div class="sidebar" id="sidebar">
@@ -615,8 +636,17 @@
         <li class="sidebar-item" onclick="switchTab('tab-device')">
             <i class="fa-solid fa-mobile-screen-button"></i> Device Info
         </li>
+        <li class="sidebar-item" onclick="switchTab('tab-stats')">
+            <i class="fa-solid fa-chart-line"></i> Statistics
+        </li>
         <li class="sidebar-item" onclick="switchTab('tab-history')">
             <i class="fa-solid fa-list-check"></i> Key History
+        </li>
+        <li class="sidebar-item" onclick="switchTab('tab-transactions')">
+            <i class="fa-solid fa-money-bill-transfer"></i> Transactions
+        </li>
+        <li class="sidebar-item" onclick="switchTab('tab-reset')">
+            <i class="fa-solid fa-rotate-left"></i> Reset HWID
         </li>
         <li class="sidebar-item" style="color: var(--accent-red);" onclick="logoutUser()">
             <i class="fa-solid fa-right-from-bracket"></i> Logout
@@ -654,12 +684,12 @@
 
             <div class="form-group">
                 <label><i class="fa-solid fa-box"></i> Select Product:</label>
-                <select id="productSelect" onchange="updatePrice()"></select>
+                <select id="productSelect" onchange="updatePriceOptions()"></select>
             </div>
 
             <div class="form-group">
                 <label><i class="fa-solid fa-hourglass-half"></i> Select Validity:</label>
-                <select id="durationSelect" onchange="updatePrice()"></select>
+                <select id="durationSelect" onchange="calcTotalPrice()"></select>
             </div>
 
             <div class="form-group">
@@ -702,18 +732,39 @@
             <div class="card-header-title">
                 <i class="fa-solid fa-mobile-screen-button"></i> Device Details
             </div>
+
+            <div class="info-row">
+                <span style="color: var(--text-muted);">IP Address:</span>
+                <b id="devIp" style="color: var(--green-glow);">Checking...</b>
+            </div>
             <div class="info-row">
                 <span style="color: var(--text-muted);">OS System:</span>
-                <b id="devOs" style="color: var(--primary-purple);">Checking...</b>
+                <b id="devOs" style="color: var(--primary-purple);">...</b>
+            </div>
+            <div class="info-row">
+                <span style="color: var(--text-muted);">Battery:</span>
+                <b id="devBattery" style="color: #f59e0b;">Checking...</b>
             </div>
             <div class="info-row">
                 <span style="color: var(--text-muted);">Browser:</span>
-                <b id="devBrowser" style="color: var(--primary-purple);">Checking...</b>
+                <b id="devBrowser" style="color: var(--primary-purple);">...</b>
             </div>
         </div>
     </div>
 
-    <!-- TAB 3: KEY HISTORY -->
+    <!-- TAB 3: STATISTICS -->
+    <div id="tab-stats" class="tab-section">
+        <div class="card">
+            <div class="card-header-title">
+                <i class="fa-solid fa-chart-pie"></i> Statistics
+            </div>
+            <div style="text-align: center; padding: 12px; font-size: 14px;">
+                Total Keys Purchased: <b id="totalSoldStat" style="color: var(--accent-red); font-size: 20px;">0</b>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 4: KEY HISTORY -->
     <div id="tab-history" class="tab-section">
         <div class="card">
             <div class="card-header-title">
@@ -736,7 +787,46 @@
         </div>
     </div>
 
-    <!-- TAB 4: SECRET ADMIN PANEL -->
+    <!-- TAB 5: TRANSACTIONS -->
+    <div id="tab-transactions" class="tab-section">
+        <div class="card">
+            <div class="card-header-title">
+                <i class="fa-solid fa-receipt"></i> Transaction History
+            </div>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Type</th>
+                            <th>Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transactionsTable">
+                        <tr><td colspan="3" style="color: var(--text-muted);">No transactions recorded</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 6: RESET KEYS -->
+    <div id="tab-reset" class="tab-section">
+        <div class="card">
+            <div class="card-header-title">
+                <i class="fa-solid fa-rotate"></i> Reset License HWID
+            </div>
+            <div class="form-group">
+                <label>Enter License Key:</label>
+                <input type="text" id="resetKeyInput" placeholder="Paste your key here...">
+            </div>
+            <button class="submit-btn" onclick="requestResetKey()">
+                <i class="fa-solid fa-rotate"></i> Request HWID Reset
+            </button>
+        </div>
+    </div>
+
+    <!-- TAB 7: SECRET ADMIN PANEL -->
     <div id="adminPanel" class="card" style="display: none; border-color: var(--accent-red);">
         <div class="card-header-title" style="color: var(--accent-red);">
             <i class="fa-solid fa-user-shield"></i> Secret Admin Panel
@@ -752,7 +842,7 @@
 
         <div class="form-group" style="margin-top: 15px;">
             <label style="color: var(--green-glow);">💵 Add Balance To User (By User ID):</label>
-            <input type="text" id="adminAddTargetId" placeholder="User ID">
+            <input type="text" id="adminAddTargetId" placeholder="User ID (e.g. USER_123456)">
             <input type="number" id="adminAddAmount" placeholder="Amount ($)" style="margin-top: 5px;">
             <button class="submit-btn" style="background: var(--green-glow);" onclick="addBalanceAdmin()">Add Balance Instant</button>
         </div>
@@ -767,7 +857,42 @@
             </div>
         </div>
 
-        <!-- STOCK KEY VAULT SECTION -->
+        <div class="form-group" style="margin-top: 15px;">
+            <label style="color: #3b82f6;">🔍 Inspect User Data:</label>
+            <input type="text" id="adminCheckTargetId" placeholder="User ID">
+            <button class="submit-btn" style="background: #3b82f6;" onclick="checkBalanceAdmin()">Inspect User</button>
+        </div>
+
+        <div class="form-group" style="margin-top: 15px; background: rgba(255,255,255,0.02); padding: 10px; border-radius: 10px;">
+            <label style="color: var(--primary-purple);">👥 Registered Accounts & Connected Devices:</label>
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>User ID</th>
+                            <th>Password</th>
+                            <th>Balance</th>
+                            <th>IP</th>
+                        </tr>
+                    </thead>
+                    <tbody id="adminUsersLogTable">
+                        <tr><td colspan="5" style="color: var(--text-muted);">Loading logs...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="form-group" style="margin-top: 15px;">
+            <label style="color: var(--accent-red);">🚫 Ban / Unban IP:</label>
+            <input type="text" id="adminBanIpInput" placeholder="Enter IP Address">
+            <div style="display: flex; gap: 8px; margin-top: 8px;">
+                <button class="submit-btn" style="background: #dc2626;" onclick="banIpAdmin(true)">Ban IP</button>
+                <button class="submit-btn" style="background: #059669;" onclick="banIpAdmin(false)">Unban IP</button>
+            </div>
+        </div>
+
+        <!-- ENHANCED STOCK KEY VAULT SECTION -->
         <div class="form-group" style="margin-top: 20px; background: rgba(139, 92, 246, 0.05); padding: 15px; border-radius: 12px; border: 1px solid var(--border-purple);">
             <label style="color: var(--primary-purple); font-size: 14px;"><i class="fa-solid fa-key"></i> STOCK KEY VAULT & INVENTORY</label>
 
@@ -777,9 +902,25 @@
                 
                 <label>Select Duration:</label>
                 <select id="adminDurationSelect" style="margin-bottom: 8px;">
+                    <option value="1 Hour">1 Hour</option>
+                    <option value="6 Hours">6 Hours</option>
+                    <option value="24 Hours (1 Day)">24 Hours (1 Day)</option>
+                    <option value="48 Hours (2 Days)">48 Hours (2 Days)</option>
                     <option value="1 Days">1 Days</option>
+                    <option value="3 Days">3 Days</option>
+                    <option value="5 Days">5 Days</option>
                     <option value="7 Days">7 Days</option>
+                    <option value="10 Days">10 Days</option>
+                    <option value="14 Days">14 Days</option>
+                    <option value="15 Days">15 Days</option>
+                    <option value="20 Days">20 Days</option>
+                    <option value="28 Days">28 Days</option>
                     <option value="30 Days">30 Days</option>
+                    <option value="31 Days">31 Days</option>
+                    <option value="60 Days">60 Days</option>
+                    <option value="90 Days">90 Days</option>
+                    <option value="168 Hours (7 Days)">168 Hours (7 Days)</option>
+                    <option value="720 Hours (30 Days)">720 Hours (30 Days)</option>
                 </select>
 
                 <label>Enter Keys (1 Key per line):</label>
@@ -793,6 +934,7 @@
             <div style="margin-top: 15px; border-top: 1px dashed var(--border-purple); padding-top: 12px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                     <span style="font-size: 12px; font-weight: bold; color: #fff;">📦 Vault Inventory (<span id="totalKeysCount">0</span> Keys)</span>
+                    <button onclick="clearSelectedStockGroup()" class="delete-btn-sm" title="Clear selected product & duration stock">Clear Current Group</button>
                 </div>
 
                 <div class="table-container" style="max-height: 220px; overflow-y: auto;">
@@ -802,10 +944,11 @@
                                 <th>Product</th>
                                 <th>Duration</th>
                                 <th>Key Code</th>
+                                <th>Action</th>
                             </tr>
                         </thead>
                         <tbody id="inventoryTableBody">
-                            <tr><td colspan="3" style="color: var(--text-muted);">No keys in vault</td></tr>
+                            <tr><td colspan="4" style="color: var(--text-muted);">No keys in vault</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -845,115 +988,159 @@
             <button onclick="copyText('1213460225')" style="float: right; background: var(--accent-red); border: none; color: white; padding: 3px 8px; border-radius: 5px; cursor: pointer; font-size: 11px;">Copy</button>
         </div>
 
+        <div class="form-group" style="margin-top: 15px;">
+            <label>Transaction Hash / Sender Number:</label>
+            <input type="text" id="transactionIdInput" placeholder="Enter Transaction ID...">
+        </div>
+
         <button class="submit-btn" style="background: #2563eb;" onclick="sendPaymentViaTelegram()">📩 Send To Support (Telegram)</button>
         <button onclick="closePaymentModal()" style="width: 100%; padding: 10px; background: transparent; border: none; color: var(--text-muted); cursor: pointer; margin-top: 5px;">Close</button>
     </div>
 </div>
 
-<!-- FIREBASE SECURE ENGINE -->
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyAo9wq2jvx7zhDCyUsvWqqN2-UpDgsxgxc",
-      authDomain: "ffscript-store.firebaseapp.com",
-      projectId: "ffscript-store",
-      storageBucket: "ffscript-store.appspot.com",
-      messagingSenderId: "48358063898",
-      appId: "1:48358063898:web:f2b2544ab48c80e0c1b6a3"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    window.db = db;
-    window.doc = doc;
-    window.getDoc = getDoc;
-    window.setDoc = setDoc;
-    window.updateDoc = updateDoc;
-    window.collection = collection;
-    window.getDocs = getDocs;
-</script>
-
 <script>
-    // نظام أصوات Web Audio API بدون أي روابط خارجية
+    const ADMIN_PASSWORD = "mra359rt";
+    const JSONBIN_BIN_ID = "6a7771aeda38895dfecaa3a9";
+    const JSONBIN_API_KEY = "$2a$10$MoDxxOV9R4GgMSmNuVovC.K9uapoJVJlqFE2XrVrq26RVYrNhkWJW";
+
     let audioCtx = null;
 
-    function getAudioContext() {
+    function initAudio() {
         if (!audioCtx) {
             audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         }
-        return audioCtx;
+        if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
     }
 
     function playClickSound() {
         try {
-            const ctx = getAudioContext();
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
-            osc.type = "sine";
-            osc.frequency.setValueAtTime(600, ctx.currentTime);
-            gain.gain.setValueAtTime(0.04, ctx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
+            initAudio();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(200, audioCtx.currentTime + 0.08);
+            gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
             osc.connect(gain);
-            gain.connect(ctx.destination);
+            gain.connect(audioCtx.destination);
             osc.start();
-            osc.stop(ctx.currentTime + 0.05);
+            osc.stop(audioCtx.currentTime + 0.08);
         } catch(e){}
     }
 
-    function playBuySuccessSound() {
+    function playSuccessSound() {
         try {
-            const ctx = getAudioContext();
-            const now = ctx.currentTime;
-            const osc1 = ctx.createOscillator();
-            const gain = ctx.createGain();
-
-            osc1.type = "triangle";
+            initAudio();
+            const now = audioCtx.currentTime;
+            const osc1 = audioCtx.createOscillator();
+            const gain1 = audioCtx.createGain();
+            osc1.type = 'triangle';
             osc1.frequency.setValueAtTime(523.25, now);
-            osc1.frequency.setValueAtTime(659.25, now + 0.1);
-            osc1.frequency.setValueAtTime(783.99, now + 0.2);
-            osc1.frequency.setValueAtTime(1046.50, now + 0.3);
-
-            gain.gain.setValueAtTime(0.15, now);
-            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.6);
-
-            osc1.connect(gain);
-            gain.connect(ctx.destination);
-
+            gain1.gain.setValueAtTime(0.2, now);
+            gain1.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+            osc1.connect(gain1);
+            gain1.connect(audioCtx.destination);
             osc1.start(now);
-            osc1.stop(now + 0.6);
+            osc1.stop(now + 0.2);
+
+            const osc2 = audioCtx.createOscillator();
+            const gain2 = audioCtx.createGain();
+            osc2.type = 'triangle';
+            osc2.frequency.setValueAtTime(659.25, now + 0.1);
+            gain2.gain.setValueAtTime(0.2, now + 0.1);
+            gain2.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+            osc2.connect(gain2);
+            gain2.connect(audioCtx.destination);
+            osc2.start(now + 0.1);
+            osc2.stop(now + 0.3);
+
+            const osc3 = audioCtx.createOscillator();
+            const gain3 = audioCtx.createGain();
+            osc3.type = 'sine';
+            osc3.frequency.setValueAtTime(1046.50, now + 0.2);
+            gain3.gain.setValueAtTime(0.3, now + 0.2);
+            gain3.gain.exponentialRampToValueAtTime(0.01, now + 0.6);
+            osc3.connect(gain3);
+            gain3.connect(audioCtx.destination);
+            osc3.start(now + 0.2);
+            osc3.stop(now + 0.6);
         } catch(e){}
     }
 
-    // جميع المنتجات الكاملة مع أسعارها
+    document.addEventListener("touchstart", initAudio, { once: true });
+    document.addEventListener("click", initAudio, { once: true });
+
     const PRODUCTS = [
-        "Drip Proxy Android",
-        "Drip Client - Apk Mod",
-        "Drip Client - Root Device",
-        "Pato Team Apkmod Orange",
-        "Pato Team Apkmod Blue",
-        "Hg Cheats Apk Mod",
-        "Gbox Esign Cert",
-        "Fluorite FF iOS",
-        "BR MODS PC SILENT",
-        "BR MODS ROOT"
+        "Drip Proxy Android", "Drip Client - Apk Mod", "Drip Client - Root Device",
+        "Pato Team Apkmod Orange", "Pato Team Apkmod Blue", "Hg Cheats Apk Mod",
+        "Hg Cheats Proxy Apk", "Gbox Esign Cert", "Fluorite FF iOS", "Fluorite 8BP IOS",
+        "Fluorite MLBB IOS", "BR MODS PC SILENT", "BR MODS PC AIMKILL", "BR MODS ROOT",
+        "SCORPION ROOT LITE", "SCORPION ROOT BRUTAL", "Zytron Root", "Angry mod root",
+        "Reaper X Pro Root", "DRIP AIMKILL X86 Pc", "Haxxcker Pro Root", "Prime Mods Apkmod",
+        "Terminal x PC Aimkill", "Terminal x PC Aimkill cover", "Cloud CODM IOS",
+        "8ball IOS GBD", "EzTeam 8boll pool Apk", "Pubg Zolo Android", "MIGUL - MONITE IOS [PRO]",
+        "MIGUL - MONITE IOS [BASIC]", "MIGUL - MONITE IOS [VN-PRO]", "SILENT CHEATS MODMENU",
+        "SILENT CHEATS SAFE", "SILENT CHEATS BRUTAL", "Lk team Root+Pc", "Alien MLBB (Android)",
+        "King iOS", "Wingmod Root", "WizardiOS 8bp", "VOLUME STEAMER PRO", "iOSSTAR 8bp",
+        "Rapid Core Root", "SPOTIFY FF ROOT", "STRICKS BR ROOT", "Bala Mod"
     ];
 
     const PRODUCT_PRICES = {
-        "Drip Proxy Android": [{ label: "1 Days", price: 0.80 }, { label: "7 Days", price: 2.70 }, { label: "30 Days", price: 6.20 }],
-        "Drip Client - Apk Mod": [{ label: "1 Days", price: 1.00 }, { label: "7 Days", price: 2.90 }, { label: "30 Days", price: 6.40 }],
-        "Drip Client - Root Device": [{ label: "1 Days", price: 1.20 }, { label: "7 Days", price: 3.50 }, { label: "30 Days", price: 7.50 }],
-        "Pato Team Apkmod Orange": [{ label: "1 Days", price: 1.50 }, { label: "7 Days", price: 4.00 }, { label: "30 Days", price: 8.50 }],
-        "Pato Team Apkmod Blue": [{ label: "1 Days", price: 1.50 }, { label: "7 Days", price: 4.00 }, { label: "30 Days", price: 8.50 }],
-        "Hg Cheats Apk Mod": [{ label: "1 Days", price: 1.10 }, { label: "7 Days", price: 3.20 }, { label: "30 Days", price: 7.00 }],
-        "Gbox Esign Cert": [{ label: "1 Days", price: 2.00 }, { label: "7 Days", price: 5.00 }, { label: "30 Days", price: 12.00 }],
-        "Fluorite FF iOS": [{ label: "1 Days", price: 2.50 }, { label: "7 Days", price: 6.00 }, { label: "30 Days", price: 14.00 }],
-        "BR MODS PC SILENT": [{ label: "1 Days", price: 2.00 }, { label: "7 Days", price: 5.50 }, { label: "30 Days", price: 11.00 }],
-        "BR MODS ROOT": [{ label: "1 Days", price: 1.80 }, { label: "7 Days", price: 4.80 }, { label: "30 Days", price: 10.00 }]
+        "Drip Proxy Android": [{ label: "1 Days", price: 0.80 }, { label: "3 Days", price: 1.20 }, { label: "7 Days", price: 2.70 }, { label: "30 Days", price: 6.20 }],
+        "iOSSTAR 8bp": [{ label: "1 Days", price: 4.00 }, { label: "7 Days", price: 12.00 }, { label: "30 Days", price: 22.00 }],
+        "Rapid Core Root": [{ label: "1 Days", price: 1.00 }, { label: "7 Days", price: 2.00 }, { label: "14 Days", price: 4.00 }, { label: "30 Days", price: 6.00 }],
+        "SPOTIFY FF ROOT": [{ label: "15 Days", price: 5.00 }, { label: "60 Days", price: 12.00 }],
+        "Bala Mod": [{ label: "1 Hour", price: 0.60 }, { label: "6 Hours", price: 2.00 }, { label: "24 Hours (1 Day)", price: 7.00 }, { label: "48 Hours (2 Days)", price: 13.00 }, { label: "168 Hours (7 Days)", price: 45.00 }, { label: "720 Hours (30 Days)", price: 90.00 }],
+        "STRICKS BR ROOT": [{ label: "1 Days", price: 0.50 }, { label: "5 Days", price: 1.00 }, { label: "7 Days", price: 2.00 }, { label: "15 Days", price: 4.00 }, { label: "30 Days", price: 6.00 }],
+        "SILENT CHEATS MODMENU": [{ label: "1 Days", price: 0.70 }, { label: "3 Days", price: 1.50 }, { label: "7 Days", price: 2.50 }, { label: "14 Days", price: 4.50 }, { label: "28 Days", price: 7.00 }],
+        "MIGUL - MONITE IOS [VN-PRO]": [{ label: "1 Days", price: 2.20 }, { label: "7 Days", price: 6.20 }, { label: "30 Days", price: 10.20 }],
+        "SILENT CHEATS SAFE": [{ label: "1 Days", price: 1.20 }, { label: "3 Days", price: 1.70 }, { label: "7 Days", price: 2.70 }, { label: "14 Days", price: 4.70 }, { label: "28 Days", price: 7.20 }],
+        "SILENT CHEATS BRUTAL": [{ label: "1 Days", price: 1.20 }, { label: "3 Days", price: 1.70 }, { label: "7 Days", price: 2.70 }, { label: "14 Days", price: 5.20 }, { label: "30 Days", price: 7.20 }],
+        "Lk team Root+Pc": [{ label: "1 Days", price: 1.00 }, { label: "5 Days", price: 1.45 }, { label: "10 Days", price: 2.20 }, { label: "30 Days", price: 6.20 }],
+        "Alien MLBB (Android)": [{ label: "1 Days", price: 1.40 }, { label: "7 Days", price: 3.20 }],
+        "King iOS": [{ label: "1 Days", price: 3.20 }, { label: "7 Days", price: 12.20 }, { label: "31 Days", price: 32.20 }],
+        "Wingmod Root": [{ label: "7 Days", price: 16.20 }, { label: "30 Days", price: 32.20 }],
+        "WizardiOS 8bp": [{ label: "1 Days", price: 6.20 }, { label: "7 Days", price: 17.20 }, { label: "30 Days", price: 32.20 }],
+        "VOLUME STEAMER PRO": [{ label: "10 Days", price: 2.20 }, { label: "20 Days", price: 3.70 }, { label: "30 Days", price: 6.20 }],
+        "Haxxcker Pro Root": [{ label: "10 Days", price: 9.20 }],
+        "Terminal x PC Aimkill": [{ label: "10 Days", price: 18.20 }],
+        "Terminal x PC Aimkill cover": [{ label: "10 Days", price: 18.20 }],
+        "Prime Mods Apkmod": [{ label: "1 Days", price: 0.70 }, { label: "3 Days", price: 1.70 }, { label: "7 Days", price: 3.20 }],
+        "Cloud CODM IOS": [{ label: "7 Days", price: 8.20 }, { label: "30 Days", price: 16.20 }],
+        "8ball IOS GBD": [{ label: "1 Days", price: 2.20 }, { label: "7 Days", price: 7.20 }, { label: "30 Days", price: 10.20 }],
+        "EzTeam 8boll pool Apk": [{ label: "1 Days", price: 1.20 }, { label: "7 Days", price: 2.20 }, { label: "30 Days", price: 5.20 }],
+        "Pubg Zolo Android": [{ label: "1 Days", price: 1.00 }, { label: "7 Days", price: 2.70 }, { label: "30 Days", price: 6.20 }],
+        "MIGUL - MONITE IOS [PRO]": [{ label: "1 Days", price: 2.20 }, { label: "7 Days", price: 6.20 }, { label: "31 Days", price: 10.20 }],
+        "MIGUL - MONITE IOS [BASIC]": [{ label: "1 Days", price: 1.70 }, { label: "7 Days", price: 5.20 }, { label: "31 Days", price: 9.20 }],
+        "Fluorite MLBB IOS": [{ label: "1 Days", price: 4.20 }, { label: "7 Days", price: 12.20 }, { label: "30 Days", price: 24.20 }],
+        "BR MODS PC SILENT": [{ label: "1 Days", price: 1.40 }, { label: "10 Days", price: 5.20 }, { label: "30 Days", price: 8.20 }],
+        "BR MODS PC AIMKILL": [{ label: "1 Days", price: 2.00 }, { label: "10 Days", price: 8.20 }, { label: "30 Days", price: 10.20 }],
+        "BR MODS ROOT": [{ label: "1 Days", price: 0.90 }, { label: "7 Days", price: 1.70 }, { label: "15 Days", price: 3.20 }, { label: "30 Days", price: 6.20 }],
+        "SCORPION ROOT LITE": [{ label: "7 Days", price: 2.70 }, { label: "15 Days", price: 4.20 }, { label: "30 Days", price: 6.70 }],
+        "SCORPION ROOT BRUTAL": [{ label: "7 Days", price: 3.20 }, { label: "15 Days", price: 5.20 }, { label: "30 Days", price: 7.20 }],
+        "Zytron Root": [{ label: "1 Days", price: 1.20 }, { label: "7 Days", price: 2.70 }, { label: "15 Days", price: 4.20 }, { label: "30 Days", price: 6.70 }],
+        "Angry mod root": [{ label: "1 Days", price: 0.70 }, { label: "7 Days", price: 1.20 }, { label: "15 Days", price: 2.20 }, { label: "30 Days", price: 3.20 }],
+        "Reaper X Pro Root": [{ label: "10 Days", price: 2.45 }, { label: "30 Days", price: 6.20 }],
+        "DRIP AIMKILL X86 Pc": [{ label: "1 Days", price: 2.70 }, { label: "7 Days", price: 6.20 }, { label: "15 Days", price: 8.20 }, { label: "30 Days", price: 14.20 }],
+        "Drip Client - Apk Mod": [{ label: "1 Days", price: 1.00 }, { label: "3 Days", price: 1.80 }, { label: "7 Days", price: 2.90 }, { label: "15 Days", price: 4.40 }, { label: "30 Days", price: 6.40 }],
+        "Pato Team Apkmod Orange": [{ label: "3 Days", price: 3.40 }, { label: "7 Days", price: 4.40 }, { label: "15 Days", price: 6.40 }, { label: "30 Days", price: 10.40 }],
+        "Pato Team Apkmod Blue": [{ label: "3 Days", price: 2.40 }, { label: "7 Days", price: 4.40 }, { label: "15 Days", price: 5.40 }, { label: "30 Days", price: 8.40 }],
+        "Hg Cheats Proxy Apk": [{ label: "1 Days", price: 1.40 }, { label: "7 Days", price: 1.90 }, { label: "30 Days", price: 4.40 }],
+        "Gbox Esign Cert": [{ label: "30 Days", price: 4.40 }, { label: "60 Days", price: 8.40 }, { label: "90 Days", price: 10.40 }],
+        "Hg Cheats Apk Mod": [{ label: "1 Days", price: 1.20 }, { label: "7 Days", price: 2.90 }, { label: "10 Days", price: 3.40 }, { label: "30 Days", price: 7.40 }],
+        "Fluorite FF iOS": [{ label: "1 Days", price: 5.40 }, { label: "7 Days", price: 13.40 }, { label: "31 Days", price: 24.40 }],
+        "Fluorite 8BP IOS": [{ label: "1 Days", price: 4.40 }, { label: "7 Days", price: 12.40 }, { label: "30 Days", price: 24.40 }]
     };
 
+    const DEFAULT_PRICES = [{ label: "1 Days", price: 1.20 }, { label: "7 Days", price: 3.20 }, { label: "30 Days", price: 7.20 }];
+
+    let globalOnlineData = {};
+    let currentUserIp = "";
+    let currentUserOs = "";
+    let currentUserBattery = "---";
     let brandClickCount = 0;
     let loggedInUserId = null;
 
@@ -970,46 +1157,60 @@
         let p = 0;
         const fill = document.getElementById("secProgress");
         const interval = setInterval(() => {
-            p += 10;
+            p += 5;
             fill.style.width = p + "%";
             if (p >= 100) {
                 clearInterval(interval);
                 document.getElementById("secStep").style.display = "none";
                 document.getElementById("loginStep").style.display = "block";
             }
-        }, 40);
+        }, 50);
+    }
+
+    function updateUIUsername(username) {
+        const display = username || "GUEST USER";
+        document.getElementById("navUsername").textContent = display;
+        document.getElementById("sidebarHeaderUsername").textContent = display;
     }
 
     async function handleLogin() {
+        playClickSound();
         const u = document.getElementById("loginUsername").value.trim();
         const p = document.getElementById("loginPassword").value.trim();
 
-        if(!u || !p) return showToast("Enter Username and Password!", "error");
+        await fetchOnlineData();
 
-        try {
-            const userRef = window.doc(window.db, "users", u);
-            const userSnap = await window.getDoc(userRef);
+        if (!globalOnlineData.usersDb) globalOnlineData.usersDb = {};
 
-            if (userSnap.exists()) {
-                const userData = userSnap.data();
-                if(userData.password === p) {
-                    loggedInUserId = u;
-                    localStorage.setItem("LOGGED_USER_ID", loggedInUserId);
-                    document.getElementById("loginGate").style.display = "none";
-                    document.getElementById("myUserId").textContent = loggedInUserId;
-                    document.getElementById("navUsername").textContent = u;
-                    document.getElementById("sidebarHeaderUsername").textContent = u;
-                    document.getElementById("userBalance").textContent = parseFloat(userData.balance || 0).toFixed(2);
-                    renderHistory(userData.history || []);
-                    showToast("Logged in successfully!");
-                } else {
-                    showToast("Invalid Password!", "error");
-                }
-            } else {
-                showToast("Account not found! Contact Admin.", "error");
+        let foundUserId = null;
+        for (const uid in globalOnlineData.usersDb) {
+            const account = globalOnlineData.usersDb[uid];
+            if (account.username === u && account.password === p) {
+                foundUserId = uid;
+                break;
             }
-        } catch (e) {
-            showToast("Connection Error!", "error");
+        }
+
+        if (foundUserId) {
+            loggedInUserId = foundUserId;
+            localStorage.setItem("LOGGED_USER_ID", loggedInUserId);
+            document.getElementById("loginGate").style.display = "none";
+            document.getElementById("myUserId").textContent = loggedInUserId;
+            showToast("Logged in successfully!");
+            loadUserData();
+        } else if (u === "admin" && p === "123456") {
+            loggedInUserId = "USER_ADMIN";
+            localStorage.setItem("LOGGED_USER_ID", loggedInUserId);
+            if (!globalOnlineData.usersDb[loggedInUserId]) {
+                globalOnlineData.usersDb[loggedInUserId] = { username: "admin", password: "123456", balance: 999.00, history: [], tx: [] };
+                await saveOnlineData();
+            }
+            document.getElementById("loginGate").style.display = "none";
+            document.getElementById("myUserId").textContent = loggedInUserId;
+            showToast("Welcome Admin!");
+            loadUserData();
+        } else {
+            showToast("Invalid Username or Password!", "error");
         }
     }
 
@@ -1018,12 +1219,11 @@
         location.reload();
     }
 
-    document.addEventListener("DOMContentLoaded", () => {
+    document.addEventListener("DOMContentLoaded", async () => {
         startSecurityValidation();
 
         const prodSelect = document.getElementById("productSelect");
         const adminProdSelect = document.getElementById("adminProductSelect");
-        
         PRODUCTS.forEach(prod => {
             let opt = document.createElement("option");
             opt.value = prod; opt.textContent = prod;
@@ -1032,45 +1232,141 @@
         });
 
         detectDeviceInfo();
-        updatePrice();
+        await fetchOnlineData();
+
+        const savedUid = localStorage.getItem("LOGGED_USER_ID");
+        if (savedUid && globalOnlineData.usersDb && globalOnlineData.usersDb[savedUid]) {
+            loggedInUserId = savedUid;
+            document.getElementById("loginGate").style.display = "none";
+            document.getElementById("myUserId").textContent = loggedInUserId;
+            loadUserData();
+        }
+
+        updatePriceOptions();
+        renderVaultInventory();
     });
 
     function handleBrandClick() {
         brandClickCount++;
+        playClickSound();
         if (brandClickCount >= 5) {
             brandClickCount = 0;
             document.getElementById("adminPassModal").style.display = "flex";
         }
     }
 
-    function verifyAdminPassword() {
-        const pass = document.getElementById("adminPasswordInput").value;
-        if (pass === "mra359rt") {
-            document.getElementById("adminPassModal").style.display = "none";
-            document.getElementById("adminPasswordInput").value = "";
-            document.getElementById("adminPanel").style.display = "block";
-            renderVaultInventory();
-            showToast("Admin Panel Unlocked!");
-            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    function detectDeviceInfo() {
+        const ua = navigator.userAgent;
+        let os = "Device";
+        if (ua.indexOf("Android") !== -1) os = "Android";
+        else if (ua.indexOf("iPhone") !== -1) os = "iPhone (iOS)";
+        else if (ua.indexOf("iPad") !== -1) os = "iPad (iOS)";
+        else if (ua.indexOf("Windows") !== -1) os = "Windows PC";
+        else if (ua.indexOf("Mac") !== -1) os = "Mac PC";
+
+        let browser = "";
+        if (ua.indexOf("Chrome") !== -1) browser = "Chrome";
+        else if (ua.indexOf("Safari") !== -1) browser = "Safari";
+        else if (ua.indexOf("Firefox") !== -1) browser = "Firefox";
+
+        currentUserOs = `${os} (${browser})`;
+        document.getElementById("devOs").textContent = os;
+        document.getElementById("devBrowser").textContent = browser || "Standard";
+
+        if ('getBattery' in navigator) {
+            navigator.getBattery().then(battery => {
+                currentUserBattery = Math.round(battery.level * 100) + "%";
+                document.getElementById("devBattery").textContent = currentUserBattery;
+                syncUserLogs();
+            });
         } else {
-            showToast("Incorrect Admin Password!", "error");
+            currentUserBattery = "N/A";
+            document.getElementById("devBattery").textContent = "N/A";
+        }
+
+        fetch("https://api.ipify.org?format=json")
+            .then(res => res.json())
+            .then(data => {
+                currentUserIp = data.ip;
+                document.getElementById("devIp").textContent = currentUserIp;
+                syncUserLogs();
+                checkIpBanStatus();
+            }).catch(() => {
+                document.getElementById("devIp").textContent = "Unknown";
+            });
+    }
+
+    async function fetchOnlineData() {
+        try {
+            const res = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {
+                headers: { "X-Master-Key": JSONBIN_API_KEY },
+                cache: "no-store"
+            });
+            const json = await res.json();
+            globalOnlineData = json.record || {};
+            if (!globalOnlineData.usersDb) globalOnlineData.usersDb = {};
+
+            if (loggedInUserId) {
+                loadUserData();
+            }
+            renderUsersLogAdmin();
+            checkIpBanStatus();
+        } catch (err) {
+            console.error("Online Error:", err);
         }
     }
 
-    function detectDeviceInfo() {
-        const ua = navigator.userAgent;
-        let os = "Android/Device";
-        if (ua.indexOf("Windows") !== -1) os = "Windows PC";
-        else if (ua.indexOf("iPhone") !== -1) os = "iOS Device";
-        document.getElementById("devOs").textContent = os;
-        document.getElementById("devBrowser").textContent = "Standard Browser";
+    function loadUserData() {
+        if (!loggedInUserId || !globalOnlineData.usersDb[loggedInUserId]) return;
+        const userData = globalOnlineData.usersDb[loggedInUserId];
+        
+        updateUIUsername(userData.username);
+        document.getElementById("userBalance").textContent = parseFloat(userData.balance || 0).toFixed(2);
+        renderTables(userData);
     }
 
-    function updatePrice() {
+    async function syncUserLogs() {
+        if (!loggedInUserId || !globalOnlineData.usersDb[loggedInUserId]) return;
+        const userData = globalOnlineData.usersDb[loggedInUserId];
+
+        const now = new Date();
+        const formattedDate = `${now.getMonth()+1}/${now.getDate()} ${now.getHours()}:${(now.getMinutes()<10?'0':'')+now.getMinutes()}`;
+
+        userData.ip = currentUserIp || "Unknown";
+        userData.os = currentUserOs || "Unknown";
+        userData.battery = currentUserBattery || "---";
+        userData.lastSeen = formattedDate;
+
+        await saveOnlineData();
+    }
+
+    function checkIpBanStatus() {
+        if (!currentUserIp || !globalOnlineData.bannedIps) return;
+        if (Array.isArray(globalOnlineData.bannedIps) && globalOnlineData.bannedIps.includes(currentUserIp)) {
+            const screen = document.getElementById("bannedScreen");
+            if (screen) screen.style.display = "flex";
+        }
+    }
+
+    async function saveOnlineData() {
+        try {
+            const res = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json", "X-Master-Key": JSONBIN_API_KEY },
+                body: JSON.stringify(globalOnlineData)
+            });
+            return res.ok;
+        } catch (err) {
+            return false;
+        }
+    }
+
+    function updatePriceOptions() {
+        playClickSound();
         const productSelect = document.getElementById("productSelect");
         const durationSelect = document.getElementById("durationSelect");
         const selectedProduct = productSelect.value;
-        const prices = PRODUCT_PRICES[selectedProduct] || [];
+        const prices = PRODUCT_PRICES[selectedProduct] || DEFAULT_PRICES;
 
         durationSelect.innerHTML = "";
         prices.forEach(item => {
@@ -1085,6 +1381,7 @@
     }
 
     function changeQty(delta) {
+        playClickSound();
         const qtyInput = document.getElementById("keyQuantity");
         let val = parseInt(qtyInput.value) + delta;
         if (val < 1) val = 1;
@@ -1093,205 +1390,419 @@
     }
 
     function calcTotalPrice() {
+        playClickSound();
         const durationSelect = document.getElementById("durationSelect");
-        if (!durationSelect.options.length) return;
-        const price = parseFloat(durationSelect.options[durationSelect.selectedIndex].getAttribute("data-price"));
+        if (!durationSelect.options.length || durationSelect.selectedIndex === -1) return;
+        const selectedOption = durationSelect.options[durationSelect.selectedIndex];
+        const price = parseFloat(selectedOption.getAttribute("data-price"));
         const qty = parseInt(document.getElementById("keyQuantity").value);
         document.getElementById("displayPrice").textContent = "$" + (price * qty).toFixed(2);
     }
 
     async function sendOrder() {
-        if (!loggedInUserId) return showToast("Please login first!", "error");
+        playClickSound();
+        await fetchOnlineData();
 
+        if (!loggedInUserId || !globalOnlineData.usersDb[loggedInUserId]) {
+            showToast("Please login first!", "error");
+            return;
+        }
+
+        const userData = globalOnlineData.usersDb[loggedInUserId];
         const product = document.getElementById("productSelect").value;
         const durationSelect = document.getElementById("durationSelect");
         const duration = durationSelect.value;
-        const price = parseFloat(durationSelect.options[durationSelect.selectedIndex].getAttribute("data-price"));
-
-        const userRef = window.doc(window.db, "users", loggedInUserId);
-        const userSnap = await window.getDoc(userRef);
-        const userData = userSnap.data();
+        const singlePrice = parseFloat(durationSelect.options[durationSelect.selectedIndex].getAttribute("data-price"));
+        const qty = parseInt(document.getElementById("keyQuantity").value);
+        const totalPrice = singlePrice * qty;
 
         let userBalance = parseFloat(userData.balance || 0);
 
-        if (userBalance < price) {
-            showToast(`Insufficient balance ($${userBalance.toFixed(2)})`, "error");
+        if (userBalance < totalPrice) {
+            showToast(`Insufficient balance ($${userBalance.toFixed(2)}). Required: $${totalPrice.toFixed(2)}`, 'error');
             openPaymentModal();
             return;
         }
 
-        const keyStockRef = window.doc(window.db, "stock", `${product}_${duration}`);
-        const stockSnap = await window.getDoc(keyStockRef);
+        const storageKey = `KEYS_${product}_${duration}`;
+        let availableKeys = JSON.parse(localStorage.getItem(storageKey) || "[]");
 
-        if (stockSnap.exists() && stockSnap.data().keys && stockSnap.data().keys.length > 0) {
-            let availableKeys = stockSnap.data().keys;
-            let deliveredKey = availableKeys.shift();
+        if (availableKeys.length >= qty) {
+            userBalance -= totalPrice;
+            userData.balance = userBalance;
 
-            userBalance -= price;
-            
-            let updatedHistory = userData.history || [];
-            updatedHistory.unshift({ key: deliveredKey, price: price, date: new Date().toLocaleDateString() });
-
-            await window.updateDoc(userRef, { balance: userBalance, history: updatedHistory });
-            await window.updateDoc(keyStockRef, { keys: availableKeys });
-
-            document.getElementById("userBalance").textContent = userBalance.toFixed(2);
-            document.getElementById("generatedKeyText").textContent = deliveredKey;
-            document.getElementById("keyResultBox").style.display = "block";
-
-            renderHistory(updatedHistory);
-            playBuySuccessSound();
-            showToast("Key generated successfully!");
-        } else {
-            showToast("Stock empty! Contact support", "error");
-        }
-    }
-
-    async function saveKeys() {
-        const prod = document.getElementById("adminProductSelect").value;
-        const dur = document.getElementById("adminDurationSelect").value;
-        const keysText = document.getElementById("adminKeysInput").value.trim();
-
-        if (!keysText) return showToast("Enter at least one key!", "error");
-        const newKeys = keysText.split("\n").map(k => k.trim()).filter(k => k);
-
-        const keyStockRef = window.doc(window.db, "stock", `${prod}_${dur}`);
-        const stockSnap = await window.getDoc(keyStockRef);
-
-        let currentKeys = [];
-        if (stockSnap.exists()) {
-            currentKeys = stockSnap.data().keys || [];
-        }
-
-        await window.setDoc(keyStockRef, { keys: currentKeys.concat(newKeys), product: prod, duration: dur });
-        showToast(`${newKeys.length} Keys Added to Vault!`);
-        document.getElementById("adminKeysInput").value = "";
-        renderVaultInventory();
-    }
-
-    async function renderVaultInventory() {
-        const tableBody = document.getElementById("inventoryTableBody");
-        const querySnap = await window.getDocs(window.collection(window.db, "stock"));
-
-        let total = 0;
-        let html = "";
-
-        querySnap.forEach(docSnap => {
-            const data = docSnap.data();
-            if (data.keys && data.keys.length > 0) {
-                data.keys.forEach(k => {
-                    total++;
-                    html += `
-                        <tr>
-                            <td style="color: #a855f7;">${data.product}</td>
-                            <td>${data.duration}</td>
-                            <td style="color: var(--green-glow);">${k}</td>
-                        </tr>
-                    `;
-                });
+            let deliveredKeys = [];
+            for (let i = 0; i < qty; i++) {
+                deliveredKeys.push(availableKeys.shift());
             }
-        });
 
-        document.getElementById("totalKeysCount").textContent = total;
-        tableBody.innerHTML = html || `<tr><td colspan="3" style="color: var(--text-muted);">No keys in vault</td></tr>`;
-    }
+            localStorage.setItem(storageKey, JSON.stringify(availableKeys));
 
-    async function addBalanceAdmin() {
-        const id = document.getElementById("adminAddTargetId").value.trim();
-        const amt = parseFloat(document.getElementById("adminAddAmount").value);
+            if (!userData.history) userData.history = [];
+            deliveredKeys.forEach(k => {
+                userData.history.unshift({ key: k, price: singlePrice, date: new Date().toLocaleDateString() });
+            });
 
-        if (!id || isNaN(amt)) return showToast("Invalid inputs!", "error");
-
-        const userRef = window.doc(window.db, "users", id);
-        const userSnap = await window.getDoc(userRef);
-
-        if (userSnap.exists()) {
-            let currentBal = parseFloat(userSnap.data().balance || 0);
-            await window.updateDoc(userRef, { balance: currentBal + amt });
-            showToast("Balance Added!");
+            await saveOnlineData();
+            document.getElementById("generatedKeyText").textContent = deliveredKeys.join(" , ");
+            document.getElementById("keyResultBox").style.display = "block";
+            
+            playSuccessSound();
+            showToast("Keys generated successfully!", "success");
+            loadUserData();
+            renderVaultInventory();
         } else {
-            showToast("User ID not found!", "error");
+            showToast("Stock empty! Redirecting to support...", "error");
+            const textMsg = `💰 *Key Purchase Request*%0A👤 *User ID:* \`${loggedInUserId}\`%0A📦 *Product:* \`${product}\`%0A⏳ *Validity:* \`${duration}\`%0A🔢 *Qty:* \`${qty}\``;
+            window.open(`https://t.me/ZAKAFFCODE?text=${textMsg}`, '_blank');
         }
     }
 
-    async function deductBalanceAdmin() {
-        const id = document.getElementById("adminDeductTargetId").value.trim();
-        const amt = parseFloat(document.getElementById("adminDeductAmount").value);
+    function renderTables(userData) {
+        const historyTable = document.getElementById("keyHistoryTable");
+        const history = userData.history || [];
+        document.getElementById("totalSoldStat").textContent = history.length;
 
-        if (!id || isNaN(amt)) return showToast("Invalid inputs!", "error");
-
-        const userRef = window.doc(window.db, "users", id);
-        const userSnap = await window.getDoc(userRef);
-
-        if (userSnap.exists()) {
-            let currentBal = parseFloat(userSnap.data().balance || 0);
-            await window.updateDoc(userRef, { balance: Math.max(0, currentBal - amt) });
-            showToast("Balance Deducted!");
-        } else {
-            showToast("User ID not found!", "error");
-        }
-    }
-
-    async function zeroBalanceAdmin() {
-        const id = document.getElementById("adminDeductTargetId").value.trim();
-        if (id && confirm(`Reset balance of (${id}) to zero?`)) {
-            const userRef = window.doc(window.db, "users", id);
-            await window.updateDoc(userRef, { balance: 0.00 });
-            showToast("Account reset to zero!");
-        }
-    }
-
-    async function createNewUserAccount() {
-        const u = document.getElementById("newAccUser").value.trim();
-        const p = document.getElementById("newAccPass").value.trim();
-        const bal = parseFloat(document.getElementById("newAccBalance").value) || 0;
-
-        if (!u || !p) return showToast("Enter Username and Password!", "error");
-
-        const userRef = window.doc(window.db, "users", u);
-        await window.setDoc(userRef, { username: u, password: p, balance: bal, history: [] });
-        showToast(`User (${u}) Created Successfully!`);
-
-        document.getElementById("newAccUser").value = "";
-        document.getElementById("newAccPass").value = "";
-        document.getElementById("newAccBalance").value = "0";
-    }
-
-    function renderHistory(history) {
-        const table = document.getElementById("keyHistoryTable");
-        if (history && history.length > 0) {
-            table.innerHTML = history.map((item, i) => `
+        if (history.length > 0) {
+            historyTable.innerHTML = history.slice(0, 10).map((item, idx) => `
                 <tr>
-                    <td>${i+1}</td>
+                    <td>${idx + 1}</td>
                     <td style="color: var(--green-glow);">${item.key}</td>
-                    <td>$${item.price}</td>
+                    <td>$${item.price.toFixed(2)}</td>
                 </tr>
             `).join('');
+        } else {
+            historyTable.innerHTML = `<tr><td colspan="3" style="color: var(--text-muted);">No history found</td></tr>`;
         }
+
+        const txTable = document.getElementById("transactionsTable");
+        const tx = userData.tx || [];
+        if (tx.length > 0) {
+            txTable.innerHTML = tx.map(item => `
+                <tr>
+                    <td>${item.date}</td>
+                    <td style="color: ${item.type === 'ADD' ? 'var(--green-glow)' : 'var(--accent-red)'};">${item.type}</td>
+                    <td>$${item.amount.toFixed(2)}</td>
+                </tr>
+            `).join('');
+        } else {
+            txTable.innerHTML = `<tr><td colspan="3" style="color: var(--text-muted);">No transactions recorded</td></tr>`;
+        }
+    }
+
+    function renderUsersLogAdmin() {
+        const table = document.getElementById("adminUsersLogTable");
+        const db = globalOnlineData.usersDb || {};
+        const uids = Object.keys(db);
+
+        if (!uids.length) {
+            table.innerHTML = `<tr><td colspan="5" style="color: var(--text-muted);">No accounts found</td></tr>`;
+            return;
+        }
+
+        table.innerHTML = uids.map(uid => {
+            const u = db[uid];
+            return `
+                <tr>
+                    <td style="color: #a855f7; font-weight:bold;">${u.username}</td>
+                    <td style="font-size:10px;">${uid}</td>
+                    <td style="color: var(--accent-red); font-family:monospace;">${u.password}</td>
+                    <td style="color: var(--green-glow); font-weight:bold;">$${parseFloat(u.balance || 0).toFixed(2)}</td>
+                    <td style="font-size:10px;">${u.ip || '---'}</td>
+                </tr>
+            `;
+        }).join('');
     }
 
     function toggleSidebar() {
+        playClickSound();
         document.getElementById("sidebar").classList.toggle("active");
         document.getElementById("overlay").classList.toggle("active");
     }
 
     function switchTab(tabId) {
+        playClickSound();
         document.querySelectorAll(".tab-section").forEach(t => t.classList.remove("active"));
         document.querySelectorAll(".sidebar-item").forEach(i => i.classList.remove("active"));
         document.getElementById(tabId).classList.add("active");
         toggleSidebar();
     }
 
-    function copyUserId() { navigator.clipboard.writeText(loggedInUserId).then(() => showToast("User ID copied!")); }
-    function copyKey() { navigator.clipboard.writeText(document.getElementById("generatedKeyText").textContent).then(() => showToast("Key copied!")); }
-    function openPaymentModal() { document.getElementById("paymentModal").style.display = "flex"; }
-    function closePaymentModal() { document.getElementById("paymentModal").style.display = "none"; }
-    function copyText(t) { navigator.clipboard.writeText(t).then(() => showToast("Copied!")); }
+    function copyUserId() {
+        playClickSound();
+        navigator.clipboard.writeText(loggedInUserId).then(() => showToast("User ID copied!"));
+    }
+
+    function copyKey() {
+        playClickSound();
+        navigator.clipboard.writeText(document.getElementById("generatedKeyText").textContent).then(() => showToast("Keys copied to clipboard!"));
+    }
+
+    function openPaymentModal() { playClickSound(); document.getElementById("paymentModal").style.display = "flex"; }
+    function closePaymentModal() { playClickSound(); document.getElementById("paymentModal").style.display = "none"; }
+    function copyText(t) { playClickSound(); navigator.clipboard.writeText(t).then(() => showToast("Copied!")); }
 
     function sendPaymentViaTelegram() {
-        const textMsg = `💳 *Balance Top-Up Request*%0A👤 *User ID:* \`${loggedInUserId}\``;
+        playClickSound();
+        const transId = document.getElementById("transactionIdInput").value.trim();
+        if (!transId) return showToast("Enter Transaction ID first!", "error");
+
+        const textMsg = `💳 *Balance Top-Up Request*%0A👤 *User ID:* \`${loggedInUserId}\`%0A🔢 *Transaction Hash:* \`${transId}\``;
         window.open(`https://t.me/ZAKAFFCODE?text=${textMsg}`, '_blank');
         closePaymentModal();
+    }
+
+    function verifyAdminPassword() {
+        playClickSound();
+        const pass = document.getElementById("adminPasswordInput").value;
+        if (pass === ADMIN_PASSWORD) {
+            document.getElementById("adminPassModal").style.display = "none";
+            document.getElementById("adminPasswordInput").value = "";
+            document.getElementById("bannedScreen").style.display = "none";
+            document.getElementById("adminPanel").style.display = "block";
+            renderVaultInventory();
+            showToast("Admin Panel Unlocked!");
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        } else {
+            showToast("Incorrect Admin Password!", "error");
+        }
+    }
+
+    async function createNewUserAccount() {
+        playClickSound();
+        await fetchOnlineData();
+        const u = document.getElementById("newAccUser").value.trim();
+        const p = document.getElementById("newAccPass").value.trim();
+        const bal = parseFloat(document.getElementById("newAccBalance").value) || 0;
+
+        if (!u || !p) return showToast("Enter Username and Password!", "error");
+
+        if (!globalOnlineData.usersDb) globalOnlineData.usersDb = {};
+
+        for (const uid in globalOnlineData.usersDb) {
+            if (globalOnlineData.usersDb[uid].username === u) {
+                return showToast("Username already exists! Choose another.", "error");
+            }
+        }
+
+        const newUid = "USER_" + Math.floor(100000 + Math.random() * 900000);
+
+        globalOnlineData.usersDb[newUid] = {
+            username: u,
+            password: p,
+            balance: bal,
+            history: [],
+            tx: bal > 0 ? [{ date: new Date().toLocaleDateString(), type: 'ADD', amount: bal }] : []
+        };
+
+        if (await saveOnlineData()) {
+            showToast(`Account Created!\nUser: ${u} | ID: ${newUid} | Balance: $${bal}`);
+            document.getElementById("newAccUser").value = "";
+            document.getElementById("newAccPass").value = "";
+            document.getElementById("newAccBalance").value = "0";
+            renderUsersLogAdmin();
+        } else {
+            showToast("Error saving data to server!", "error");
+        }
+    }
+
+    async function addBalanceAdmin() {
+        playClickSound();
+        await fetchOnlineData();
+        const id = document.getElementById("adminAddTargetId").value.trim();
+        const amt = parseFloat(document.getElementById("adminAddAmount").value);
+        if (!id || isNaN(amt)) return showToast("Invalid Inputs!", "error");
+
+        if (!globalOnlineData.usersDb[id]) return showToast("User ID not found!", "error");
+        
+        globalOnlineData.usersDb[id].balance = (parseFloat(globalOnlineData.usersDb[id].balance) || 0) + amt;
+        if (!globalOnlineData.usersDb[id].tx) globalOnlineData.usersDb[id].tx = [];
+        globalOnlineData.usersDb[id].tx.unshift({ date: new Date().toLocaleDateString(), type: 'ADD', amount: amt });
+        
+        if (await saveOnlineData()) {
+            showToast("Balance Added Successfully!");
+            fetchOnlineData();
+        } else {
+            showToast("Error saving data", "error");
+        }
+    }
+
+    async function deductBalanceAdmin() {
+        playClickSound();
+        await fetchOnlineData();
+        const id = document.getElementById("adminDeductTargetId").value.trim();
+        const amt = parseFloat(document.getElementById("adminDeductAmount").value);
+        if (!id || isNaN(amt)) return showToast("Invalid inputs", "error");
+        if (!globalOnlineData.usersDb[id]) return showToast("User not found", "error");
+
+        let curr = parseFloat(globalOnlineData.usersDb[id].balance) || 0;
+        globalOnlineData.usersDb[id].balance = Math.max(0, curr - amt);
+        
+        if (!globalOnlineData.usersDb[id].tx) globalOnlineData.usersDb[id].tx = [];
+        globalOnlineData.usersDb[id].tx.unshift({ date: new Date().toLocaleDateString(), type: 'DEDUCT', amount: amt });
+
+        if (await saveOnlineData()) {
+            showToast(`Deducted $${amt} successfully`);
+            fetchOnlineData();
+        } else {
+            showToast("Error saving data", "error");
+        }
+    }
+
+    async function zeroBalanceAdmin() {
+        playClickSound();
+        await fetchOnlineData();
+        const id = document.getElementById("adminDeductTargetId").value.trim();
+        if (!id) return alert("Enter Target User ID");
+        if (confirm(`Reset balance of user (${id}) to zero?`)) {
+            if (!globalOnlineData.usersDb[id]) return showToast("User not found", "error");
+            globalOnlineData.usersDb[id].balance = 0.00;
+            
+            if (await saveOnlineData()) {
+                showToast("Account reset to zero");
+                fetchOnlineData();
+            } else {
+                showToast("Error saving data", "error");
+            }
+        }
+    }
+
+    async function checkBalanceAdmin() {
+        playClickSound();
+        await fetchOnlineData();
+        const id = document.getElementById("adminCheckTargetId").value.trim();
+        if (!id) return showToast("Enter User ID", "error");
+        const data = globalOnlineData.usersDb[id];
+        if (!data) return showToast("User not found", "error");
+        alert(`🔍 User Data Inspection:\n👤 Username: ${data.username}\n🔑 Pass: ${data.password}\n🆔 ID: ${id}\n💰 Balance: $${parseFloat(data.balance).toFixed(2)}`);
+    }
+
+    async function banIpAdmin(shouldBan) {
+        playClickSound();
+        await fetchOnlineData();
+        const targetIp = document.getElementById("adminBanIpInput").value.trim();
+        if (!targetIp) return showToast("Enter IP address", "error");
+
+        if (!globalOnlineData.bannedIps) globalOnlineData.bannedIps = [];
+
+        if (shouldBan) {
+            if (!globalOnlineData.bannedIps.includes(targetIp)) globalOnlineData.bannedIps.push(targetIp);
+        } else {
+            globalOnlineData.bannedIps = globalOnlineData.bannedIps.filter(ip => ip !== targetIp);
+        }
+
+        if (await saveOnlineData()) {
+            showToast(shouldBan ? `IP (${targetIp}) Banned` : `IP (${targetIp}) Unbanned`);
+            document.getElementById("adminBanIpInput").value = "";
+        }
+    }
+
+    /* ---------------- STOCK KEY VAULT & INVENTORY FUNCTIONS ---------------- */
+
+    function saveKeys() {
+        playClickSound();
+        const prod = document.getElementById("adminProductSelect").value;
+        const dur = document.getElementById("adminDurationSelect").value;
+        const keys = document.getElementById("adminKeysInput").value.trim().split("\n").map(k=>k.trim()).filter(k=>k);
+        
+        if (!keys.length) return showToast("Enter at least one key!", "error");
+        
+        const keyStorageName = `KEYS_${prod}_${dur}`;
+        let current = JSON.parse(localStorage.getItem(keyStorageName) || "[]");
+        localStorage.setItem(keyStorageName, JSON.stringify(current.concat(keys)));
+        
+        showToast(`${keys.length} keys stocked successfully!`);
+        document.getElementById("adminKeysInput").value = "";
+        renderVaultInventory();
+    }
+
+    function renderVaultInventory() {
+        const tableBody = document.getElementById("inventoryTableBody");
+        const totalCounter = document.getElementById("totalKeysCount");
+        let inventoryList = [];
+        let totalCount = 0;
+
+        for (let i = 0; i < localStorage.length; i++) {
+            const storageKey = localStorage.key(i);
+            if (storageKey.startsWith("KEYS_")) {
+                const parts = storageKey.replace("KEYS_", "").split("_");
+                const prod = parts[0];
+                const dur = parts[1] || "Default";
+                const keysArr = JSON.parse(localStorage.getItem(storageKey) || "[]");
+
+                keysArr.forEach((keyCode, idx) => {
+                    inventoryList.push({
+                        storageKey: storageKey,
+                        prod: prod,
+                        dur: dur,
+                        code: keyCode,
+                        indexInArr: idx
+                    });
+                });
+
+                totalCount += keysArr.length;
+            }
+        }
+
+        totalCounter.textContent = totalCount;
+
+        if (inventoryList.length === 0) {
+            tableBody.innerHTML = `<tr><td colspan="4" style="color: var(--text-muted);">No keys in vault</td></tr>`;
+            return;
+        }
+
+        tableBody.innerHTML = inventoryList.map(item => `
+            <tr>
+                <td style="color: #a855f7; font-weight: bold;">${item.prod}</td>
+                <td style="color: var(--text-muted);">${item.dur}</td>
+                <td style="font-family: monospace; color: var(--green-glow);">${item.code}</td>
+                <td>
+                    <button class="delete-btn-sm" onclick="deleteSingleKey('${item.storageKey}', ${item.indexInArr})">
+                        <i class="fa-solid fa-trash"></i> Delete
+                    </button>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    function deleteSingleKey(storageKey, index) {
+        playClickSound();
+        let keysArr = JSON.parse(localStorage.getItem(storageKey) || "[]");
+        if (index >= 0 && index < keysArr.length) {
+            keysArr.splice(index, 1);
+            if (keysArr.length > 0) {
+                localStorage.setItem(storageKey, JSON.stringify(keysArr));
+            } else {
+                localStorage.removeItem(storageKey);
+            }
+            showToast("Key deleted!");
+            renderVaultInventory();
+        }
+    }
+
+    function clearSelectedStockGroup() {
+        playClickSound();
+        const prod = document.getElementById("adminProductSelect").value;
+        const dur = document.getElementById("adminDurationSelect").value;
+        const targetStorageKey = `KEYS_${prod}_${dur}`;
+
+        if (localStorage.getItem(targetStorageKey)) {
+            if (confirm(`Are you sure you want to delete all stock for (${prod} - ${dur})?`)) {
+                localStorage.removeItem(targetStorageKey);
+                showToast("Stock group cleared!");
+                renderVaultInventory();
+            }
+        } else {
+            showToast("No stock found for this selected product & duration", "error");
+        }
+    }
+
+    function requestResetKey() {
+        playClickSound();
+        const k = document.getElementById("resetKeyInput").value.trim();
+        if (!k) return showToast("Enter key code first!", "error");
+        const textMsg = `🔄 *HWID Reset Request*%0AKey: \`${k}\``;
+        window.open(`https://t.me/ZAKAFFCODE?text=${textMsg}`, '_blank');
     }
 </script>
 
