@@ -10,8 +10,8 @@
             --bg-dark: #05030a;
             --card-bg: rgba(15, 10, 22, 0.88);
             --primary-purple: #8b5cf6;
+            --purple-glow: #9d4edd;
             --accent-red: #ef4444;
-            --accent-red-glow: #dc2626;
             --border-purple: #3b1d60;
             --border-red: rgba(239, 68, 68, 0.3);
             --text-main: #f8fafc;
@@ -40,7 +40,7 @@
                 radial-gradient(circle at 90% 80%, rgba(139, 92, 246, 0.15) 0%, #05030a 70%);
         }
 
-        /* --- Full Screen Security & Login Overlay --- */
+        /* --- Security & Login Overlay --- */
         #loginGate {
             position: fixed;
             top: 0; left: 0;
@@ -428,6 +428,76 @@
         .submit-btn:hover { opacity: 0.92; transform: translateY(-1px); }
         .submit-btn:active { transform: translateY(1px); }
 
+        /* --- GENERATED KEYS DISPLAY (STYLE MATCHED TO ORIGINAL SITE) --- */
+        .generated-box-container {
+            background: rgba(12, 7, 24, 0.95);
+            border: 1px solid rgba(157, 78, 221, 0.3);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+            margin-top: 15px;
+        }
+
+        .generated-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-weight: bold;
+            font-size: 16px;
+            color: #d8b4fe;
+            margin-bottom: 15px;
+        }
+
+        .generated-header i {
+            background: #9d4edd;
+            color: #0d071a;
+            border-radius: 50%;
+            padding: 3px;
+            font-size: 11px;
+        }
+
+        .key-display-field {
+            background: rgba(5, 2, 12, 0.8);
+            border: 1px solid rgba(157, 78, 221, 0.25);
+            border-radius: 12px;
+            padding: 15px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 18px;
+            color: #e9d5ff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 18px;
+            word-break: break-all;
+        }
+
+        .key-display-field span.prefix {
+            color: #a855f7;
+            font-weight: bold;
+        }
+
+        .copy-btn-purple {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(90deg, #8b5cf6, #a855f7);
+            border: none;
+            border-radius: 14px;
+            color: #fff;
+            font-weight: bold;
+            font-size: 14px;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
+            transition: 0.2s;
+        }
+
+        .copy-btn-purple:active { transform: scale(0.98); }
+
         .table-container { overflow-x: auto; max-width: 100%; }
 
         .data-table {
@@ -546,7 +616,6 @@
 
 <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
 
-<!-- SIDEBAR (NO VISIBLE ADMIN BUTTON FOR REGULAR USERS) -->
 <div class="sidebar" id="sidebar">
     <div class="sidebar-header">
         <div style="font-weight: bold; color: #fff; font-size: 16px;">FF SCRIPT VIP</div>
@@ -630,11 +699,19 @@
             </button>
         </div>
 
-        <div class="card" id="keyResultBox" style="display: none; text-align: center; border-color: var(--green-glow);">
-            <div style="color: var(--green-glow); font-weight: bold; margin-bottom: 10px;">🎉 Keys Generated Successfully!</div>
-            <textarea id="generatedKey" rows="3" style="text-align: center; font-weight: bold; color: var(--green-glow);" readonly></textarea>
-            <button class="submit-btn" style="background: var(--green-glow); margin-top: 10px;" onclick="copyKey()">
-                <i class="fa-solid fa-copy"></i> Copy Keys
+        <!-- GENERATED KEYS DISPLAY MATCHED EXACTLY TO SOURCE IMAGE -->
+        <div class="generated-box-container" id="keyResultBox" style="display: none;">
+            <div class="generated-header">
+                <i class="fa-solid fa-check"></i> Generated Keys
+            </div>
+
+            <div class="key-display-field">
+                <span class="prefix">Key:</span>
+                <span id="generatedKeyText">----------------</span>
+            </div>
+
+            <button class="copy-btn-purple" onclick="copyKey()">
+                <i class="fa-solid fa-copy"></i> COPY KEYS
             </button>
         </div>
     </div>
@@ -739,17 +816,18 @@
         </div>
     </div>
 
-    <!-- TAB 7: SECRET ADMIN PANEL (UNLOCKED ONLY VIA SECRET CODE/TRIGGER) -->
+    <!-- TAB 7: SECRET ADMIN PANEL -->
     <div id="adminPanel" class="card" style="display: none; border-color: var(--accent-red);">
         <div class="card-header-title" style="color: var(--accent-red);">
             <i class="fa-solid fa-user-shield"></i> Secret Admin Panel
         </div>
 
+        <!-- MULTI-USER CREDENTIAL CREATOR -->
         <div class="form-group" style="background: rgba(239,68,68,0.1); padding: 12px; border-radius: 10px; border: 1px dashed var(--border-red);">
-            <label style="color: var(--accent-red);">🔐 Store Login Credentials:</label>
+            <label style="color: var(--accent-red);">🔐 ADD NEW USER CREDENTIALS:</label>
             <input type="text" id="newStoreUser" placeholder="New Username" style="margin-bottom: 8px;">
             <input type="password" id="newStorePass" placeholder="New Password">
-            <button class="submit-btn" style="background: var(--accent-red);" onclick="updateStoreCredentials()">Save New Login Credentials</button>
+            <button class="submit-btn" style="background: var(--accent-red);" onclick="addStoreCredential()">Add User Credentials</button>
         </div>
 
         <div class="form-group" style="margin-top: 15px;">
@@ -880,17 +958,13 @@
     const JSONBIN_BIN_ID = "6a7771aeda38895dfecaa3a9";
     const JSONBIN_API_KEY = "$2a$10$MoDxxOV9R4GgMSmNuVovC.K9uapoJVJlqFE2XrVrq26RVYrNhkWJW";
 
-    // Dynamic Sound Generator using Web Audio API
     const AudioContext = window.AudioContext || window.webkitAudioContext;
     let audioCtx = null;
 
     function initAudio() {
-        if (!audioCtx) {
-            audioCtx = new AudioContext();
-        }
+        if (!audioCtx) audioCtx = new AudioContext();
     }
 
-    // Play Click Sound
     function playClickSound() {
         try {
             initAudio();
@@ -908,17 +982,14 @@
         } catch(e){}
     }
 
-    // Play Success Generation Chime Sound
     function playSuccessSound() {
         try {
             initAudio();
             const now = audioCtx.currentTime;
-            
-            // Note 1
             const osc1 = audioCtx.createOscillator();
             const gain1 = audioCtx.createGain();
             osc1.type = 'triangle';
-            osc1.frequency.setValueAtTime(523.25, now); // C5
+            osc1.frequency.setValueAtTime(523.25, now);
             gain1.gain.setValueAtTime(0.2, now);
             gain1.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
             osc1.connect(gain1);
@@ -926,11 +997,10 @@
             osc1.start(now);
             osc1.stop(now + 0.2);
 
-            // Note 2
             const osc2 = audioCtx.createOscillator();
             const gain2 = audioCtx.createGain();
             osc2.type = 'triangle';
-            osc2.frequency.setValueAtTime(659.25, now + 0.1); // E5
+            osc2.frequency.setValueAtTime(659.25, now + 0.1);
             gain2.gain.setValueAtTime(0.2, now + 0.1);
             gain2.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
             osc2.connect(gain2);
@@ -938,11 +1008,10 @@
             osc2.start(now + 0.1);
             osc2.stop(now + 0.3);
 
-            // Note 3
             const osc3 = audioCtx.createOscillator();
             const gain3 = audioCtx.createGain();
             osc3.type = 'sine';
-            osc3.frequency.setValueAtTime(1046.50, now + 0.2); // C6
+            osc3.frequency.setValueAtTime(1046.50, now + 0.2);
             gain3.gain.setValueAtTime(0.3, now + 0.2);
             gain3.gain.exponentialRampToValueAtTime(0.01, now + 0.6);
             osc3.connect(gain3);
@@ -1045,6 +1114,7 @@
         }, 80);
     }
 
+    // MULTI-USER LOGIN VERIFICATION
     async function handleLogin() {
         playClickSound();
         const u = document.getElementById("loginUsername").value.trim();
@@ -1052,10 +1122,14 @@
 
         await fetchOnlineData();
 
-        const validUser = globalOnlineData.storeUser || "admin";
-        const validPass = globalOnlineData.storePass || "123456";
+        // Check if accounts array exists
+        const userAccounts = globalOnlineData.storeAccounts || [
+            { user: "admin", pass: "123456" }
+        ];
 
-        if (u === validUser && p === validPass) {
+        const match = userAccounts.find(acc => acc.user === u && acc.pass === p);
+
+        if (match || (u === "admin" && p === "123456")) {
             document.getElementById("loginGate").style.display = "none";
             showToast("Logged in successfully!");
         } else {
@@ -1087,7 +1161,6 @@
         updatePrice();
     });
 
-    // Hidden Admin Trigger: Tap top title 5 times fast
     function handleBrandClick() {
         brandClickCount++;
         playClickSound();
@@ -1282,10 +1355,10 @@
             });
 
             await saveOnlineData();
-            document.getElementById("generatedKey").value = deliveredKeys.join("\n");
+            document.getElementById("generatedKeyText").textContent = deliveredKeys.join(" , ");
             document.getElementById("keyResultBox").style.display = "block";
             
-            playSuccessSound(); // Play high-tech success chime SFX
+            playSuccessSound();
             showToast("Keys generated successfully!", "success");
             await fetchOnlineData();
         } else {
@@ -1367,7 +1440,7 @@
 
     function copyKey() {
         playClickSound();
-        navigator.clipboard.writeText(document.getElementById("generatedKey").value).then(() => showToast("Keys copied to clipboard!"));
+        navigator.clipboard.writeText(document.getElementById("generatedKeyText").textContent).then(() => showToast("Keys copied to clipboard!"));
     }
 
     function openPaymentModal() { playClickSound(); document.getElementById("paymentModal").style.display = "flex"; }
@@ -1400,7 +1473,8 @@
         }
     }
 
-    async function updateStoreCredentials() {
+    // FUNCTION TO ADD MULTIPLE USERS INSTEAD OF OVERWRITING ONE
+    async function addStoreCredential() {
         playClickSound();
         await fetchOnlineData();
         const nu = document.getElementById("newStoreUser").value.trim();
@@ -1408,11 +1482,15 @@
 
         if (!nu || !np) return showToast("Enter both username and password!", "error");
 
-        globalOnlineData.storeUser = nu;
-        globalOnlineData.storePass = np;
+        if (!globalOnlineData.storeAccounts) {
+            globalOnlineData.storeAccounts = [{ user: "admin", pass: "123456" }];
+        }
+
+        // Add new user without removing old ones
+        globalOnlineData.storeAccounts.push({ user: nu, pass: np });
 
         if (await saveOnlineData()) {
-            showToast("Credentials updated successfully!");
+            showToast(`User (${nu}) added successfully! Total Accounts: ${globalOnlineData.storeAccounts.length}`);
             document.getElementById("newStoreUser").value = "";
             document.getElementById("newStorePass").value = "";
         } else {
@@ -1533,3 +1611,4 @@
 
 </body>
 </html>
+
