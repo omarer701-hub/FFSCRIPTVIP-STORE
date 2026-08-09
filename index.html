@@ -264,6 +264,7 @@
             transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
             padding: 20px;
             box-shadow: -15px 0 40px rgba(0,0,0,0.9);
+            overflow-y: auto;
         }
 
         .sidebar.active { right: 0; }
@@ -574,6 +575,27 @@
             background: var(--accent-red);
             color: #fff;
         }
+
+        /* TICKET SYSTEM STYLES */
+        .ticket-item {
+            background: rgba(5, 3, 10, 0.8);
+            border: 1px solid var(--border-purple);
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 10px;
+            text-align: left;
+        }
+        .ticket-status {
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 6px;
+        }
+        .status-open { background: rgba(234, 179, 8, 0.2); color: #eab308; border: 1px solid #eab308; }
+        .status-answered { background: rgba(16, 185, 129, 0.2); color: #10b981; border: 1px solid #10b981; }
+        .status-closed { background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid #ef4444; }
     </style>
 </head>
 <body>
@@ -632,6 +654,9 @@
     <ul class="sidebar-menu">
         <li class="sidebar-item active" onclick="switchTab('tab-generate')">
             <i class="fa-solid fa-key"></i> Key Generator
+        </li>
+        <li class="sidebar-item" onclick="switchTab('tab-tickets')">
+            <i class="fa-solid fa-headset"></i> Support Tickets
         </li>
         <li class="sidebar-item" onclick="switchTab('tab-device')">
             <i class="fa-solid fa-mobile-screen-button"></i> Device Info
@@ -701,8 +726,18 @@
                 </div>
             </div>
 
+            <!-- PROMO CODE SECTION -->
+            <div class="form-group" style="margin-top: 15px;">
+                <label><i class="fa-solid fa-ticket"></i> Promo / Discount Code:</label>
+                <div style="display: flex; gap: 8px;">
+                    <input type="text" id="promoCodeInput" placeholder="Enter promo code (e.g. VIP10)" style="text-transform: uppercase;">
+                    <button onclick="applyPromoCode()" style="width: 100px; background: var(--primary-purple); border: none; border-radius: 10px; color: #fff; font-weight: bold; cursor: pointer;">Apply</button>
+                </div>
+            </div>
+
             <div style="text-align: center; margin: 15px 0; color: var(--text-muted); font-size: 13px;">
                 Total Cost: <b id="displayPrice" style="color: var(--green-glow); font-size: 17px;">$0.00</b>
+                <span id="discountBadge" style="display: none; color: var(--accent-red); font-size: 12px; margin-left: 5px;"></span>
             </div>
 
             <button class="submit-btn" onclick="sendOrder()">
@@ -723,6 +758,42 @@
             <button class="copy-btn-purple" onclick="copyKey()">
                 <i class="fa-solid fa-copy"></i> COPY KEYS
             </button>
+        </div>
+    </div>
+
+    <!-- TAB: SUPPORT TICKETS -->
+    <div id="tab-tickets" class="tab-section">
+        <div class="card">
+            <div class="card-header-title">
+                <i class="fa-solid fa-headset"></i> Support Tickets
+            </div>
+
+            <div class="form-group">
+                <label>Issue Subject:</label>
+                <select id="ticketSubject">
+                    <option value="Key Issue">Key Not Working / Error</option>
+                    <option value="Balance Top-Up">Balance / Payment Query</option>
+                    <option value="General Question">General Inquiry</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Message Details:</label>
+                <textarea id="ticketMessage" rows="3" placeholder="Describe your issue..."></textarea>
+            </div>
+
+            <button class="submit-btn" onclick="createNewTicket()">
+                <i class="fa-solid fa-paper-plane"></i> Submit Ticket
+            </button>
+        </div>
+
+        <div class="card">
+            <div class="card-header-title" style="font-size: 15px;">
+                <i class="fa-solid fa-list"></i> Your Submitted Tickets
+            </div>
+            <div id="userTicketsList">
+                <div style="color: var(--text-muted); text-align: center; font-size: 12px;">No tickets submitted yet.</div>
+            </div>
         </div>
     </div>
 
@@ -830,6 +901,23 @@
     <div id="adminPanel" class="card" style="display: none; border-color: var(--accent-red);">
         <div class="card-header-title" style="color: var(--accent-red);">
             <i class="fa-solid fa-user-shield"></i> Secret Admin Panel
+        </div>
+
+        <!-- PROMO CODE MANAGER ADMIN -->
+        <div class="form-group" style="background: rgba(139,92,246,0.1); padding: 12px; border-radius: 10px; border: 1px dashed var(--border-purple); margin-bottom: 15px;">
+            <label style="color: var(--primary-purple);">🎫 CREATE PROMO CODE:</label>
+            <input type="text" id="adminPromoName" placeholder="Code Name (e.g. VIP20)" style="margin-bottom: 8px; text-transform: uppercase;">
+            <input type="number" id="adminPromoDiscount" placeholder="Discount Percentage % (e.g. 10)" style="margin-bottom: 8px;">
+            <button class="submit-btn" style="background: var(--primary-purple);" onclick="createPromoCodeAdmin()">Save Promo Code</button>
+            <div id="adminPromoList" style="margin-top: 10px; font-size: 11px;"></div>
+        </div>
+
+        <!-- TICKET MANAGER ADMIN -->
+        <div class="form-group" style="background: rgba(16,185,129,0.1); padding: 12px; border-radius: 10px; border: 1px dashed var(--green-glow); margin-bottom: 15px;">
+            <label style="color: var(--green-glow);">🎧 USER TICKETS MANAGER:</label>
+            <div id="adminTicketsContainer" style="margin-top: 10px;">
+                <div style="font-size: 12px; color: var(--text-muted);">Loading tickets...</div>
+            </div>
         </div>
 
         <div class="form-group" style="background: rgba(239,68,68,0.1); padding: 12px; border-radius: 10px; border: 1px dashed var(--border-red);">
@@ -1004,6 +1092,7 @@
     const JSONBIN_API_KEY = "$2a$10$MoDxxOV9R4GgMSmNuVovC.K9uapoJVJlqFE2XrVrq26RVYrNhkWJW";
 
     let audioCtx = null;
+    let currentDiscountPercentage = 0;
 
     function initAudio() {
         if (!audioCtx) {
@@ -1305,11 +1394,16 @@
             const json = await res.json();
             globalOnlineData = json.record || {};
             if (!globalOnlineData.usersDb) globalOnlineData.usersDb = {};
+            if (!globalOnlineData.promos) globalOnlineData.promos = {};
+            if (!globalOnlineData.tickets) globalOnlineData.tickets = [];
 
             if (loggedInUserId) {
                 loadUserData();
             }
             renderUsersLogAdmin();
+            renderAdminPromos();
+            renderAdminTickets();
+            renderUserTickets();
             checkIpBanStatus();
         } catch (err) {
             console.error("Online Error:", err);
@@ -1323,6 +1417,7 @@
         updateUIUsername(userData.username);
         document.getElementById("userBalance").textContent = parseFloat(userData.balance || 0).toFixed(2);
         renderTables(userData);
+        renderUserTickets();
     }
 
     async function syncUserLogs() {
@@ -1394,9 +1489,186 @@
         const durationSelect = document.getElementById("durationSelect");
         if (!durationSelect.options.length || durationSelect.selectedIndex === -1) return;
         const selectedOption = durationSelect.options[durationSelect.selectedIndex];
-        const price = parseFloat(selectedOption.getAttribute("data-price"));
+        const rawPrice = parseFloat(selectedOption.getAttribute("data-price"));
         const qty = parseInt(document.getElementById("keyQuantity").value);
-        document.getElementById("displayPrice").textContent = "$" + (price * qty).toFixed(2);
+        let total = rawPrice * qty;
+
+        if (currentDiscountPercentage > 0) {
+            total = total - (total * (currentDiscountPercentage / 100));
+        }
+
+        document.getElementById("displayPrice").textContent = "$" + total.toFixed(2);
+    }
+
+    /* ---------------- PROMO CODE FUNCTIONS ---------------- */
+    async function applyPromoCode() {
+        playClickSound();
+        await fetchOnlineData();
+        const codeInput = document.getElementById("promoCodeInput").value.trim().toUpperCase();
+        if (!codeInput) return showToast("Enter a promo code first!", "error");
+
+        const promos = globalOnlineData.promos || {};
+        if (promos[codeInput]) {
+            currentDiscountPercentage = parseFloat(promos[codeInput]);
+            document.getElementById("discountBadge").style.display = "inline";
+            document.getElementById("discountBadge").textContent = `(${currentDiscountPercentage}% OFF Applied)`;
+            showToast(`Promo code applied! ${currentDiscountPercentage}% discount.`);
+            calcTotalPrice();
+        } else {
+            showToast("Invalid Promo Code!", "error");
+        }
+    }
+
+    async function createPromoCodeAdmin() {
+        playClickSound();
+        await fetchOnlineData();
+        const code = document.getElementById("adminPromoName").value.trim().toUpperCase();
+        const discount = parseFloat(document.getElementById("adminPromoDiscount").value);
+
+        if (!code || isNaN(discount)) return showToast("Enter code and discount percentage!", "error");
+
+        if (!globalOnlineData.promos) globalOnlineData.promos = {};
+        globalOnlineData.promos[code] = discount;
+
+        if (await saveOnlineData()) {
+            showToast(`Promo Code (${code}) Created!`);
+            document.getElementById("adminPromoName").value = "";
+            document.getElementById("adminPromoDiscount").value = "";
+            renderAdminPromos();
+        }
+    }
+
+    function renderAdminPromos() {
+        const container = document.getElementById("adminPromoList");
+        if (!container) return;
+        const promos = globalOnlineData.promos || {};
+        const keys = Object.keys(promos);
+
+        if (!keys.length) {
+            container.innerHTML = `<span style="color: var(--text-muted);">No promo codes active.</span>`;
+            return;
+        }
+
+        container.innerHTML = keys.map(k => `
+            <div style="display: flex; justify-content: space-between; background: rgba(0,0,0,0.5); padding: 5px 10px; border-radius: 6px; margin-top: 4px;">
+                <span><b>${k}</b>: ${promos[k]}% OFF</span>
+                <button onclick="deletePromoAdmin('${k}')" class="delete-btn-sm">Delete</button>
+            </div>
+        `).join('');
+    }
+
+    async function deletePromoAdmin(code) {
+        playClickSound();
+        await fetchOnlineData();
+        if (globalOnlineData.promos && globalOnlineData.promos[code]) {
+            delete globalOnlineData.promos[code];
+            if (await saveOnlineData()) {
+                showToast("Promo Code deleted!");
+                renderAdminPromos();
+            }
+        }
+    }
+
+    /* ---------------- SUPPORT TICKET FUNCTIONS ---------------- */
+    async function createNewTicket() {
+        playClickSound();
+        await fetchOnlineData();
+        const subject = document.getElementById("ticketSubject").value;
+        const message = document.getElementById("ticketMessage").value.trim();
+
+        if (!message) return showToast("Please describe your issue!", "error");
+
+        const newTicket = {
+            id: "TCK_" + Math.floor(100000 + Math.random() * 900000),
+            userId: loggedInUserId,
+            subject: subject,
+            message: message,
+            status: "Open",
+            reply: "",
+            date: new Date().toLocaleDateString() + " " + new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+        };
+
+        if (!globalOnlineData.tickets) globalOnlineData.tickets = [];
+        globalOnlineData.tickets.unshift(newTicket);
+
+        if (await saveOnlineData()) {
+            showToast("Ticket submitted successfully!");
+            document.getElementById("ticketMessage").value = "";
+            renderUserTickets();
+        } else {
+            showToast("Error submitting ticket", "error");
+        }
+    }
+
+    function renderUserTickets() {
+        const container = document.getElementById("userTicketsList");
+        if (!container) return;
+        const tickets = (globalOnlineData.tickets || []).filter(t => t.userId === loggedInUserId);
+
+        if (!tickets.length) {
+            container.innerHTML = `<div style="color: var(--text-muted); text-align: center; font-size: 12px;">No tickets submitted yet.</div>`;
+            return;
+        }
+
+        container.innerHTML = tickets.map(t => {
+            let statusClass = t.status === "Open" ? "status-open" : t.status === "Answered" ? "status-answered" : "status-closed";
+            return `
+                <div class="ticket-item">
+                    <span class="ticket-status ${statusClass}">${t.status}</span>
+                    <span style="float: right; font-size: 10px; color: var(--text-muted);">${t.date}</span>
+                    <div style="font-weight: bold; color: #fff; font-size: 13px; margin-bottom: 4px;">${t.subject} (${t.id})</div>
+                    <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;">${t.message}</div>
+                    ${t.reply ? `<div style="background: rgba(139,92,246,0.15); border-left: 2px solid var(--primary-purple); padding: 8px; border-radius: 6px; font-size: 11px; color: #d8b4fe;"><b>Admin Reply:</b> ${t.reply}</div>` : ''}
+                </div>
+            `;
+        }).join('');
+    }
+
+    function renderAdminTickets() {
+        const container = document.getElementById("adminTicketsContainer");
+        if (!container) return;
+        const tickets = globalOnlineData.tickets || [];
+
+        if (!tickets.length) {
+            container.innerHTML = `<div style="color: var(--text-muted); font-size: 12px;">No support tickets found.</div>`;
+            return;
+        }
+
+        container.innerHTML = tickets.map((t, idx) => `
+            <div class="ticket-item" style="border-color: rgba(255,255,255,0.1);">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <b style="color: var(--primary-purple); font-size: 12px;">ID: ${t.userId} (${t.id})</b>
+                    <span style="font-size: 10px; color: var(--text-muted);">${t.date}</span>
+                </div>
+                <div style="font-size: 12px; font-weight: bold; color: #fff; margin: 4px 0;">${t.subject}</div>
+                <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px;">${t.message}</div>
+                
+                <input type="text" id="adminReplyInput_${t.id}" placeholder="Type reply here..." value="${t.reply || ''}" style="padding: 6px; font-size: 11px; margin-bottom: 6px;">
+                <div style="display: flex; gap: 6px;">
+                    <button onclick="replyTicketAdmin('${t.id}', 'Answered')" style="flex:1; background: var(--green-glow); border:none; color:#000; font-weight:bold; padding: 5px; border-radius: 6px; cursor:pointer; font-size: 11px;">Reply & Mark Answered</button>
+                    <button onclick="replyTicketAdmin('${t.id}', 'Closed')" style="background: var(--accent-red); border:none; color:#fff; font-weight:bold; padding: 5px 10px; border-radius: 6px; cursor:pointer; font-size: 11px;">Close</button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    async function replyTicketAdmin(ticketId, status) {
+        playClickSound();
+        await fetchOnlineData();
+        const replyText = document.getElementById(`adminReplyInput_${ticketId}`).value.trim();
+
+        const tickets = globalOnlineData.tickets || [];
+        const ticket = tickets.find(t => t.id === ticketId);
+
+        if (ticket) {
+            ticket.reply = replyText;
+            ticket.status = status;
+
+            if (await saveOnlineData()) {
+                showToast(`Ticket ${ticketId} updated!`);
+                renderAdminTickets();
+            }
+        }
     }
 
     async function sendOrder() {
@@ -1414,7 +1686,11 @@
         const duration = durationSelect.value;
         const singlePrice = parseFloat(durationSelect.options[durationSelect.selectedIndex].getAttribute("data-price"));
         const qty = parseInt(document.getElementById("keyQuantity").value);
-        const totalPrice = singlePrice * qty;
+        let totalPrice = singlePrice * qty;
+
+        if (currentDiscountPercentage > 0) {
+            totalPrice = totalPrice - (totalPrice * (currentDiscountPercentage / 100));
+        }
 
         let userBalance = parseFloat(userData.balance || 0);
 
@@ -1440,7 +1716,7 @@
 
             if (!userData.history) userData.history = [];
             deliveredKeys.forEach(k => {
-                userData.history.unshift({ key: k, price: singlePrice, date: new Date().toLocaleDateString() });
+                userData.history.unshift({ key: k, price: totalPrice / qty, date: new Date().toLocaleDateString() });
             });
 
             await saveOnlineData();
@@ -1561,6 +1837,8 @@
             document.getElementById("bannedScreen").style.display = "none";
             document.getElementById("adminPanel").style.display = "block";
             renderVaultInventory();
+            renderAdminPromos();
+            renderAdminTickets();
             showToast("Admin Panel Unlocked!");
             window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
         } else {
