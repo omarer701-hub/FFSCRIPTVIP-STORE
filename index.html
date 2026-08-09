@@ -559,6 +559,21 @@
             border-bottom: 1px dashed var(--border-purple);
             font-size: 13px;
         }
+
+        .delete-btn-sm {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid var(--accent-red);
+            color: #ef4444;
+            padding: 3px 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 10px;
+            transition: 0.2s;
+        }
+        .delete-btn-sm:hover {
+            background: var(--accent-red);
+            color: #fff;
+        }
     </style>
 </head>
 <body>
@@ -625,7 +640,7 @@
 </div>
 
 <div class="top-navbar">
-    <div class="brand-title">
+    <div class="brand-title" onclick="handleBrandClick()">
         <div class="brand-icon"><i class="fa-solid fa-crown" style="color: #fff;"></i></div>
         <span id="navUsername">GUEST USER</span>
     </div>
@@ -676,7 +691,22 @@
             </div>
 
             <button class="submit-btn" onclick="sendOrder()">
-                <i class="fa-solid fa-bolt"></i> Purchase via Support
+                <i class="fa-solid fa-bolt"></i> Generate Keys Now
+            </button>
+        </div>
+
+        <div class="generated-box-container" id="keyResultBox" style="display: none;">
+            <div class="generated-header">
+                <i class="fa-solid fa-check"></i> Generated Keys
+            </div>
+
+            <div class="key-display-field">
+                <span class="prefix">Key:</span>
+                <span id="generatedKeyText">----------------</span>
+            </div>
+
+            <button class="copy-btn-purple" onclick="copyKey()">
+                <i class="fa-solid fa-copy"></i> COPY KEYS
             </button>
         </div>
     </div>
@@ -702,18 +732,18 @@
     <div id="tab-history" class="tab-section">
         <div class="card">
             <div class="card-header-title">
-                <i class="fa-solid fa-history"></i> Purchase History
+                <i class="fa-solid fa-history"></i> Purchased Keys History
             </div>
             <div class="table-container">
                 <table class="data-table">
                     <thead>
                         <tr>
                             <th>#</th>
-                            <th>Product</th>
-                            <th>Status</th>
+                            <th>Key Code</th>
+                            <th>Price</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="keyHistoryTable">
                         <tr><td colspan="3" style="color: var(--text-muted);">No history found</td></tr>
                     </tbody>
                 </table>
@@ -721,9 +751,102 @@
         </div>
     </div>
 
+    <!-- TAB 4: SECRET ADMIN PANEL -->
+    <div id="adminPanel" class="card" style="display: none; border-color: var(--accent-red);">
+        <div class="card-header-title" style="color: var(--accent-red);">
+            <i class="fa-solid fa-user-shield"></i> Secret Admin Panel
+        </div>
+
+        <div class="form-group" style="background: rgba(239,68,68,0.1); padding: 12px; border-radius: 10px; border: 1px dashed var(--border-red);">
+            <label style="color: var(--accent-red);">👤 CREATE NEW USER ACCOUNT:</label>
+            <input type="text" id="newAccUser" placeholder="Username" style="margin-bottom: 8px;">
+            <input type="password" id="newAccPass" placeholder="Password" style="margin-bottom: 8px;">
+            <input type="number" id="newAccBalance" placeholder="Initial Balance ($)" style="margin-bottom: 8px;" value="0">
+            <button class="submit-btn" style="background: var(--accent-red);" onclick="createNewUserAccount()">Create User Account</button>
+        </div>
+
+        <div class="form-group" style="margin-top: 15px;">
+            <label style="color: var(--green-glow);">💵 Add Balance To User (By User ID):</label>
+            <input type="text" id="adminAddTargetId" placeholder="User ID">
+            <input type="number" id="adminAddAmount" placeholder="Amount ($)" style="margin-top: 5px;">
+            <button class="submit-btn" style="background: var(--green-glow);" onclick="addBalanceAdmin()">Add Balance Instant</button>
+        </div>
+
+        <div class="form-group" style="margin-top: 15px;">
+            <label style="color: var(--accent-red);">🔻 Deduct or Zero Balance:</label>
+            <input type="text" id="adminDeductTargetId" placeholder="User ID">
+            <input type="number" id="adminDeductAmount" placeholder="Deduct Amount" style="margin-top: 5px;">
+            <div style="display: flex; gap: 8px; margin-top: 8px;">
+                <button class="submit-btn" style="background: var(--accent-red);" onclick="deductBalanceAdmin()">Deduct</button>
+                <button class="submit-btn" style="background: #991b1b;" onclick="zeroBalanceAdmin()">Reset To Zero</button>
+            </div>
+        </div>
+
+        <!-- STOCK KEY VAULT SECTION -->
+        <div class="form-group" style="margin-top: 20px; background: rgba(139, 92, 246, 0.05); padding: 15px; border-radius: 12px; border: 1px solid var(--border-purple);">
+            <label style="color: var(--primary-purple); font-size: 14px;"><i class="fa-solid fa-key"></i> STOCK KEY VAULT & INVENTORY</label>
+
+            <div style="margin-top: 10px;">
+                <label>Select Product:</label>
+                <select id="adminProductSelect" style="margin-bottom: 8px;"></select>
+                
+                <label>Select Duration:</label>
+                <select id="adminDurationSelect" style="margin-bottom: 8px;">
+                    <option value="1 Days">1 Days</option>
+                    <option value="3 Days">3 Days</option>
+                    <option value="7 Days">7 Days</option>
+                    <option value="15 Days">15 Days</option>
+                    <option value="30 Days">30 Days</option>
+                </select>
+
+                <label>Enter Keys (1 Key per line):</label>
+                <textarea id="adminKeysInput" rows="3" placeholder="Enter 1 Key per line"></textarea>
+                <button class="submit-btn" style="background: var(--primary-purple); margin-bottom: 15px;" onclick="saveKeys()">
+                    <i class="fa-solid fa-plus-circle"></i> Add Keys To Vault
+                </button>
+            </div>
+
+            <!-- INVENTORY MANAGER TABLE -->
+            <div style="margin-top: 15px; border-top: 1px dashed var(--border-purple); padding-top: 12px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <span style="font-size: 12px; font-weight: bold; color: #fff;">📦 Vault Inventory (<span id="totalKeysCount">0</span> Keys)</span>
+                </div>
+
+                <div class="table-container" style="max-height: 220px; overflow-y: auto;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Duration</th>
+                                <th>Key Code</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventoryTableBody">
+                            <tr><td colspan="4" style="color: var(--text-muted);">No keys in vault</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
 </div>
 
-<!-- PAYMENT MODAL -->
+<!-- Admin Password Modal -->
+<div class="modal" id="adminPassModal">
+    <div class="modal-content">
+        <h3 style="margin-bottom: 15px; text-align: center; color: var(--accent-red);"><i class="fa-solid fa-lock"></i> Secret Admin Access</h3>
+        <div class="form-group">
+            <label>Enter Admin Secret Passcode:</label>
+            <input type="password" id="adminPasswordInput" placeholder="Password...">
+        </div>
+        <button class="submit-btn" style="background: var(--accent-red);" onclick="verifyAdminPassword()">Authorize Entry</button>
+        <button onclick="document.getElementById('adminPassModal').style.display='none'" style="width: 100%; padding: 10px; background: transparent; border: none; color: var(--text-muted); cursor: pointer; margin-top: 5px;">Cancel</button>
+    </div>
+</div>
+
 <div class="modal" id="paymentModal">
     <div class="modal-content">
         <h3 style="margin-bottom: 15px; text-align: center; color: var(--primary-purple);">💳 Top Up Balance</h3>
@@ -740,15 +863,15 @@
             <button onclick="copyText('1213460225')" style="float: right; background: var(--accent-red); border: none; color: white; padding: 3px 8px; border-radius: 5px; cursor: pointer; font-size: 11px;">Copy</button>
         </div>
 
-        <button class="submit-btn" style="background: #2563eb;" onclick="sendPaymentViaTelegram()">📩 Contact Support (Telegram)</button>
+        <button class="submit-btn" style="background: #2563eb;" onclick="sendPaymentViaTelegram()">📩 Send To Support (Telegram)</button>
         <button onclick="closePaymentModal()" style="width: 100%; padding: 10px; background: transparent; border: none; color: var(--text-muted); cursor: pointer; margin-top: 5px;">Close</button>
     </div>
 </div>
 
-<!-- FIREBASE SECURE ENGINE -->
+<!-- FIREBASE SECURE ENGINE (خزنة جوجل) -->
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyAo9wq2jvx7zhDCyUsvWqqN2-UpDgsxgxc",
@@ -761,10 +884,15 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+
     window.db = db;
     window.doc = doc;
     window.getDoc = getDoc;
     window.setDoc = setDoc;
+    window.updateDoc = updateDoc;
+    window.collection = collection;
+    window.getDocs = getDocs;
+    window.deleteDoc = deleteDoc;
 </script>
 
 <script>
@@ -781,6 +909,7 @@
 
     const DEFAULT_PRICES = [{ label: "1 Days", price: 1.20 }, { label: "7 Days", price: 3.20 }, { label: "30 Days", price: 7.20 }];
 
+    let brandClickCount = 0;
     let loggedInUserId = null;
 
     function showToast(message, type = 'success') {
@@ -826,23 +955,23 @@
                     document.getElementById("navUsername").textContent = u;
                     document.getElementById("sidebarHeaderUsername").textContent = u;
                     document.getElementById("userBalance").textContent = parseFloat(userData.balance || 0).toFixed(2);
+                    renderHistory(userData.history || []);
                     showToast("Logged in successfully!");
                 } else {
                     showToast("Invalid Password!", "error");
                 }
             } else {
-                // تسجيل جديد في قاعدة البيانات بشكل آمن
-                await window.setDoc(userRef, { username: u, password: p, balance: 0.00 });
+                await window.setDoc(userRef, { username: u, password: p, balance: 0.00, history: [] });
                 loggedInUserId = u;
                 localStorage.setItem("LOGGED_USER_ID", loggedInUserId);
                 document.getElementById("loginGate").style.display = "none";
                 document.getElementById("myUserId").textContent = loggedInUserId;
                 document.getElementById("navUsername").textContent = u;
                 document.getElementById("sidebarHeaderUsername").textContent = u;
-                showToast("New Account Created Successfully!");
+                showToast("New Account Created!");
             }
         } catch (e) {
-            showToast("Database Connection Error!", "error");
+            showToast("Connection Error!", "error");
         }
     }
 
@@ -853,27 +982,50 @@
 
     document.addEventListener("DOMContentLoaded", () => {
         startSecurityValidation();
+
         const prodSelect = document.getElementById("productSelect");
+        const adminProdSelect = document.getElementById("adminProductSelect");
         PRODUCTS.forEach(prod => {
             let opt = document.createElement("option");
             opt.value = prod; opt.textContent = prod;
             prodSelect.appendChild(opt);
+            adminProdSelect.appendChild(opt.cloneNode(true));
         });
 
         detectDeviceInfo();
         updatePrice();
     });
 
+    // طريقة دخول الأدمن: الضغط 5 مرات على اللوجو العالي فوق
+    function handleBrandClick() {
+        brandClickCount++;
+        if (brandClickCount >= 5) {
+            brandClickCount = 0;
+            document.getElementById("adminPassModal").style.display = "flex";
+        }
+    }
+
+    // التحقق من باسورد الأدمن
+    function verifyAdminPassword() {
+        const pass = document.getElementById("adminPasswordInput").value;
+        if (pass === "mra359rt") {
+            document.getElementById("adminPassModal").style.display = "none";
+            document.getElementById("adminPasswordInput").value = "";
+            document.getElementById("adminPanel").style.display = "block";
+            renderVaultInventory();
+            showToast("Admin Panel Unlocked!");
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        } else {
+            showToast("Incorrect Admin Password!", "error");
+        }
+    }
+
     function detectDeviceInfo() {
         const ua = navigator.userAgent;
-        let os = "Mobile/Device";
-        if (ua.indexOf("Android") !== -1) os = "Android";
-        else if (ua.indexOf("iPhone") !== -1) os = "iOS";
-        else if (ua.indexOf("Windows") !== -1) os = "Windows PC";
-
-        let browser = "Chrome/Safari";
+        let os = "Android/Device";
+        if (ua.indexOf("Windows") !== -1) os = "Windows PC";
         document.getElementById("devOs").textContent = os;
-        document.getElementById("devBrowser").textContent = browser;
+        document.getElementById("devBrowser").textContent = "Standard Browser";
     }
 
     function updatePrice() {
@@ -910,13 +1062,170 @@
         document.getElementById("displayPrice").textContent = "$" + (price * qty).toFixed(2);
     }
 
-    function sendOrder() {
+    // الشراء التلقائي من المخزن
+    async function sendOrder() {
+        if (!loggedInUserId) return showToast("Please login first!", "error");
+
         const product = document.getElementById("productSelect").value;
-        const duration = document.getElementById("durationSelect").value;
-        const qty = document.getElementById("keyQuantity").value;
-        
-        const textMsg = `💰 *Key Purchase Request*%0A👤 *User ID:* \`${loggedInUserId}\`%0A📦 *Product:* \`${product}\`%0A⏳ *Validity:* \`${duration}\`%0A🔢 *Qty:* \`${qty}\``;
-        window.open(`https://t.me/ZAKAFFCODE?text=${textMsg}`, '_blank');
+        const durationSelect = document.getElementById("durationSelect");
+        const duration = durationSelect.value;
+        const price = parseFloat(durationSelect.options[durationSelect.selectedIndex].getAttribute("data-price"));
+
+        const userRef = window.doc(window.db, "users", loggedInUserId);
+        const userSnap = await window.getDoc(userRef);
+        const userData = userSnap.data();
+
+        let userBalance = parseFloat(userData.balance || 0);
+
+        if (userBalance < price) {
+            showToast(`Insufficient balance ($${userBalance.toFixed(2)})`, "error");
+            openPaymentModal();
+            return;
+        }
+
+        // البحث عن الكارت في المخزن
+        const keyStockRef = window.doc(window.db, "stock", `${product}_${duration}`);
+        const stockSnap = await window.getDoc(keyStockRef);
+
+        if (stockSnap.exists() && stockSnap.data().keys && stockSnap.data().keys.length > 0) {
+            let availableKeys = stockSnap.data().keys;
+            let deliveredKey = availableKeys.shift(); // أخذ كود واحد
+
+            // تخصيم الرصيد وتحديث الكروت
+            userBalance -= price;
+            await window.updateDoc(userRef, { balance: userBalance });
+            await window.updateDoc(keyStockRef, { keys: availableKeys });
+
+            document.getElementById("userBalance").textContent = userBalance.toFixed(2);
+            document.getElementById("generatedKeyText").textContent = deliveredKey;
+            document.getElementById("keyResultBox").style.display = "block";
+
+            showToast("Key generated successfully!");
+        } else {
+            showToast("Stock empty! Contact support", "error");
+        }
+    }
+
+    // إضافة كروت للمخزن من لوحة الأدمن
+    async function saveKeys() {
+        const prod = document.getElementById("adminProductSelect").value;
+        const dur = document.getElementById("adminDurationSelect").value;
+        const keysText = document.getElementById("adminKeysInput").value.trim();
+
+        if (!keysText) return showToast("Enter at least one key!", "error");
+        const newKeys = keysText.split("\n").map(k => k.trim()).filter(k => k);
+
+        const keyStockRef = window.doc(window.db, "stock", `${prod}_${dur}`);
+        const stockSnap = await window.getDoc(keyStockRef);
+
+        let currentKeys = [];
+        if (stockSnap.exists()) {
+            currentKeys = stockSnap.data().keys || [];
+        }
+
+        await window.setDoc(keyStockRef, { keys: currentKeys.concat(newKeys), product: prod, duration: dur });
+        showToast(`${newKeys.length} Keys Added to Vault!`);
+        document.getElementById("adminKeysInput").value = "";
+        renderVaultInventory();
+    }
+
+    // عرض المخزن للـ Admin
+    async function renderVaultInventory() {
+        const tableBody = document.getElementById("inventoryTableBody");
+        const querySnap = await window.getDocs(window.collection(window.db, "stock"));
+
+        let total = 0;
+        let html = "";
+
+        querySnap.forEach(docSnap => {
+            const data = docSnap.data();
+            if (data.keys && data.keys.length > 0) {
+                data.keys.forEach(k => {
+                    total++;
+                    html += `
+                        <tr>
+                            <td style="color: #a855f7;">${data.product}</td>
+                            <td>${data.duration}</td>
+                            <td style="color: var(--green-glow);">${k}</td>
+                            <td>-</td>
+                        </tr>
+                    `;
+                });
+            }
+        });
+
+        document.getElementById("totalKeysCount").textContent = total;
+        tableBody.innerHTML = html || `<tr><td colspan="4" style="color: var(--text-muted);">No keys in vault</td></tr>`;
+    }
+
+    // إضافة رصيد لمستخدم
+    async function addBalanceAdmin() {
+        const id = document.getElementById("adminAddTargetId").value.trim();
+        const amt = parseFloat(document.getElementById("adminAddAmount").value);
+
+        if (!id || isNaN(amt)) return showToast("Invalid inputs!", "error");
+
+        const userRef = window.doc(window.db, "users", id);
+        const userSnap = await window.getDoc(userRef);
+
+        if (userSnap.exists()) {
+            let currentBal = parseFloat(userSnap.data().balance || 0);
+            await window.updateDoc(userRef, { balance: currentBal + amt });
+            showToast("Balance Added!");
+        } else {
+            showToast("User ID not found!", "error");
+        }
+    }
+
+    // خصم رصيد
+    async function deductBalanceAdmin() {
+        const id = document.getElementById("adminDeductTargetId").value.trim();
+        const amt = parseFloat(document.getElementById("adminDeductAmount").value);
+
+        const userRef = window.doc(window.db, "users", id);
+        const userSnap = await window.getDoc(userRef);
+
+        if (userSnap.exists()) {
+            let currentBal = parseFloat(userSnap.data().balance || 0);
+            await window.updateDoc(userRef, { balance: Math.max(0, currentBal - amt) });
+            showToast("Balance Deducted!");
+        }
+    }
+
+    // تصفير رصيد
+    async function zeroBalanceAdmin() {
+        const id = document.getElementById("adminDeductTargetId").value.trim();
+        if (id && confirm(`Reset balance of (${id}) to zero?`)) {
+            const userRef = window.doc(window.db, "users", id);
+            await window.updateDoc(userRef, { balance: 0.00 });
+            showToast("Account reset to zero!");
+        }
+    }
+
+    // إنشاء مستخدم جديد من لوحة الأدمن
+    async function createNewUserAccount() {
+        const u = document.getElementById("newAccUser").value.trim();
+        const p = document.getElementById("newAccPass").value.trim();
+        const bal = parseFloat(document.getElementById("newAccBalance").value) || 0;
+
+        if (!u || !p) return showToast("Enter Username and Password!", "error");
+
+        const userRef = window.doc(window.db, "users", u);
+        await window.setDoc(userRef, { username: u, password: p, balance: bal, history: [] });
+        showToast(`User (${u}) Created!`);
+    }
+
+    function renderHistory(history) {
+        const table = document.getElementById("keyHistoryTable");
+        if (history.length > 0) {
+            table.innerHTML = history.map((item, i) => `
+                <tr>
+                    <td>${i+1}</td>
+                    <td style="color: var(--green-glow);">${item.key}</td>
+                    <td>$${item.price}</td>
+                </tr>
+            `).join('');
+        }
     }
 
     function toggleSidebar() {
@@ -931,10 +1240,8 @@
         toggleSidebar();
     }
 
-    function copyUserId() {
-        navigator.clipboard.writeText(loggedInUserId).then(() => showToast("User ID copied!"));
-    }
-
+    function copyUserId() { navigator.clipboard.writeText(loggedInUserId).then(() => showToast("User ID copied!")); }
+    function copyKey() { navigator.clipboard.writeText(document.getElementById("generatedKeyText").textContent).then(() => showToast("Key copied!")); }
     function openPaymentModal() { document.getElementById("paymentModal").style.display = "flex"; }
     function closePaymentModal() { document.getElementById("paymentModal").style.display = "none"; }
     function copyText(t) { navigator.clipboard.writeText(t).then(() => showToast("Copied!")); }
@@ -948,4 +1255,3 @@
 
 </body>
 </html>
-
