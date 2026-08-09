@@ -667,15 +667,25 @@
             <label style="color: var(--primary-purple);">🔑 شحن الأكواد للخزنة:</label>
             <select id="adminProductSelect" style="margin-bottom: 5px;"></select>
             <select id="adminDurationSelect" style="margin-bottom: 5px;">
+                <option value="1 Hour">1 Hour</option>
+                <option value="6 Hours">6 Hours</option>
+                <option value="24 Hours (1 Day)">24 Hours (1 Day)</option>
+                <option value="48 Hours (2 Days)">48 Hours (2 Days)</option>
                 <option value="1 Days">1 Days</option>
                 <option value="3 Days">3 Days</option>
+                <option value="5 Days">5 Days</option>
                 <option value="7 Days">7 Days</option>
                 <option value="10 Days">10 Days</option>
+                <option value="14 Days">14 Days</option>
                 <option value="15 Days">15 Days</option>
+                <option value="20 Days">20 Days</option>
+                <option value="28 Days">28 Days</option>
                 <option value="30 Days">30 Days</option>
+                <option value="31 Days">31 Days</option>
                 <option value="60 Days">60 Days</option>
                 <option value="90 Days">90 Days</option>
-                <option value="31 Days">31 Days</option>
+                <option value="168 Hours (7 Days)">168 Hours (7 Days)</option>
+                <option value="720 Hours (30 Days)">720 Hours (30 Days)</option>
             </select>
             <textarea id="adminKeysInput" rows="3" placeholder="كود واحد في كل سطر"></textarea>
             <button class="submit-btn" style="background: var(--button-purple);" onclick="saveKeys()">حفظ الأكواد في السيرفر</button>
@@ -744,8 +754,136 @@
         "Rapid Core Root", "SPOTIFY FF ROOT", "STRICKS BR ROOT", "Bala Mod"
     ];
 
-    // تم تحديث الأسعار بدقة وفقاً للصور المرفقة
+    // جدول الأسعار المحدث والشامل لكل المنتجات
     const PRODUCT_PRICES = {
+        "iOSSTAR 8bp": [
+            { label: "1 Days", price: 4.00 },
+            { label: "7 Days", price: 12.00 },
+            { label: "30 Days", price: 22.00 }
+        ],
+        "Rapid Core Root": [
+            { label: "1 Days", price: 1.00 },
+            { label: "7 Days", price: 2.00 },
+            { label: "14 Days", price: 4.00 },
+            { label: "30 Days", price: 6.00 }
+        ],
+        "SPOTIFY FF ROOT": [
+            { label: "15 Days", price: 5.00 },
+            { label: "60 Days", price: 12.00 }
+        ],
+        "Bala Mod": [
+            { label: "1 Hour", price: 0.60 },
+            { label: "6 Hours", price: 2.00 },
+            { label: "24 Hours (1 Day)", price: 7.00 },
+            { label: "48 Hours (2 Days)", price: 13.00 },
+            { label: "168 Hours (7 Days)", price: 45.00 },
+            { label: "720 Hours (30 Days)", price: 90.00 }
+        ],
+        "STRICKS BR ROOT": [
+            { label: "1 Days", price: 0.50 },
+            { label: "5 Days", price: 1.00 },
+            { label: "7 Days", price: 2.00 },
+            { label: "15 Days", price: 4.00 },
+            { label: "30 Days", price: 6.00 }
+        ],
+        "SILENT CHEATS MODMENU": [
+            { label: "1 Days", price: 0.70 },
+            { label: "3 Days", price: 1.50 },
+            { label: "7 Days", price: 2.50 },
+            { label: "14 Days", price: 4.50 },
+            { label: "28 Days", price: 7.00 }
+        ],
+        "MIGUL - MONITE IOS [VN-PRO]": [
+            { label: "1 Days", price: 2.00 },
+            { label: "7 Days", price: 6.00 },
+            { label: "30 Days", price: 10.00 }
+        ],
+        "SILENT CHEATS SAFE": [
+            { label: "1 Days", price: 1.00 },
+            { label: "3 Days", price: 1.50 },
+            { label: "7 Days", price: 2.50 },
+            { label: "14 Days", price: 4.50 },
+            { label: "28 Days", price: 7.00 }
+        ],
+        "SILENT CHEATS BRUTAL": [
+            { label: "1 Days", price: 1.00 },
+            { label: "3 Days", price: 1.50 },
+            { label: "7 Days", price: 2.50 },
+            { label: "14 Days", price: 5.00 },
+            { label: "30 Days", price: 7.00 }
+        ],
+        "Lk team Root+Pc": [
+            { label: "1 Days", price: 0.80 },
+            { label: "5 Days", price: 1.25 },
+            { label: "10 Days", price: 2.00 },
+            { label: "30 Days", price: 6.00 }
+        ],
+        "Alien MLBB (Android)": [
+            { label: "1 Days", price: 1.20 },
+            { label: "7 Days", price: 3.00 }
+        ],
+        "King iOS": [
+            { label: "1 Days", price: 3.00 },
+            { label: "7 Days", price: 12.00 },
+            { label: "31 Days", price: 32.00 }
+        ],
+        "Wingmod Root": [
+            { label: "7 Days", price: 16.00 },
+            { label: "30 Days", price: 32.00 }
+        ],
+        "WizardiOS 8bp": [
+            { label: "1 Days", price: 6.00 },
+            { label: "7 Days", price: 17.00 },
+            { label: "30 Days", price: 32.00 }
+        ],
+        "VOLUME STEAMER PRO": [
+            { label: "10 Days", price: 2.00 },
+            { label: "20 Days", price: 3.50 },
+            { label: "30 Days", price: 6.00 }
+        ],
+        "Haxxcker Pro Root": [
+            { label: "10 Days", price: 9.00 }
+        ],
+        "Terminal x PC Aimkill": [
+            { label: "10 Days", price: 18.00 }
+        ],
+        "Terminal x PC Aimkill cover": [
+            { label: "10 Days", price: 18.00 }
+        ],
+        "Prime Mods Apkmod": [
+            { label: "1 Days", price: 0.50 },
+            { label: "3 Days", price: 1.50 },
+            { label: "7 Days", price: 3.00 }
+        ],
+        "Cloud CODM IOS": [
+            { label: "7 Days", price: 8.00 },
+            { label: "30 Days", price: 16.00 }
+        ],
+        "8ball IOS GBD": [
+            { label: "1 Days", price: 2.00 },
+            { label: "7 Days", price: 7.00 },
+            { label: "30 Days", price: 10.00 }
+        ],
+        "EzTeam 8boll pool Apk": [
+            { label: "1 Days", price: 1.00 },
+            { label: "7 Days", price: 2.00 },
+            { label: "30 Days", price: 5.00 }
+        ],
+        "Pubg Zolo Android": [
+            { label: "1 Days", price: 0.80 },
+            { label: "7 Days", price: 2.50 },
+            { label: "30 Days", price: 6.00 }
+        ],
+        "MIGUL - MONITE IOS [PRO]": [
+            { label: "1 Days", price: 2.00 },
+            { label: "7 Days", price: 6.00 },
+            { label: "31 Days", price: 10.00 }
+        ],
+        "MIGUL - MONITE IOS [BASIC]": [
+            { label: "1 Days", price: 1.50 },
+            { label: "7 Days", price: 5.00 },
+            { label: "31 Days", price: 9.00 }
+        ],
         "Fluorite MLBB IOS": [
             { label: "1 Days", price: 4.00 },
             { label: "7 Days", price: 12.00 },
@@ -1313,4 +1451,3 @@
 
 </body>
 </html>
-
