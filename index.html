@@ -31,7 +31,8 @@
             border: 5px solid #222;
             border-radius: 50%;
             box-shadow: 0 0 20px rgba(255, 204, 0, 0.3);
-            transition: transform 4s cubic-bezier(0.15, 0.7, 0.1, 1);
+            width: 100%;
+            height: 100%;
         }
         .pointer {
             position: absolute;
@@ -42,7 +43,7 @@
             height: 0;
             border-left: 12px solid transparent;
             border-right: 12px solid transparent;
-            border-top: 24px solid #ff3333; /* عدلنا اتجاه السهم وبقي مظبوط وعدل 100% */
+            border-top: 24px solid #ff3333;
             z-index: 10;
         }
         button {
@@ -56,7 +57,13 @@
             cursor: pointer;
             box-shadow: 0 4px 15px rgba(255, 204, 0, 0.4);
         }
-        button:active {
+        button:disabled {
+            background: #555;
+            color: #888;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        button:active:not(:disabled) {
             transform: scale(0.95);
         }
         #result {
@@ -67,6 +74,12 @@
             border-radius: 10px;
             display: inline-block;
             min-width: 280px;
+        }
+        #timer {
+            color: #ff3333;
+            font-size: 16px;
+            margin-top: 10px;
+            font-weight: bold;
         }
     </style>
 </head>
@@ -82,97 +95,169 @@
 
     <button id="spinBtn" onclick="spinWheel()">اضغط لتدوير العجلة</button>
     <div id="result"></div>
+    <div id="timer"></div>
 
     <script>
         const canvas = document.getElementById("wheel");
         const ctx = canvas.getContext("2d");
 
-        // تقسيم العجلة لـ 10 أجزاء لتوزيع النسبة بدقة (10% و 20%)
         const prizes = [
-            { text: "KEY 1 HOUR HACK", color: "#ffcc00", type: "grand" },     // 10% (شريحة واحدة)
-            { text: "خصم شهر بـ 350ج", color: "#225588", type: "discount" },   // 20% (شريحتين)
+            { text: "KEY 1 HOUR HACK", color: "#ffcc00", type: "grand" },     // 10%
+            { text: "خصم شهر بـ 350ج", color: "#225588", type: "discount" },   // 20%
             { text: "خصم شهر بـ 350ج", color: "#225588", type: "discount" },
-            { text: "حاول بعد 4 ساعات", color: "#333333", type: "try_again" }, // 70% الباقية مقسمة على محاولات
-            { text: "حاول بعد 5 ساعات", color: "#444444", type: "try_again" },
-            { text: "حاول بعد 4 ساعات", color: "#333333", type: "try_again" },
-            { text: "حاول بعد 5 ساعات", color: "#444444", type: "try_again" },
-            { text: "حاول بعد 4 ساعات", color: "#333333", type: "try_again" },
-            { text: "حاول بعد 5 ساعات", color: "#444444", type: "try_again" },
-            { text: "حاول بعد 4 ساعات", color: "#333333", type: "try_again" }
+            { text: "حاول بعد 4 ساعات", color: "#333333", type: "try_4" },     // محاولات
+            { text: "حاول بعد 5 ساعات", color: "#444444", type: "try_5" },
+            { text: "حاول بعد 4 ساعات", color: "#333333", type: "try_4" },
+            { text: "حاول بعد 5 ساعات", color: "#444444", type: "try_5" },
+            { text: "حاول بعد 4 ساعات", color: "#333333", type: "try_4" },
+            { text: "حاول بعد 5 ساعات", color: "#444444", type: "try_5" },
+            { text: "حاول بعد 4 ساعات", color: "#333333", type: "try_4" }
         ];
 
         const arcs = prizes.length;
         const anglePerSegment = (2 * Math.PI) / arcs;
         let currentAngle = 0;
 
-        function drawWheel() {
+        function drawWheel(angle = 0) {
             ctx.clearRect(0, 0, 300, 300);
+            ctx.save();
+            ctx.translate(150, 150);
+            ctx.rotate(angle);
+            ctx.translate(-150, -150);
+
             for (let i = 0; i < arcs; i++) {
-                const angle = i * anglePerSegment;
+                const segAngle = i * anglePerSegment;
                 ctx.beginPath();
                 ctx.fillStyle = prizes[i].color;
                 ctx.moveTo(150, 150);
-                ctx.arc(150, 150, 150, angle, angle + anglePerSegment);
+                ctx.arc(150, 150, 150, segAngle, segAngle + anglePerSegment);
                 ctx.lineTo(150, 150);
                 ctx.fill();
                 ctx.save();
 
-                // كتابة النص داخل الأجزاء بشكل منظم
                 ctx.translate(150, 150);
-                ctx.rotate(angle + anglePerSegment / 2);
+                ctx.rotate(segAngle + anglePerSegment / 2);
                 ctx.textAlign = "right";
                 ctx.fillStyle = "#fff";
                 ctx.font = "bold 10px Tahoma";
                 ctx.fillText(prizes[i].text, 130, 4);
                 ctx.restore();
             }
+            ctx.restore();
         }
 
         drawWheel();
+
+        // فحص وقت الحظر أو الانتظار بناءً على ذاكرة الجهاز (تعتبر بمثابة بصمة الجهاز/IP محلياً)
+        function checkCooldown() {
+            const nextSpinTime = localStorage.getItem("nextSpinTime");
+            if (nextSpinTime) {
+                const now = new Date().getTime();
+                const distance = nextSpinTime - now;
+
+                if (distance > 0) {
+                    document.getElementById("spinBtn").disabled = true;
+                    startTimer(distance);
+                } else {
+                    localStorage.removeItem("nextSpinTime");
+                }
+            }
+        }
+
+        function startTimer(duration) {
+            const timerInterval = setInterval(() => {
+                const now = new Date().getTime();
+                const nextSpinTime = localStorage.getItem("nextSpinTime");
+                const distance = nextSpinTime - now;
+
+                if (distance < 0) {
+                    clearInterval(timerInterval);
+                    document.getElementById("spinBtn").disabled = false;
+                    document.getElementById("timer").innerText = "";
+                    localStorage.removeItem("nextSpinTime");
+                } else {
+                    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                    document.getElementById("timer").innerText = `متبقي على المحاولة القادمة: ${hours}س ${minutes}د ${seconds}ث`;
+                }
+            }, 1000);
+        }
+
+        checkCooldown();
 
         let isSpinning = false;
 
         function spinWheel() {
             if (isSpinning) return;
             isSpinning = true;
-            document.getElementById("result.innerText") = "";
+            document.getElementById("spinBtn").disabled = true;
+            
             let resultDiv = document.getElementById("result");
             resultDiv.innerText = "جاري تدوير العجلة...";
             resultDiv.style.backgroundColor = "transparent";
 
-            // تحديد فائز عشوائي مسبقاً بناءً على نسب الحظ المطلوبة
             const winningIndex = getRandomIndexBasedOnProbability();
-            
-            // حساب الزوايا عشان السهم يوقف في منتصف الشريحة تماماً
             const degreesPerSegment = 360 / arcs;
-            // السهم فوق (عند زاوية 270 درجة أو 0)، نظبط الحسابات بدقة
-            const targetAngleFromTop = 360 - (winningIndex * degreesPerSegment + degreesPerSegment / 2);
             
-            const extraSpins = 360 * 5; // 5 لفات كاملة للتشويق
-            currentAngle = extraSpins + targetAngleFromTop;
+            // حساب زاوية الوقوف بدقة تامة تحت السهم تماماً
+            const targetAngle = 360 - (winningIndex * degreesPerSegment + degreesPerSegment / 2);
+            const extraSpins = 360 * 6; // 6 لفات كاملة للتشويق
+            const totalRotation = currentAngle + extraSpins + (targetAngle - (currentAngle % 360));
+            
+            let startTime = null;
+            const duration = 4000; // 4 ثواني مدة اللف
 
-            canvas.style.transform = `rotate(${currentAngle}deg)`;
-
-            setTimeout(() => {
-                isSpinning = false;
-                const wonPrize = prizes[winningIndex].text;
-
-                resultDiv.innerText = "مبروك! لقد ربحت:\n" + wonPrize;
+            function animateSpin(currentTime) {
+                if (!startTime) startTime = currentTime;
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
                 
-                if(prizes[winningIndex].type === "grand") {
-                    resultDiv.style.backgroundColor = "#554400";
-                    resultDiv.style.color = "#ffcc00";
-                } else if(prizes[winningIndex].type === "discount") {
-                    resultDiv.style.backgroundColor = "#113355";
-                    resultDiv.style.color = "#66ccff";
+                // دالة تسارع وتباطؤ سلسة (Ease Out)
+                const easeOut = 1 - Math.pow(1 - progress, 3);
+                const currentDeg = currentAngle + (totalRotation - currentAngle) * easeOut;
+                
+                drawWheel(currentDeg * (Math.PI / 180));
+
+                if (progress < 1) {
+                    requestAnimationFrame(animateSpin);
                 } else {
-                    resultDiv.style.backgroundColor = "#222222";
-                    resultDiv.style.color = "#aaaaaa";
+                    currentAngle = totalRotation % 360;
+                    isSpinning = false;
+                    const wonPrize = prizes[winningIndex].text;
+                    const prizeType = prizes[winningIndex].type;
+
+                    resultDiv.innerText = "مبروك! لقد ربحت:\n" + wonPrize;
+
+                    let cooldownHours = 0;
+                    if (prizeType === "try_4") cooldownHours = 4;
+                    else if (prizeType === "try_5") cooldownHours = 5;
+
+                    if (cooldownHours > 0) {
+                        const nextTime = new Date().getTime() + (cooldownHours * 60 * 60 * 1000);
+                        localStorage.setItem("nextSpinTime", nextTime);
+                        startTimer(cooldownHours * 60 * 60 * 1000);
+                    } else {
+                        // لو ربح الجائزة الكبرى أو الخصم، نخليه يقدر يلف تاني بعد دقيقة للتجربة أو نقفلها براحتك
+                        document.getElementById("spinBtn").disabled = false;
+                    }
+
+                    if(prizeType === "grand") {
+                        resultDiv.style.backgroundColor = "#554400";
+                        resultDiv.style.color = "#ffcc00";
+                    } else if(prizeType === "discount") {
+                        resultDiv.style.backgroundColor = "#113355";
+                        resultDiv.style.color = "#66ccff";
+                    } else {
+                        resultDiv.style.backgroundColor = "#222222";
+                        resultDiv.style.color = "#aaaaaa";
+                    }
                 }
-            }, 4000);
+            }
+
+            requestAnimationFrame(animateSpin);
         }
 
-        // دالة توزيع نسب الحظ (10% للأولى، 20% للتانية، والباقي للمحاولات)
         function getRandomIndexBasedOnProbability() {
             const rand = Math.random() * 100;
             if (rand < 10) {
@@ -180,7 +265,7 @@
             } else if (rand < 30) {
                 return Math.random() < 0.5 ? 1 : 2; // الجائزة الثانية (20%)
             } else {
-                return Math.floor(Math.random() * 7) + 3; // باقي المقاعد للمحاولات الأخرى (70%)
+                return Math.floor(Math.random() * 7) + 3; // باقي المحاولات (70%)
             }
         }
     </script>
