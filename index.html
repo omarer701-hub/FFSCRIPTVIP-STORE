@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>عجلة حظ مسابقات AIM HACK</title>
+    <title>عجلة حظ - FF SCRIPT VIP</title>
     <style>
         body {
             background-color: #0f1016;
@@ -13,13 +13,22 @@
             margin: 0;
             padding: 20px;
         }
-        h1 {
+        .brand-title {
             color: #ffcc00;
+            font-size: 24px;
+            font-weight: bold;
             margin-bottom: 5px;
+            text-shadow: 0 0 10px rgba(255, 204, 0, 0.5);
+        }
+        h1 {
+            color: #ffffff;
+            font-size: 20px;
+            margin: 5px 0;
         }
         .subtitle {
             color: #888;
             margin-bottom: 20px;
+            font-size: 14px;
         }
         .wheel-container {
             position: relative;
@@ -86,10 +95,16 @@
             margin-top: 10px;
             font-weight: bold;
         }
+        .footer {
+            margin-top: 40px;
+            color: #555;
+            font-size: 12px;
+        }
     </style>
 </head>
 <body>
 
+    <div class="brand-title">⚡ FF SCRIPT VIP ⚡</div>
     <h1>عجلة الحظ الكبرى</h1>
     <div class="subtitle">جرب حظك الآن واحصل على أقوى جوائز AIM HACK!</div>
 
@@ -105,18 +120,19 @@
     <div id="result"></div>
     <div id="timer"></div>
 
+    <div class="footer">FF SCRIPT VIP Store © 2026</div>
+
     <script>
         const canvas = document.getElementById("wheel");
         const ctx = canvas.getContext("2d");
 
-        // حط هنا يوزر بوتك بتاع تليجرام من غير الـ @ (مثال: my_store_bot)
         const TELEGRAM_BOT_USERNAME = "FFSCRIPTVIP_distinct"; 
 
-                const prizes = [
-            { text: "KEY 1 HOUR", color: "#ffcc00", type: "grand" },     // الجائزة الكبرى
-            { text: "خصم 350ج", color: "#225588", type: "discount" },  // خصم 1
-            { text: "خصم 350ج", color: "#225588", type: "discount" },  // خصم 2
-            { text: "حاول بعد 1س", color: "#222222", type: "try_1" },
+        const prizes = [
+            { text: "KEY 1 HOUR", color: "#ffcc00", type: "grand" },     // 10%
+            { text: "خصم 350ج", color: "#225588", type: "discount" },  // 20%
+            { text: "خصم 350ج", color: "#225588", type: "discount" },
+            { text: "حاول بعد 1س", color: "#222222", type: "try_1" },     // منوعة من 1 لـ 5 ساعات
             { text: "حاول بعد 2س", color: "#333333", type: "try_2" },
             { text: "حاول بعد 3س", color: "#444444", type: "try_3" },
             { text: "حاول بعد 4س", color: "#555555", type: "try_4" },
@@ -124,8 +140,6 @@
             { text: "حاول بعد 2س", color: "#333333", type: "try_2" },
             { text: "حاول بعد 3س", color: "#444444", type: "try_3" }
         ];
-
-    
 
         const arcs = prizes.length;
         const anglePerSegment = (2 * Math.PI) / arcs;
@@ -236,52 +250,5 @@
                     currentAngle = totalRotation % 360;
                     isSpinning = false;
                     const wonPrize = prizes[winningIndex].text;
-                    const prizeType = prizes[winningIndex].type;
+                    const prizeType = prizes
 
-                    resultDiv.innerText = "مبروك! لقد ربحت:\n" + wonPrize;
-
-                    let cooldownHours = 0;
-                    if (prizeType === "try_4") cooldownHours = 4;
-                    else if (prizeType === "try_5") cooldownHours = 5;
-
-                    if (cooldownHours > 0) {
-                        const nextTime = new Date().getTime() + (cooldownHours * 60 * 60 * 1000);
-                        localStorage.setItem("nextSpinTime", nextTime);
-                        startTimer(cooldownHours * 60 * 60 * 1000);
-                    } else {
-                        document.getElementById("spinBtn").disabled = false;
-                    }
-
-                    if(prizeType === "grand") {
-                        resultDiv.style.backgroundColor = "#554400";
-                        resultDiv.style.color = "#ffcc00";
-                        // إظهار زر التليجرام الخاص بالجائزة الكبرى مع رسالة جاهزة للإرسال للبوت
-                        const messageText = encodeURIComponent("🎉 لقد ربحت الجائزة الكبرى KEY 1 HOUR من عجلة الحظ، هذا هو طلبي لاستلام الكود!");
-                        document.getElementById("telegramBtn").href = `https://t.me/${TELEGRAM_BOT_USERNAME}?start=${messageText}`;
-                        document.getElementById("telegramBtn").style.display = "inline-block";
-                    } else if(prizeType === "discount") {
-                        resultDiv.style.backgroundColor = "#113355";
-                        resultDiv.style.color = "#66ccff";
-                    } else {
-                        resultDiv.style.backgroundColor = "#222222";
-                        resultDiv.style.color = "#aaaaaa";
-                    }
-                }
-            }
-
-            requestAnimationFrame(animateSpin);
-        }
-
-        function getRandomIndexBasedOnProbability() {
-            const rand = Math.random() * 100;
-            if (rand < 10) {
-                return 0; // الكبرى 10%
-            } else if (rand < 30) {
-                return Math.random() < 0.5 ? 1 : 2; // التانية 20%
-            } else {
-                return Math.floor(Math.random() * 7) + 3; // الباقي محاولات
-            }
-        }
-    </script>
-</body>
-</html>
