@@ -19,7 +19,7 @@
         }
         .subtitle {
             color: #888;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
         .wheel-container {
             position: relative;
@@ -67,7 +67,7 @@
             transform: scale(0.95);
         }
         #result {
-            margin-top: 25px;
+            margin-top: 20px;
             font-size: 18px;
             font-weight: bold;
             padding: 15px;
@@ -77,7 +77,7 @@
         }
         #timer {
             color: #ff3333;
-            font-size: 16px;
+            font-size: 15px;
             margin-top: 10px;
             font-weight: bold;
         }
@@ -102,16 +102,16 @@
         const ctx = canvas.getContext("2d");
 
         const prizes = [
-            { text: "KEY 1 HOUR HACK", color: "#ffcc00", type: "grand" },     // 10%
-            { text: "خصم شهر بـ 350ج", color: "#225588", type: "discount" },   // 20%
-            { text: "خصم شهر بـ 350ج", color: "#225588", type: "discount" },
-            { text: "حاول بعد 4 ساعات", color: "#333333", type: "try_4" },     // محاولات
-            { text: "حاول بعد 5 ساعات", color: "#444444", type: "try_5" },
-            { text: "حاول بعد 4 ساعات", color: "#333333", type: "try_4" },
-            { text: "حاول بعد 5 ساعات", color: "#444444", type: "try_5" },
-            { text: "حاول بعد 4 ساعات", color: "#333333", type: "try_4" },
-            { text: "حاول بعد 5 ساعات", color: "#444444", type: "try_5" },
-            { text: "حاول بعد 4 ساعات", color: "#333333", type: "try_4" }
+            { text: "KEY 1 HOUR", color: "#ffcc00", type: "grand" },
+            { text: "خصم 350ج", color: "#225588", type: "discount" },
+            { text: "خصم 350ج", color: "#225588", type: "discount" },
+            { text: "حاول بعد 4س", color: "#333333", type: "try_4" },
+            { text: "حاول بعد 5س", color: "#444444", type: "try_5" },
+            { text: "حاول بعد 4س", color: "#333333", type: "try_4" },
+            { text: "حاول بعد 5س", color: "#444444", type: "try_5" },
+            { text: "حاول بعد 4س", color: "#333333", type: "try_4" },
+            { text: "حاول بعد 5س", color: "#444444", type: "try_5" },
+            { text: "حاول بعد 4س", color: "#333333", type: "try_4" }
         ];
 
         const arcs = prizes.length;
@@ -135,12 +135,13 @@
                 ctx.fill();
                 ctx.save();
 
+                // ضبط اتجاه النص ليظل مقروءاً بوضوح ودون انقلاب
                 ctx.translate(150, 150);
                 ctx.rotate(segAngle + anglePerSegment / 2);
-                ctx.textAlign = "right";
+                ctx.textAlign = "left";
                 ctx.fillStyle = "#fff";
-                ctx.font = "bold 10px Tahoma";
-                ctx.fillText(prizes[i].text, 130, 4);
+                ctx.font = "bold 11px Tahoma";
+                ctx.fillText(prizes[i].text, 40, 4);
                 ctx.restore();
             }
             ctx.restore();
@@ -148,7 +149,6 @@
 
         drawWheel();
 
-        // فحص وقت الحظر أو الانتظار بناءً على ذاكرة الجهاز (تعتبر بمثابة بصمة الجهاز/IP محلياً)
         function checkCooldown() {
             const nextSpinTime = localStorage.getItem("nextSpinTime");
             if (nextSpinTime) {
@@ -179,7 +179,7 @@
                     const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
                     const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
                     const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-                    document.getElementById("timer").innerText = `متبقي على المحاولة القادمة: ${hours}س ${minutes}د ${seconds}ث`;
+                    document.getElementById("timer").innerText = `متبقي للمحاولة القادمة: ${hours}س ${minutes}د ${seconds}ث`;
                 }
             }, 1000);
         }
@@ -200,20 +200,18 @@
             const winningIndex = getRandomIndexBasedOnProbability();
             const degreesPerSegment = 360 / arcs;
             
-            // حساب زاوية الوقوف بدقة تامة تحت السهم تماماً
             const targetAngle = 360 - (winningIndex * degreesPerSegment + degreesPerSegment / 2);
-            const extraSpins = 360 * 6; // 6 لفات كاملة للتشويق
+            const extraSpins = 360 * 6;
             const totalRotation = currentAngle + extraSpins + (targetAngle - (currentAngle % 360));
             
             let startTime = null;
-            const duration = 4000; // 4 ثواني مدة اللف
+            const duration = 4000;
 
             function animateSpin(currentTime) {
                 if (!startTime) startTime = currentTime;
                 const elapsed = currentTime - startTime;
                 const progress = Math.min(elapsed / duration, 1);
                 
-                // دالة تسارع وتباطؤ سلسة (Ease Out)
                 const easeOut = 1 - Math.pow(1 - progress, 3);
                 const currentDeg = currentAngle + (totalRotation - currentAngle) * easeOut;
                 
@@ -238,7 +236,6 @@
                         localStorage.setItem("nextSpinTime", nextTime);
                         startTimer(cooldownHours * 60 * 60 * 1000);
                     } else {
-                        // لو ربح الجائزة الكبرى أو الخصم، نخليه يقدر يلف تاني بعد دقيقة للتجربة أو نقفلها براحتك
                         document.getElementById("spinBtn").disabled = false;
                     }
 
@@ -261,13 +258,14 @@
         function getRandomIndexBasedOnProbability() {
             const rand = Math.random() * 100;
             if (rand < 10) {
-                return 0; // الجائزة الكبرى (10%)
+                return 0; // الكبرى 10%
             } else if (rand < 30) {
-                return Math.random() < 0.5 ? 1 : 2; // الجائزة الثانية (20%)
+                return Math.random() < 0.5 ? 1 : 2; // التانية 20%
             } else {
-                return Math.floor(Math.random() * 7) + 3; // باقي المحاولات (70%)
+                return Math.floor(Math.random() * 7) + 3; // الباقي محاولات
             }
         }
     </script>
 </body>
 </html>
+
