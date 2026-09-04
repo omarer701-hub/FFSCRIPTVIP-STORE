@@ -46,7 +46,7 @@
             border-top: 24px solid #ff3333;
             z-index: 10;
         }
-        button {
+        button, .tg-btn {
             background: linear-gradient(45deg, #ffcc00, #ff9900);
             color: #000;
             font-size: 18px;
@@ -56,6 +56,9 @@
             border-radius: 25px;
             cursor: pointer;
             box-shadow: 0 4px 15px rgba(255, 204, 0, 0.4);
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 15px;
         }
         button:disabled {
             background: #555;
@@ -63,8 +66,10 @@
             cursor: not-allowed;
             box-shadow: none;
         }
-        button:active:not(:disabled) {
-            transform: scale(0.95);
+        .tg-btn {
+            background: linear-gradient(45deg, #0088cc, #0055aa);
+            color: #fff;
+            display: none;
         }
         #result {
             margin-top: 20px;
@@ -94,12 +99,18 @@
     </div>
 
     <button id="spinBtn" onclick="spinWheel()">اضغط لتدوير العجلة</button>
+    <br>
+    <a id="telegramBtn" class="tg-btn" href="#" target="_blank">📩 استلام الجائزة الكبرى عبر تليجرام</a>
+    
     <div id="result"></div>
     <div id="timer"></div>
 
     <script>
         const canvas = document.getElementById("wheel");
         const ctx = canvas.getContext("2d");
+
+        // حط هنا يوزر بوتك بتاع تليجرام من غير الـ @ (مثال: my_store_bot)
+        const TELEGRAM_BOT_USERNAME = "FFSCRIPTVIP_distinct"; 
 
         const prizes = [
             { text: "KEY 1 HOUR", color: "#ffcc00", type: "grand" },
@@ -135,7 +146,6 @@
                 ctx.fill();
                 ctx.save();
 
-                // ضبط اتجاه النص ليظل مقروءاً بوضوح ودون انقلاب
                 ctx.translate(150, 150);
                 ctx.rotate(segAngle + anglePerSegment / 2);
                 ctx.textAlign = "left";
@@ -192,6 +202,7 @@
             if (isSpinning) return;
             isSpinning = true;
             document.getElementById("spinBtn").disabled = true;
+            document.getElementById("telegramBtn").style.display = "none";
             
             let resultDiv = document.getElementById("result");
             resultDiv.innerText = "جاري تدوير العجلة...";
@@ -242,6 +253,10 @@
                     if(prizeType === "grand") {
                         resultDiv.style.backgroundColor = "#554400";
                         resultDiv.style.color = "#ffcc00";
+                        // إظهار زر التليجرام الخاص بالجائزة الكبرى مع رسالة جاهزة للإرسال للبوت
+                        const messageText = encodeURIComponent("🎉 لقد ربحت الجائزة الكبرى KEY 1 HOUR من عجلة الحظ، هذا هو طلبي لاستلام الكود!");
+                        document.getElementById("telegramBtn").href = `https://t.me/${TELEGRAM_BOT_USERNAME}?start=${messageText}`;
+                        document.getElementById("telegramBtn").style.display = "inline-block";
                     } else if(prizeType === "discount") {
                         resultDiv.style.backgroundColor = "#113355";
                         resultDiv.style.color = "#66ccff";
@@ -268,4 +283,3 @@
     </script>
 </body>
 </html>
-
