@@ -112,18 +112,20 @@
         // حط هنا يوزر بوتك بتاع تليجرام من غير الـ @ (مثال: my_store_bot)
         const TELEGRAM_BOT_USERNAME = "FFSCRIPTVIP_distinct"; 
 
-        const prizes = [
-            { text: "KEY 1 HOUR", color: "#ffcc00", type: "grand" },
-            { text: "خصم 350ج", color: "#225588", type: "discount" },
-            { text: "خصم 350ج", color: "#225588", type: "discount" },
-            { text: "حاول بعد 4س", color: "#333333", type: "try_4" },
-            { text: "حاول بعد 5س", color: "#444444", type: "try_5" },
-            { text: "حاول بعد 4س", color: "#333333", type: "try_4" },
-            { text: "حاول بعد 5س", color: "#444444", type: "try_5" },
-            { text: "حاول بعد 4س", color: "#333333", type: "try_4" },
-            { text: "حاول بعد 5س", color: "#444444", type: "try_5" },
-            { text: "حاول بعد 4س", color: "#333333", type: "try_4" }
+                const prizes = [
+            { text: "KEY 1 HOUR", color: "#ffcc00", type: "grand" },     // الجائزة الكبرى
+            { text: "خصم 350ج", color: "#225588", type: "discount" },  // خصم 1
+            { text: "خصم 350ج", color: "#225588", type: "discount" },  // خصم 2
+            { text: "حاول بعد 1س", color: "#222222", type: "try_1" },
+            { text: "حاول بعد 2س", color: "#333333", type: "try_2" },
+            { text: "حاول بعد 3س", color: "#444444", type: "try_3" },
+            { text: "حاول بعد 4س", color: "#555555", type: "try_4" },
+            { text: "حاول بعد 5س", color: "#666666", type: "try_5" },
+            { text: "حاول بعد 2س", color: "#333333", type: "try_2" },
+            { text: "حاول بعد 3س", color: "#444444", type: "try_3" }
         ];
+
+    
 
         const arcs = prizes.length;
         const anglePerSegment = (2 * Math.PI) / arcs;
