@@ -31,18 +31,18 @@
             border: 5px solid #222;
             border-radius: 50%;
             box-shadow: 0 0 20px rgba(255, 204, 0, 0.3);
-            transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99);
+            transition: transform 4s cubic-bezier(0.15, 0.7, 0.1, 1);
         }
         .pointer {
             position: absolute;
-            top: -15px;
+            top: -12px;
             left: 50%;
             transform: translateX(-50%);
             width: 0;
             height: 0;
-            border-left: 15px solid transparent;
-            border-right: 15px solid transparent;
-            border-bottom: 25px solid #ff3333;
+            border-left: 12px solid transparent;
+            border-right: 12px solid transparent;
+            border-top: 24px solid #ff3333; /* عدلنا اتجاه السهم وبقي مظبوط وعدل 100% */
             z-index: 10;
         }
         button {
@@ -61,7 +61,7 @@
         }
         #result {
             margin-top: 25px;
-            font-size: 20px;
+            font-size: 18px;
             font-weight: bold;
             padding: 15px;
             border-radius: 10px;
@@ -87,13 +87,18 @@
         const canvas = document.getElementById("wheel");
         const ctx = canvas.getContext("2d");
 
+        // تقسيم العجلة لـ 10 أجزاء لتوزيع النسبة بدقة (10% و 20%)
         const prizes = [
-            { text: "KEY 1 HOUR AIM HACK", color: "#ffcc00" }, // الجائزة الكبرى
-            { text: "خصم شهر بـ 450ج (بدل 1200ج)", color: "#336699" }, // الجائزة التانية بلون مميز هادئ
-            { text: "حاول مرة أخرى بعد 4 ساعات", color: "#444444" },
-            { text: "محاولة جديدة بعد 5 ساعات", color: "#555555" },
-            { text: "KEY 1 HOUR AIM HACK", color: "#ffaa00" },
-            { text: "خصم شهر بـ 450ج (بدل 1200ج)", color: "#225588" }
+            { text: "KEY 1 HOUR HACK", color: "#ffcc00", type: "grand" },     // 10% (شريحة واحدة)
+            { text: "خصم شهر بـ 350ج", color: "#225588", type: "discount" },   // 20% (شريحتين)
+            { text: "خصم شهر بـ 350ج", color: "#225588", type: "discount" },
+            { text: "حاول بعد 4 ساعات", color: "#333333", type: "try_again" }, // 70% الباقية مقسمة على محاولات
+            { text: "حاول بعد 5 ساعات", color: "#444444", type: "try_again" },
+            { text: "حاول بعد 4 ساعات", color: "#333333", type: "try_again" },
+            { text: "حاول بعد 5 ساعات", color: "#444444", type: "try_again" },
+            { text: "حاول بعد 4 ساعات", color: "#333333", type: "try_again" },
+            { text: "حاول بعد 5 ساعات", color: "#444444", type: "try_again" },
+            { text: "حاول بعد 4 ساعات", color: "#333333", type: "try_again" }
         ];
 
         const arcs = prizes.length;
@@ -101,6 +106,7 @@
         let currentAngle = 0;
 
         function drawWheel() {
+            ctx.clearRect(0, 0, 300, 300);
             for (let i = 0; i < arcs; i++) {
                 const angle = i * anglePerSegment;
                 ctx.beginPath();
@@ -111,13 +117,13 @@
                 ctx.fill();
                 ctx.save();
 
-                // كتابة النص جوه العجلة
+                // كتابة النص داخل الأجزاء بشكل منظم
                 ctx.translate(150, 150);
                 ctx.rotate(angle + anglePerSegment / 2);
                 ctx.textAlign = "right";
                 ctx.fillStyle = "#fff";
-                ctx.font = "bold 11px Tahoma";
-                ctx.fillText(prizes[i].text.substring(0, 16), 130, 5);
+                ctx.font = "bold 10px Tahoma";
+                ctx.fillText(prizes[i].text, 130, 4);
                 ctx.restore();
             }
         }
@@ -129,38 +135,54 @@
         function spinWheel() {
             if (isSpinning) return;
             isSpinning = true;
-            document.getElementById("result").innerText = "جاري تدوير العجلة...";
-            document.getElementById("result").style.backgroundColor = "transparent";
+            document.getElementById("result.innerText") = "";
+            let resultDiv = document.getElementById("result");
+            resultDiv.innerText = "جاري تدوير العجلة...";
+            resultDiv.style.backgroundColor = "transparent";
 
-            // تحديد زاوية عشوائية لللف
-            const randomSpin = Math.floor(Math.random() * 3600) + 1800;
-            currentAngle += randomSpin;
+            // تحديد فائز عشوائي مسبقاً بناءً على نسب الحظ المطلوبة
+            const winningIndex = getRandomIndexBasedOnProbability();
+            
+            // حساب الزوايا عشان السهم يوقف في منتصف الشريحة تماماً
+            const degreesPerSegment = 360 / arcs;
+            // السهم فوق (عند زاوية 270 درجة أو 0)، نظبط الحسابات بدقة
+            const targetAngleFromTop = 360 - (winningIndex * degreesPerSegment + degreesPerSegment / 2);
+            
+            const extraSpins = 360 * 5; // 5 لفات كاملة للتشويق
+            currentAngle = extraSpins + targetAngleFromTop;
 
             canvas.style.transform = `rotate(${currentAngle}deg)`;
 
             setTimeout(() => {
                 isSpinning = false;
-                // حساب الجائزة اللي وقع عليها السهم
-                const normalizedAngle = (360 - (currentAngle % 360)) % 360;
-                const winningIndex = Math.floor(normalizedAngle / (360 / arcs));
                 const wonPrize = prizes[winningIndex].text;
 
-                const resultDiv = document.getElementById("result");
-                resultDiv.innerText = "مبروك! لقد ربحت: \n" + wonPrize;
+                resultDiv.innerText = "مبروك! لقد ربحت:\n" + wonPrize;
                 
-                if(wonPrize.includes("KEY")) {
+                if(prizes[winningIndex].type === "grand") {
                     resultDiv.style.backgroundColor = "#554400";
                     resultDiv.style.color = "#ffcc00";
-                } else if(wonPrize.includes("خصم")) {
+                } else if(prizes[winningIndex].type === "discount") {
                     resultDiv.style.backgroundColor = "#113355";
                     resultDiv.style.color = "#66ccff";
                 } else {
-                    resultDiv.style.backgroundColor = "#333333";
+                    resultDiv.style.backgroundColor = "#222222";
                     resultDiv.style.color = "#aaaaaa";
                 }
             }, 4000);
         }
+
+        // دالة توزيع نسب الحظ (10% للأولى، 20% للتانية، والباقي للمحاولات)
+        function getRandomIndexBasedOnProbability() {
+            const rand = Math.random() * 100;
+            if (rand < 10) {
+                return 0; // الجائزة الكبرى (10%)
+            } else if (rand < 30) {
+                return Math.random() < 0.5 ? 1 : 2; // الجائزة الثانية (20%)
+            } else {
+                return Math.floor(Math.random() * 7) + 3; // باقي المقاعد للمحاولات الأخرى (70%)
+            }
+        }
     </script>
 </body>
 </html>
-
